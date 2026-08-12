@@ -45,7 +45,7 @@ type OptionsConfig struct {
 }
 
 type Config struct {
-	Schema         string        `json:"$schema"`
+	Schema         string        `json:"$schema,omitempty"`
 	Version        string        `json:"version"`
 	UpdatedAt      string        `json:"updatedAt"`
 	InstallMode    string        `json:"installMode"`
@@ -68,11 +68,7 @@ func LoadConfig() *Config {
 	}
 	return &cfg
 }
-
 func SaveConfig(cfg *Config) error {
-	if cfg.Schema == "" || cfg.Schema == "https://json.schemastore.org/engineered-config.json" {
-		cfg.Schema = "./schemas/engineered-config.json"
-	}
 	dir := filepath.Dir(ConfigPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err

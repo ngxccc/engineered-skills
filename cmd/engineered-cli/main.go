@@ -15,7 +15,7 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-var version = "2.4.2"
+var version = "1.0.0"
 
 func main() {
 	showVersion := flag.Bool("version", false, "Show CLI version")
@@ -257,8 +257,7 @@ func main() {
 	}
 
 	finalCfg := config.Config{
-		Schema:         "./schemas/engineered-config.json",
-		Version:        "2.4.2",
+		Version:        "1.0.0",
 		UpdatedAt:      time.Now().Format(time.RFC3339),
 		InstallMode:    installMode,
 		SymlinkScope:   *symlinkScopeOpt,
