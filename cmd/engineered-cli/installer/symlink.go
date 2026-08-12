@@ -16,8 +16,21 @@ func formatSkillList(skills []string) string {
 	return strings.Join(skills, ", ")
 }
 
+func isTargetSelected(cfg *config.Config, name string) bool {
+	for _, t := range cfg.Targets {
+		if t == name {
+			return true
+		}
+	}
+	for _, t := range cfg.SymlinkTargets {
+		if t == name {
+			return true
+		}
+	}
+	return false
+}
+
 func ApplySymlinkMode(cfg *config.Config) {
-	fmt.Println(tui.CyanStyle.Render("\nApplying Dev Symlink Mode..."))
 	for _, target := range cfg.Targets {
 		srcPath := filepath.Join(cfg.KitRepoPath, target)
 		destPath, _ := filepath.Abs(target)
@@ -100,16 +113,17 @@ func ApplySymlinkMode(cfg *config.Config) {
 			}
 		}
 
-		// Symlink .agents/skills -> .claude/skills for cross-agent compatibility
-		claudeSkillsPath, _ := filepath.Abs(filepath.Join(".claude", "skills"))
-		agentsSkillsPath, _ := filepath.Abs(filepath.Join(".agents", "skills"))
-		if _, err := os.Stat(claudeSkillsPath); err == nil {
-			os.MkdirAll(filepath.Dir(agentsSkillsPath), 0755)
-			os.RemoveAll(agentsSkillsPath)
-			_ = os.Symlink(claudeSkillsPath, agentsSkillsPath)
-			fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Symlinked .agents/skills -> .claude/skills", tui.IconCheck)))
+		// Symlink .agents/skills -> .claude/skills ONLY if .agents target was selected by user
+		if isTargetSelected(cfg, ".agents") {
+			claudeSkillsPath, _ := filepath.Abs(filepath.Join(".claude", "skills"))
+			agentsSkillsPath, _ := filepath.Abs(filepath.Join(".agents", "skills"))
+			if _, err := os.Stat(claudeSkillsPath); err == nil {
+				os.MkdirAll(filepath.Dir(agentsSkillsPath), 0755)
+				os.RemoveAll(agentsSkillsPath)
+				_ = os.Symlink(claudeSkillsPath, agentsSkillsPath)
+				fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Symlinked .agents/skills -> .claude/skills", tui.IconCheck)))
+			}
 		}
-
 		if len(newSkills) > 0 {
 			fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Linked %d new skill(s): %s", tui.IconCheck, len(newSkills), formatSkillList(newSkills))))
 		}
