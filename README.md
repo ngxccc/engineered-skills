@@ -4,6 +4,66 @@ A modular, composable, and customizable collection of agent skills designed for 
 
 ---
 
+## Why These Skills Exist
+
+Developing real applications is hard. Frameworks and agent harnesses often attempt to own the entire development process autonomously, taking away developer control and making bugs difficult to resolve.
+
+These skills are designed to be small, easy to adapt, composable, and model-agnostic. They condense software engineering fundamentals into repeatable practices to fix common failure modes seen in AI-assisted development.
+
+### 1. The Agent Didn't Do What I Want (Misalignment)
+
+> "No one knows exactly what they want."  
+> — David Thomas & Andrew Hunt, *The Pragmatic Programmer*
+
+**The Problem:** The most common failure mode in software development is misalignment. There is a communication gap between the developer and the agent.
+
+**The Fix:** A structured **grilling session** — getting the agent to interview you relentlessly with detailed questions about requirements, UI constraints, edge cases, and architectural boundaries before writing code.
+
+- [`/grill-me`](./skills/productivity/grill-me/SKILL.md) — For general planning and non-code ideas.
+- [`/grill-with-docs`](./skills/engineering/grill-with-docs/SKILL.md) — Grilling session that also builds project domain terms (`CONTEXT.md`) and Architectural Decision Records (ADRs).
+
+### 2. The Agent Is Way Too Verbose (Jargon & Context Gap)
+
+> "With a ubiquitous language, conversations among developers and expressions of the code are all derived from the same domain model."  
+> — Eric Evans, *Domain-Driven Design*
+
+**The Problem:** Agents dropped into a project without domain context waste token budget guessing jargon, using 20 words where one will do.
+
+**The Fix:** A shared ubiquitous language defined in `CONTEXT.md`. It decodes project jargon for agents, sharpens variable/file naming, and reduces token consumption during thinking phases.
+
+- [`/domain-modeling`](./skills/engineering/domain-modeling/SKILL.md) — Sharpen terms and update `CONTEXT.md` and ADRs.
+- [`/wait-what`](./skills/productivity/wait-what/SKILL.md) — Force the agent to re-pitch a verbose message using `CONTEXT.md` terms.
+
+### 3. The Code Doesn't Work (Feedback Loop Failures)
+
+> "Always take small, deliberate steps. The rate of feedback is your speed limit. Never take on a task that's too big."  
+> — David Thomas & Andrew Hunt, *The Pragmatic Programmer*
+
+**The Problem:** Without continuous runtime feedback, an agent produces non-working code.
+
+**The Fix:** Fast, structured feedback loops using static typing, automated testing, and disciplined bug diagnosis.
+
+- [`/tdd`](./skills/engineering/tdd/SKILL.md) — Enforce a Red-Green-Refactor loop, writing failing tests first at pre-agreed seams.
+- [`/diagnosing-bugs`](./skills/engineering/diagnosing-bugs/SKILL.md) — A 5-phase gated diagnosis loop: Red repro -> Minimize -> Hypothesize -> Instrument -> Fix -> Regression test.
+
+### 4. We Built A Ball Of Mud (Software Entropy)
+
+> "Invest in the design of the system every day."  
+> — Kent Beck, *Extreme Programming Explained*
+
+> "The best modules are deep. They allow a lot of functionality to be accessed through a simple interface."  
+> — John Ousterhout, *A Philosophy of Software Design*
+
+**The Problem:** Agents speed up coding, accelerating software entropy. Codebases grow complex and tangled at an unprecedented rate.
+
+**The Fix:** Caring about codebase architecture and deep module design.
+
+- [`/to-spec`](./skills/engineering/to-spec/SKILL.md) — Interrogate module boundaries before writing specifications.
+- [`/codebase-design`](./skills/engineering/codebase-design/SKILL.md) — Vocabulary and discipline for small interfaces over deep functionality.
+- [`/improve-codebase-architecture`](./skills/engineering/improve-codebase-architecture/SKILL.md) — Survey codebase for deepening opportunities and present candidates for refactoring.
+
+---
+
 ## Management & Installation
 
 ### Option A: Local Symlink Management (Recommended)
