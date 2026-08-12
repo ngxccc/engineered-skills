@@ -16,12 +16,9 @@ type TargetLayer struct {
 }
 
 var DefaultTargetLayers = []TargetLayer{
-	{Name: ".claude", Description: "Claude Code & Anthropic harness layer (SSOT)", Selected: true},
-	{Name: ".omp", Description: "Oh My Pi harness layer & plugins", Selected: true},
-	{Name: ".codex", Description: "Codex harness layer & TOML agents", Selected: true},
+	{Name: ".claude", Description: "Claude Code harness layer (SSOT)", Selected: true},
 	{Name: ".agents", Description: "Agent skills compatibility layer", Selected: true},
-	{Name: "process/development-protocols", Description: "RIPER-5 protocols & references", Selected: true},
-	{Name: "process/context", Description: "Authoritative repo context files", Selected: true},
+	{Name: ".omp", Description: "Oh My Pi harness layer & plugins", Selected: true},
 }
 func TargetExists(name string) bool {
 	_, err := os.Lstat(name)
