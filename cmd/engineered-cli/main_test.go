@@ -23,7 +23,7 @@ func TestConfigLoadSave(t *testing.T) {
 	defer os.Chdir(origWd)
 
 	cfg := &config.Config{
-		Schema:       "https://json.schemastore.org/ag-custom-config.json",
+		Schema:       "https://json.schemastore.org/engineered-config.json",
 		Version:      "2.4.2",
 		InstallMode:  "symlink",
 		SymlinkScope: "bulk",

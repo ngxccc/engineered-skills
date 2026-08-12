@@ -257,7 +257,7 @@ func main() {
 	}
 
 	finalCfg := config.Config{
-		Schema:         "./schemas/ag-custom-config.json",
+		Schema:         "./schemas/engineered-config.json",
 		Version:        "2.4.2",
 		UpdatedAt:      time.Now().Format(time.RFC3339),
 		InstallMode:    installMode,

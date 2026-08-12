@@ -32,7 +32,7 @@ func ApplySymlinkMode(cfg *config.Config) {
 				entries, _ := os.ReadDir(destPath)
 				hasOtherFiles := false
 				for _, e := range entries {
-					if e.Name() != "ag-custom-config.json" {
+					if e.Name() != "engineered-config.json" {
 						hasOtherFiles = true
 						break
 					}
@@ -100,21 +100,24 @@ func ApplySymlinkMode(cfg *config.Config) {
 			}
 		}
 
-		if len(skippedSkills) == len(cfg.Skills.Include) {
-			fmt.Println(tui.YellowStyle.Render(fmt.Sprintf("%s All %d selected skill directories are already present in target project (unmodified)", tui.IconInfo, len(skippedSkills))))
-		} else {
-			if len(newSkills) > 0 {
-				fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Created symlinks for %d new skill(s): %s", tui.IconCheck, len(newSkills), formatSkillList(newSkills))))
-			}
-			if len(overwrittenSkills) > 0 {
-				fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Replaced/Updated symlinks for %d skill(s): %s", tui.IconUpdate, len(overwrittenSkills), formatSkillList(overwrittenSkills))))
-			}
-			if len(skippedSkills) > 0 {
-				fmt.Println(tui.YellowStyle.Render(fmt.Sprintf("%s Preserved %d existing real skill directory(ies) (unmodified)", tui.IconInfo, len(skippedSkills))))
-			}
+		// Symlink .agents/skills -> .claude/skills for cross-agent compatibility
+		claudeSkillsPath, _ := filepath.Abs(filepath.Join(".claude", "skills"))
+		agentsSkillsPath, _ := filepath.Abs(filepath.Join(".agents", "skills"))
+		if _, err := os.Stat(claudeSkillsPath); err == nil {
+			os.MkdirAll(filepath.Dir(agentsSkillsPath), 0755)
+			os.RemoveAll(agentsSkillsPath)
+			_ = os.Symlink(claudeSkillsPath, agentsSkillsPath)
+			fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Symlinked .agents/skills -> .claude/skills", tui.IconCheck)))
 		}
-		for _, msg := range errorMsgs {
-			fmt.Println(tui.RedStyle.Render(fmt.Sprintf("%s %s", tui.IconError, msg)))
+
+		if len(newSkills) > 0 {
+			fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Linked %d new skill(s): %s", tui.IconCheck, len(newSkills), formatSkillList(newSkills))))
+		}
+		if len(overwrittenSkills) > 0 {
+			fmt.Println(tui.YellowStyle.Render(fmt.Sprintf("%s Overwrote %d skill symlink(s): %s", tui.IconWarn, len(overwrittenSkills), formatSkillList(overwrittenSkills))))
+		}
+		if len(skippedSkills) > 0 {
+			fmt.Println(tui.YellowStyle.Render(fmt.Sprintf("%s Skipped %d skill(s) (existing real directory): %s", tui.IconWarn, len(skippedSkills), formatSkillList(skippedSkills))))
 		}
 	}
 }

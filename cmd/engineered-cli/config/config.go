@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const ConfigPath = ".claude/ag-custom-config.json"
+const ConfigPath = ".claude/engineered-config.json"
 
 type TargetLayer struct {
 	Name        string
@@ -70,8 +70,8 @@ func LoadConfig() *Config {
 }
 
 func SaveConfig(cfg *Config) error {
-	if cfg.Schema == "" || cfg.Schema == "https://json.schemastore.org/ag-custom-config.json" {
-		cfg.Schema = "./schemas/ag-custom-config.json"
+	if cfg.Schema == "" || cfg.Schema == "https://json.schemastore.org/engineered-config.json" {
+		cfg.Schema = "./schemas/engineered-config.json"
 	}
 	dir := filepath.Dir(ConfigPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
