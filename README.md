@@ -16,40 +16,33 @@ Run the compiled Go binary to interactively select skills or perform instant bul
 
 ```bash
 # Interactive TUI mode:
-/home/ngxc/workspace/40-tools/engineered-skills/bin/engineered-cli
+~/workspace/40-tools/engineered-skills/bin/engineered-cli
 
 # Automatic fast symlink mode (in your target project directory):
-/home/ngxc/workspace/40-tools/engineered-skills/bin/engineered-cli --link --yes
+~/workspace/40-tools/engineered-skills/bin/engineered-cli --link --yes
 ```
 
 To run `engineered-cli` globally from anywhere on your machine, copy the binary to your local bin path:
 
 ```bash
-cp /home/ngxc/workspace/40-tools/engineered-skills/bin/engineered-cli ~/.local/bin/
+cp ~/workspace/40-tools/engineered-skills/bin/engineered-cli ~/.local/bin/
 
 # Then run inside any project:
 engineered-cli --link --yes
 ```
 
-#### Method 2: Using Bun / Node.js Script
-
-```bash
-# In your target project directory:
-bun /home/ngxc/workspace/40-tools/engineered-skills/scripts/sync-project-skills.mjs .
-```
-
-#### Method 3: Direct Manual Symlink Commands
+#### Method 2: Direct Manual Symlink Commands
 
 ```bash
 # In your target project directory:
 mkdir -p .claude/skills
 
 # Symlink specific skills from this repository:
-ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/grill-with-docs .claude/skills/
-ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/to-tickets .claude/skills/
-ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/implement .claude/skills/
-ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/tdd .claude/skills/
-ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/code-review .claude/skills/
+ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/grill-with-docs .claude/skills/
+ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/to-tickets .claude/skills/
+ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/implement .claude/skills/
+ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/tdd .claude/skills/
+ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/code-review .claude/skills/
 
 # Symlink for Codex / Oh My Pi cross-agent compatibility:
 ln -s .claude/skills .agents/skills
