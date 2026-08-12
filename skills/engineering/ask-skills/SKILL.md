@@ -1,4 +1,5 @@
 ---
+trigger_keywords: ask-skills, skill-router, skill-selection, help-workflow
 name: ask-skills
 description: Ask which skill or flow fits your situation. A router over the skills in this repo.
 disable-model-invocation: true
@@ -68,7 +69,7 @@ A **phase** is a chunk of work inside a session — the grilling, the implementa
 - **Subagent** — send a tightly-scoped task to its own window and get a report back.
 - **`/compact`** — compress this context and seed a fresh session with it. The **default**, at the bottom of the tree rather than the first reach.
 
-Read [PHASE-BOUNDARIES.md](PHASE-BOUNDARIES.md) for the ordered tree — the five questions, the reasoning behind each branch, and why the primary-source cost makes **Continue** the one to rule out first. Make the decision **at** a boundary; mid-phase, continue or split the rest into subagents.
+Read [PHASE-BOUNDARIES.md](references/PHASE-BOUNDARIES.md) for the ordered tree — the five questions, the reasoning behind each branch, and why the primary-source cost makes **Continue** the one to rule out first. Make the decision **at** a boundary; mid-phase, continue or split the rest into subagents.
 
 ## Standalone
 

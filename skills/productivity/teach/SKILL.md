@@ -1,4 +1,5 @@
 ---
+trigger_keywords: teach, interactive-learning, workspace-teaching, concept-explanation
 name: teach
 description: Teach the user a new skill or concept, within this workspace.
 disable-model-invocation: true

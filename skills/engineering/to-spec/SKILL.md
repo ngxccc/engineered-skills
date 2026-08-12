@@ -1,4 +1,5 @@
 ---
+trigger_keywords: to-spec, technical-specification, feature-requirements, spec-writing
 name: to-spec
 description: Turn the current conversation into a spec and publish it to the project issue tracker — no interview, just synthesis of what you've already discussed.
 disable-model-invocation: true

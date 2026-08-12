@@ -1,4 +1,5 @@
 ---
+trigger_keywords: wait-what, concision, simplify-explanation, clarify-jargon
 name: wait-what
 description: Stop. That last message did not land — re-pitch it.
 disable-model-invocation: true
