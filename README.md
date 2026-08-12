@@ -1,4 +1,4 @@
-# Custom Agent Skills
+# Engineered Skills
 
 A modular, composable, and customizable collection of agent skills designed for pragmatic software engineering and productivity across AI coding agents (Claude Code, Codex, Oh My Pi, Cursor).
 
@@ -15,11 +15,11 @@ Link skills directly from this central repository into your project directory fo
 mkdir -p .claude/skills
 
 # Symlink specific skills from this repository:
-ln -s /home/ngxc/workspace/40-tools/custom-agent-skills/skills/engineering/grill-with-docs .claude/skills/
-ln -s /home/ngxc/workspace/40-tools/custom-agent-skills/skills/engineering/to-tickets .claude/skills/
-ln -s /home/ngxc/workspace/40-tools/custom-agent-skills/skills/engineering/implement .claude/skills/
-ln -s /home/ngxc/workspace/40-tools/custom-agent-skills/skills/engineering/tdd .claude/skills/
-ln -s /home/ngxc/workspace/40-tools/custom-agent-skills/skills/engineering/code-review .claude/skills/
+ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/grill-with-docs .claude/skills/
+ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/to-tickets .claude/skills/
+ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/implement .claude/skills/
+ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/tdd .claude/skills/
+ln -s /home/ngxc/workspace/40-tools/engineered-skills/skills/engineering/code-review .claude/skills/
 
 # Symlink for Codex / Oh My Pi cross-agent compatibility:
 ln -s .claude/skills .agents/skills

@@ -1,5 +1,5 @@
 interface:
-  display_name: "Setup Custom Agent Skills Skills"
+  display_name: "Setup Engineered Skills Skills"
   short_description: "Configure a repo for the skills"
 policy:
   allow_implicit_invocation: false

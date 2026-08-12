@@ -1,11 +1,11 @@
 {
-  "name": "custom-agent-skills",
+  "name": "engineered-skills",
   "version": "1.2.3",
   "private": true,
-  "description": "Custom Agent Skills's agent skills for real engineering",
+  "description": "Engineered Skills's agent skills for real engineering",
   "repository": {
     "type": "git",
-    "url": "https://github.com/custom-agent-skills/skills"
+    "url": "https://github.com/engineered-skills/skills"
   },
   "license": "MIT",
   "scripts": {

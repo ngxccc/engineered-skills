@@ -4,7 +4,7 @@ description: Configure this repo for the engineering skills — set up its issue
 disable-model-invocation: true
 ---
 
-# Setup Custom Agent Skills's Skills
+# Setup Engineered Skills's Skills
 
 Scaffold the per-repo configuration that the engineering skills assume:
 
