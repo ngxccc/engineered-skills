@@ -4,11 +4,41 @@ A modular, composable, and customizable collection of agent skills designed for 
 
 ---
 
-## 🛠️ Management & Installation
+## Management & Installation
 
 ### Option A: Local Symlink Management (Recommended)
 
-Link skills directly from this central repository into your project directory for instant live updates across all agent sessions:
+Link skills directly from this central repository into your target project directory for instant live updates across all agent sessions.
+
+#### Method 1: Using Compiled Go CLI (Fastest & Standalone)
+
+Run the compiled Go binary to interactively select skills or perform instant bulk symlinking:
+
+```bash
+# Interactive TUI mode:
+/home/ngxc/workspace/40-tools/engineered-skills/bin/engineered-cli
+
+# Automatic fast symlink mode (in your target project directory):
+/home/ngxc/workspace/40-tools/engineered-skills/bin/engineered-cli --link --yes
+```
+
+To run `engineered-cli` globally from anywhere on your machine, copy the binary to your local bin path:
+
+```bash
+cp /home/ngxc/workspace/40-tools/engineered-skills/bin/engineered-cli ~/.local/bin/
+
+# Then run inside any project:
+engineered-cli --link --yes
+```
+
+#### Method 2: Using Bun / Node.js Script
+
+```bash
+# In your target project directory:
+bun /home/ngxc/workspace/40-tools/engineered-skills/scripts/sync-project-skills.mjs .
+```
+
+#### Method 3: Direct Manual Symlink Commands
 
 ```bash
 # In your target project directory:
@@ -27,7 +57,7 @@ ln -s .claude/skills .agents/skills
 
 ---
 
-## 📋 Initial Setup
+## Initial Setup
 
 Run `/setup-skills` once per repository session:
 
@@ -37,7 +67,7 @@ Run `/setup-skills` once per repository session:
 
 ---
 
-## 🧩 Available Skills
+## Available Skills
 
 ### Engineering Skills
 
