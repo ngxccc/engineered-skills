@@ -171,14 +171,12 @@ func main() {
 			selectedTargets = selected
 		}
 		if *skillsOpt == "" {
-			categories := []string{"Core Harness (ag-*)", "Framework & Ecosystem", "Curated Extra (skills/.curated)"}
+			categories := []string{"Engineering", "Productivity", "Misc", "Core Harness"}
 			grouped := make(map[string][]config.SkillInfo)
 			for _, s := range discoveredSkills {
-				cat := "Core Harness (ag-*)"
-				if strings.HasPrefix(s.SourcePath, "skills/.curated") {
-					cat = "Curated Extra (skills/.curated)"
-				} else if strings.HasPrefix(s.SourcePath, "skills") {
-					cat = "Framework & Ecosystem"
+				cat := s.Category
+				if cat == "" {
+					cat = "Engineering"
 				}
 				grouped[cat] = append(grouped[cat], s)
 			}

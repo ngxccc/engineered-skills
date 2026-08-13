@@ -164,13 +164,15 @@ func TestDiscoverSkillsAndSourcePath(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	// Scaffold .claude/skills/ag-docs and skills/.curated/drizzle
+	// Scaffold skills in engineering, productivity, misc, and .claude/skills
 	os.MkdirAll(filepath.Join(tmpDir, ".claude", "skills", "ag-docs"), 0755)
-	os.MkdirAll(filepath.Join(tmpDir, "skills", ".curated", "drizzle"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "skills", "engineering", "diagnosing-bugs"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "skills", "productivity", "teach"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "skills", "misc", "setup-pre-commit"), 0755)
 
 	discovered := config.DiscoverSkills(tmpDir)
-	if len(discovered) != 2 {
-		t.Fatalf("Expected 2 discovered skills, got %d", len(discovered))
+	if len(discovered) != 4 {
+		t.Fatalf("Expected 4 discovered skills, got %d", len(discovered))
 	}
 
 	sourcePathAgDocs := config.SkillSourcePath(tmpDir, "ag-docs")
@@ -179,9 +181,15 @@ func TestDiscoverSkillsAndSourcePath(t *testing.T) {
 		t.Errorf("Expected source path '%s', got '%s'", expectedAgDocs, sourcePathAgDocs)
 	}
 
-	sourcePathDrizzle := config.SkillSourcePath(tmpDir, "drizzle")
-	expectedDrizzle := filepath.Join("skills", ".curated", "drizzle")
-	if sourcePathDrizzle != expectedDrizzle {
-		t.Errorf("Expected source path '%s', got '%s'", expectedDrizzle, sourcePathDrizzle)
+	sourcePathBug := config.SkillSourcePath(tmpDir, "diagnosing-bugs")
+	expectedBug := filepath.Join("skills", "engineering", "diagnosing-bugs")
+	if sourcePathBug != expectedBug {
+		t.Errorf("Expected source path '%s', got '%s'", expectedBug, sourcePathBug)
+	}
+
+	sourcePathMisc := config.SkillSourcePath(tmpDir, "setup-pre-commit")
+	expectedMisc := filepath.Join("skills", "misc", "setup-pre-commit")
+	if sourcePathMisc != expectedMisc {
+		t.Errorf("Expected source path '%s', got '%s'", expectedMisc, sourcePathMisc)
 	}
 }

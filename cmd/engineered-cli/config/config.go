@@ -91,6 +91,7 @@ func DiscoverSkills(kitRepoPath string) []SkillInfo {
 	}{
 		{dir: filepath.Join(kitRepoPath, "skills", "engineering"), category: "Engineering"},
 		{dir: filepath.Join(kitRepoPath, "skills", "productivity"), category: "Productivity"},
+		{dir: filepath.Join(kitRepoPath, "skills", "misc"), category: "Misc"},
 		{dir: filepath.Join(kitRepoPath, ".claude", "skills"), category: "Core Harness"},
 	}
 
@@ -117,6 +118,7 @@ func SkillSourcePath(kitRepoPath, skillName string) string {
 	candidatePaths := []string{
 		filepath.Join("skills", "engineering", skillName),
 		filepath.Join("skills", "productivity", skillName),
+		filepath.Join("skills", "misc", skillName),
 		filepath.Join(".claude", "skills", skillName),
 	}
 	for _, p := range candidatePaths {
