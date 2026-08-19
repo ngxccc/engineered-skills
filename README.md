@@ -60,7 +60,7 @@ In your agent, run it once per repo. It will:
 - Ask you what labels you apply to tickets when you triage them (`/triage` uses labels)
 - Ask you where you want to save any docs created
 
-### 3. Bam — you're ready to go.
+### 3. Bam — you're ready to go
 
 ---
 
@@ -71,7 +71,7 @@ These skills exist as a way to fix common failure modes seen with Claude Code, C
 ### #1: The Agent Didn't Do What I Want
 
 > "No-one knows exactly what they want"  
-> — David Thomas & Andrew Hunt, *The Pragmatic Programmer*
+> — David Thomas & Andrew Hunt, _The Pragmatic Programmer_
 
 **The Problem:** The most common failure mode in software development is misalignment. You think the dev knows what you want. Then you see what they've built — and you realize it didn't understand you at all.
 
@@ -82,18 +82,19 @@ This is just the same in the AI age. There is a communication gap between you an
 - [`/grill-me`](./skills/productivity/grill-me/SKILL.md) — for non-code uses
 - [`/grill-with-docs`](./skills/engineering/grill-with-docs/SKILL.md) — same as `/grill-me`, but adds more goodies (see below)
 
-These help you align with the agent before getting started, and think deeply about the change being made. Use them *every* time you want to make a change.
+These help you align with the agent before getting started, and think deeply about the change being made. Use them _every_ time you want to make a change.
 
 ### #2: The Agent Is Way Too Verbose
 
 > "With a ubiquitous language, conversations among developers and expressions of the code are all derived from the same domain model."  
-> — Eric Evans, *Domain-Driven Design*
+> — Eric Evans, _Domain-Driven Design_
 
 **The Problem:** At the start of a project, devs and domain experts are usually speaking different languages. Dropped into a project, agents figure out jargon as they go, using 20 words where 1 will do.
 
 **The Fix** for this is a shared language — a document that helps agents decode jargon used in the project (`CONTEXT.md`).
 
 For example:
+
 - **BEFORE:** "There's a problem when a lesson inside a section of a course is made 'real' (i.e. given a spot in the file system)"
 - **AFTER:** "There's a problem with the materialization cascade"
 
@@ -102,6 +103,7 @@ This concision pays off session after session.
 This is built into [`/grill-with-docs`](./skills/engineering/grill-with-docs/SKILL.md). It's a grilling session that helps build a shared language with the AI and document hard-to-explain decisions in ADRs.
 
 A shared language has many benefits:
+
 - Variables, functions, and files are named consistently using the shared language.
 - As a result, the codebase is easier to navigate for the agent.
 - The agent spends fewer tokens on thinking because it has access to a more concise language.
@@ -109,9 +111,9 @@ A shared language has many benefits:
 ### #3: The Code Doesn't Work
 
 > "Always take small, deliberate steps. The rate of feedback is your speed limit. Never take on a task that's too big."  
-> — David Thomas & Andrew Hunt, *The Pragmatic Programmer*
+> — David Thomas & Andrew Hunt, _The Pragmatic Programmer_
 
-**The Problem:** Let's say that you and the agent are aligned on what to build. What happens when the agent *still* produces non-working code?
+**The Problem:** Let's say that you and the agent are aligned on what to build. What happens when the agent _still_ produces non-working code?
 
 It's time to look at your feedback loops. Without feedback on how the code it produces actually runs, the agent will be flying blind.
 
@@ -125,17 +127,18 @@ For debugging, the **[`/diagnosing-bugs`](./skills/engineering/diagnosing-bugs/S
 
 ### #4: We Built A Ball Of Mud
 
-> "Invest in the design of the system *every day*."  
-> — Kent Beck, *Extreme Programming Explained*
+> "Invest in the design of the system _every day_."  
+> — Kent Beck, _Extreme Programming Explained_
 
 > "The best modules are deep. They allow a lot of functionality to be accessed through a simple interface."  
-> — John Ousterhout, *A Philosophy of Software Design*
+> — John Ousterhout, _A Philosophy of Software Design_
 
 **The Problem:** Most apps built with agents are complex and hard to change. Because agents can radically speed up coding, they also accelerate software entropy. Codebases get more complex at an unprecedented rate.
 
 **The Fix** for this is a radical approach to AI-powered development: caring about the design of the code.
 
 This is built into every layer of these skills:
+
 - [`/to-spec`](./skills/engineering/to-spec/SKILL.md) quizzes you about which modules you're touching before creating a spec.
 - And crucially, [`/improve-codebase-architecture`](./skills/engineering/improve-codebase-architecture/SKILL.md) surveys a codebase for deepening opportunities and hands you candidates. Running it on your codebase once every few days surveys real candidates to help keep architecture clean.
 
@@ -147,7 +150,7 @@ Software engineering fundamentals matter more than ever. These skills condense t
 
 ## Reference
 
-These split on one axis — who can invoke them. **User-invoked** skills are reachable only when you type them (e.g. `/grill-me`); their job is to orchestrate. **Model-invoked** skills can be invoked by you *or* reached for automatically by the agent when the task fits; they hold the reusable discipline. A user-invoked skill may invoke model-invoked skills, but never another user-invoked one.
+These split on one axis — who can invoke them. **User-invoked** skills are reachable only when you type them (e.g. `/grill-me`); their job is to orchestrate. **Model-invoked** skills can be invoked by you _or_ reached for automatically by the agent when the task fits; they hold the reusable discipline. A user-invoked skill may invoke model-invoked skills, but never another user-invoked one.
 
 ### Engineering
 
@@ -191,5 +194,6 @@ General workflow tools, not code-specific.
 
 **Model-invoked**
 
+- **[docs](./skills/productivity/docs/SKILL.md)** — Manage codebase documentation, ADRs (Simple & Formal), RFCs, System Design Specs, and SSOT Workflows with automated validation.
 - **[grilling](./skills/productivity/grilling/SKILL.md)** — Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved. The reusable interview primitive behind `grill-me`, `grill-with-docs`, `triage`, `wayfinder` and `improve-codebase-architecture`.
 - **[writing-for-agents](./skills/productivity/writing-for-agents/SKILL.md)** — Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
