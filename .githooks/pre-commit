@@ -1,0 +1,30 @@
+#!/bin/sh
+# Pre-commit hook to auto-format staged files before committing
+
+# 1. Format Markdown files with Prettier (as mandated by AGENTS.md)
+STAGED_MD=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(md|markdown)$')
+
+if [ -n "$STAGED_MD" ]; then
+  echo "📝 Auto-formatting staged Markdown files with Prettier..."
+  if command -v bun >/dev/null 2>&1; then
+    bunx prettier --write $STAGED_MD 2>/dev/null
+  elif command -v npx >/dev/null 2>&1; then
+    npx prettier --write $STAGED_MD 2>/dev/null
+  fi
+  git add $STAGED_MD
+fi
+
+# 2. Format code and config files with Biome
+STAGED_CODE=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(json|js|mjs|cjs|ts|tsx|jsx|css|html)$')
+
+if [ -n "$STAGED_CODE" ]; then
+  echo "🎨 Auto-formatting staged code files with Biome..."
+  if command -v bun >/dev/null 2>&1; then
+    bunx @biomejs/biome format --write $STAGED_CODE 2>/dev/null
+  elif command -v npx >/dev/null 2>&1; then
+    npx @biomejs/biome format --write $STAGED_CODE 2>/dev/null
+  fi
+  git add $STAGED_CODE
+fi
+
+exit 0
