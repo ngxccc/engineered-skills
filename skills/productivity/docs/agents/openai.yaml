@@ -1,0 +1,3 @@
+interface:
+  display_name: "docs"
+  short_description: "Documentation, ADR, RFC, and design management"
