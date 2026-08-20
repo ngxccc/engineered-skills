@@ -1,8 +1,6 @@
 ---
 name: git-flow
-description: "Trigger keywords: git flow, branch management, rebase, merge request, commit convention, release flow, create pr, pull request, pr template, gh pr. Skill for managing branch creation, conventional commit formatting, feature branching, and clean pull request creation workflows."
-trigger_keywords: git, flow
-layer: helper
+description: Git branching, Conventional Commits formatting, and 3-Tier PR creation workflows.
 ---
 
 # Git Flow & Pull Request Protocol (`git-flow`)
@@ -40,12 +38,20 @@ Before creating a branch or opening a PR, evaluate scope and risk to select the 
 
 ---
 
+## Human Audit & Verification Protocol (<critical>)
+
+1. **Inspection & Staging Proposal Only**: When requested to commit or run `git-flow`, the agent MUST ONLY check `git status` / `git diff`, propose the atomic commit slicing plan, and display the formatted Conventional Commit message (`format-commit.mjs` without `--execute`).
+2. **Explicit Human Confirmation Required**: The agent MUST NEVER execute `git commit` or pass `--execute` to `format-commit.mjs` until the user explicitly responds with audit approval (e.g., "xác nhận commit", "đồng ý commit", "execute commit").
+
+---
+
 ## Quick Reference Rules
 
 - `conventional-commits` - Format all messages as `<type>(<scope>): <description>`. Validate via `format-commit.mjs`.
 - `clean-branching` - Use `feature/`, `fix/`, `hotfix/`, or `core/` branch naming prefixes.
 - `enterprise-pr` - Enforce clean titles and structured body template without emojis.
 - `no-force-push-main` - NEVER force-push to main or master branches.
+- `human-audit-required` - NEVER execute `git commit` or `--execute` without explicit user audit confirmation.
 
 ---
 

@@ -23,6 +23,8 @@ A single complex PR template wastes token footprint and time on trivial updates.
 
 **Does `git-flow` support force-pushing to main?**  
 No. `git-flow` strictly enforces a `no-force-push-main` safety guardrail to protect main/master branch histories.
+**Can the agent execute git commit automatically?**  
+No. `git-flow` enforces a strict **Human Audit & Verification Protocol**. The agent proposes atomic commit slices and displays formatted commit messages, but MUST NOT execute `git commit` or `--execute` without explicit user audit confirmation.
 
 ## It's working if
 

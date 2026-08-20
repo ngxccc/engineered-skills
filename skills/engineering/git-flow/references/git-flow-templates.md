@@ -55,6 +55,12 @@ node skills/engineering/git-flow/scripts/format-commit.mjs --type docs --scope a
 
 # Step 2: Commit core logic changes
 git add src/modules/auth/
+---
+
+## Human Audit Protocol
+
+1. When asked to commit, run `format-commit.mjs` without `--execute` to propose the message.
+2. Wait for explicit user approval ("commit") before executing `git commit`.
 node skills/engineering/git-flow/scripts/format-commit.mjs --type feat --scope auth --summary "add OAuth2 refresh token"
 
 # Step 3: Commit test updates
