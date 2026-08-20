@@ -246,6 +246,7 @@ func main() {
 			}
 		}
 	}
+	selectedSkills = config.ResolveDependencies(selectedSkills)
 
 	absKitPath, _ := filepath.Abs(kitRepoPath)
 

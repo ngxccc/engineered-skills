@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 
+	"engineered-skills/cmd/engineered-cli/config"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -43,6 +44,19 @@ func (m CheckboxModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case " ":
 			m.Items[m.Cursor].Selected = !m.Items[m.Cursor].Selected
+			if m.Items[m.Cursor].Selected {
+				if deps, ok := config.SkillDependencies[m.Items[m.Cursor].Name]; ok {
+					depSet := make(map[string]bool)
+					for _, d := range config.ResolveDependencies(deps) {
+						depSet[d] = true
+					}
+					for i := range m.Items {
+						if depSet[m.Items[i].Name] {
+							m.Items[i].Selected = true
+						}
+					}
+				}
+			}
 		case "a", "A":
 			allSelected := true
 			for _, item := range m.Items {

@@ -193,3 +193,23 @@ func TestDiscoverSkillsAndSourcePath(t *testing.T) {
 		t.Errorf("Expected source path '%s', got '%s'", expectedMisc, sourcePathMisc)
 	}
 }
+func TestResolveDependencies(t *testing.T) {
+	selected := []string{"implement"}
+	resolved := config.ResolveDependencies(selected)
+
+	expectedMap := map[string]bool{
+		"implement":   true,
+		"tdd":         true,
+		"code-review": true,
+		"git-flow":    true,
+	}
+
+	if len(resolved) != len(expectedMap) {
+		t.Errorf("Expected %d resolved skills for 'implement', got %d (%v)", len(expectedMap), len(resolved), resolved)
+	}
+	for _, s := range resolved {
+		if !expectedMap[s] {
+			t.Errorf("Unexpected skill '%s' in resolved dependencies", s)
+		}
+	}
+}

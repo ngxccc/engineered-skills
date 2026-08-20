@@ -8,6 +8,39 @@ import (
 )
 
 const ConfigPath = ".claude/engineered-config.json"
+// SkillDependencies maps parent skills to their required child skills.
+var SkillDependencies = map[string][]string{
+	"implement":                     {"tdd", "code-review", "git-flow"},
+	"grill-with-docs":               {"grilling", "domain-modeling", "docs"},
+	"improve-codebase-architecture": {"codebase-design", "grilling"},
+	"wayfinder":                     {"grilling", "to-spec", "to-tickets"},
+	"grill-me":                      {"grilling"},
+	"ask-skills":                    {"grill-with-docs", "to-spec", "to-tickets", "implement", "triage", "diagnosing-bugs", "wayfinder", "improve-codebase-architecture", "grill-me", "resolving-merge-conflicts", "prototype", "research", "to-questionnaire", "wizard", "wait-what", "teach", "writing-for-agents", "docs", "git-flow"},
+}
+
+// ResolveDependencies recursively resolves all required skill dependencies.
+func ResolveDependencies(selected []string) []string {
+	resolved := make(map[string]bool)
+	var result []string
+
+	var add func(name string)
+	add = func(name string) {
+		if resolved[name] {
+			return
+		}
+		resolved[name] = true
+		result = append(result, name)
+		for _, dep := range SkillDependencies[name] {
+			add(dep)
+		}
+	}
+
+	for _, s := range selected {
+		add(s)
+	}
+
+	return result
+}
 
 type TargetLayer struct {
 	Name        string
