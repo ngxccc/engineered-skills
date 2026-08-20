@@ -15,7 +15,6 @@ var SkillDependencies = map[string][]string{
 	"improve-codebase-architecture": {"codebase-design", "grilling"},
 	"wayfinder":                     {"grilling", "to-spec", "to-tickets"},
 	"grill-me":                      {"grilling"},
-	"ask-skills":                    {"grill-with-docs", "to-spec", "to-tickets", "implement", "triage", "diagnosing-bugs", "wayfinder", "improve-codebase-architecture", "grill-me", "resolving-merge-conflicts", "prototype", "research", "to-questionnaire", "wizard", "wait-what", "teach", "writing-for-agents", "docs", "git-flow"},
 }
 
 // ResolveDependencies recursively resolves all required skill dependencies.
