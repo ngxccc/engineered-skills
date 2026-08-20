@@ -86,6 +86,7 @@ Off the main flow entirely.
 - **`/teach`** — learn a concept over multiple sessions, using the current directory as a stateful workspace.
 - **`/writing-for-agents`** — reference for writing documents agents consume: skills, AGENTS.md, pointed-at docs.
 - **`/docs`** — analyze codebase, manage ADRs (Simple & Formal), RFCs, System Design Specs, and SSOT Workflows with automated validation scripts.
+- **`/git-flow`** — manage git branch creation, Conventional Commits formatting, feature branching, and clean pull request creation workflows.
 
 ## Precondition
 

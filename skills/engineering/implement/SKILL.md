@@ -12,4 +12,4 @@ Run typechecking regularly, single test files regularly, and the full test suite
 
 Once done, use /code-review to review the work.
 
-Commit your work to the current branch.
+Format conventional commit(s) using [`git-flow`](../git-flow/SKILL.md) (or `node skills/engineering/git-flow/scripts/format-commit.mjs`) and commit your work to the current branch.
