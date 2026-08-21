@@ -35,10 +35,15 @@ Break the work into **tracer bullet** tickets.
 - Any prefactoring should be done first
 
 </vertical-slice-rules>
+**Formal Specifications (`docs/formal-specs/`):**
+When decomposing a Formal Spec:
+- **Preserve Invariants**: Explicitly assign relevant `INV-1..N` identifiers to each ticket's acceptance criteria (e.g. `- [ ] Satisfies INV-1 (Data integrity)`).
+- **Include Edge Cases**: Map corresponding `EDGE-1..N` fail-safe behaviors to the slice handling that boundary.
+- **Dedicated Adversarial Slice**: For complex race conditions or property-based tests (`ADV-1..N`), introduce a verification ticket blocked by the core implementation slices.
 
 Give each ticket its **blocking edges** — the other tickets that must complete before it can start. A ticket with no blockers can start immediately.
 
-**Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change — rename a column, retype a shared symbol — whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket — green is promised only there.
+**Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change — rename a column, retype a shared symbol — whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches are large, expand, migrate per-package, contract.
 
 ### 4. Quiz the user
 
@@ -58,15 +63,17 @@ Iterate until the user approves the breakdown.
 
 ### 5. Publish the tickets to the configured tracker
 
-Publish the approved tickets. **How** depends on the tracker `/setup-skills` configured — the tickets are the same either way, only the shape of the blocking edges changes:
+Publish the approved tickets in dependency order (blockers first).
 
-- **Local files** → write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's "Blocked by" lists the numbers/titles it depends on. Use the per-ticket file template below — one ticket per file, never a single combined file.
-- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking / sub-issue relationship where it has one; otherwise set each ticket's "Blocked by" to the blocking issues. Apply the `ready-for-agent` triage label unless instructed otherwise — the tickets are agent-grabbable by construction.
+1. **Fetch Repository Labels & Templates**:
+   - Read `docs/standards/issue-tracker.md` (or fallback to `docs/agents/issue-tracker.md`) to resolve the repository's active label vocabulary (`status:triage`, `type:*`, `area:*`). If no standard file exists, fallback to common defaults (`type:feat`, `status:triage`).
+   - Check if the repository defines custom issue forms in `.github/ISSUE_TEMPLATE/` (e.g. `feature_request.yml`, `task.yml`). If present, structure the ticket body to align with those fields.
 
-Work the **frontier**: any ticket whose blockers are all done. For a purely linear chain that means top to bottom.
+2. **Publish Mechanism**:
+   - **GitHub Issues**: Execute `gh issue create --title "<type>(<area>): <title>" --body "..." --label "<comma-separated-labels>"`. For multi-line bodies, pass via heredoc or file. Attach native blocking relationships where supported.
+   - **Local files**: Write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order.
 
-Do NOT close or modify any parent issue.
-
+Work the **frontier**: any ticket whose blockers are all done. Do NOT close or modify any parent issue.
 <local-ticket-template>
 
 # <NN> — <Ticket title>

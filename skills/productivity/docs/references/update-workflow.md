@@ -12,7 +12,7 @@ Perform a docs-only update in the current agent, without changing implementation
 Pass the gathered context to update the relevant documentation:
 
 - `README.md`: Update README (keep it under 300 lines)
-- `docs/adr/`, `docs/rfc/`, `docs/design/`: Update architectural decision records, proposals, and design documents.
+- `docs/adr/`, `docs/rfc/`, `docs/design/`, `docs/formal-specs/`: Update architectural decision records, proposals, design documents, and formal specifications.
 
 ## Phase 3: Size Check (Post-Update)
 

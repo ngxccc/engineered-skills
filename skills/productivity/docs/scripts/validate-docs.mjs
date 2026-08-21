@@ -9,6 +9,7 @@ const scripts = [
 	{ name: "ADRs", file: "validate-adrs.mjs" },
 	{ name: "RFCs", file: "validate-rfcs.mjs" },
 	{ name: "Design Docs", file: "validate-design-docs.mjs" },
+	{ name: "Formal Specs", file: "validate-formal-specs.mjs" },
 	{ name: "Workflow Docs", file: "validate-workflow-docs.mjs" },
 ];
 

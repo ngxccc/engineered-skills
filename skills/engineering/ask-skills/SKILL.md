@@ -85,7 +85,7 @@ Off the main flow entirely.
 - **`/wait-what`** — the corrective for a message that didn't land. Use it mid-conversation, inside any other skill, and the agent re-pitches what it just said with the context you were missing, in plain English, using the `CONTEXT.md` vocabulary. It works after the fact; `/grill-with-docs` is the upfront cure, because a shared language agreed early is what stops the jargon arriving at all.
 - **`/teach`** — learn a concept over multiple sessions, using the current directory as a stateful workspace.
 - **`/writing-for-agents`** — reference for writing documents agents consume: skills, AGENTS.md, pointed-at docs.
-- **`/docs`** — analyze codebase, manage ADRs (Simple & Formal), RFCs, System Design Specs, and SSOT Workflows with automated validation scripts.
+- **`/docs`** — analyze codebase, manage ADRs (Simple & Formal), RFCs, System Design Specs, Formal Specs (Invariants & Edge Cases), and SSOT Workflows with automated validation scripts.
 - **`/git-flow`** — git branching, Conventional Commits, and 3-Tier PR creation workflows.
 
 ## Precondition
