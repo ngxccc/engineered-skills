@@ -32,8 +32,8 @@ Before creating a branch or opening a PR, evaluate scope and risk to select the 
    - **Single Scope**: If all changes belong to one logical feature, stage and commit together.
    - **Multiple Scopes**: If changes span distinct modules (e.g., `docs/` vs `src/auth/`), **DO NOT squash into one blob commit**. Perform **Logical Sliced Commits**: stage specific paths per scope (`git add <path>`) and run `node skills/engineering/git-flow/scripts/format-commit.mjs --type <type> --scope <scope> --summary "<summary>"`.
 4. **Select PR Tier & Create Pull Request:**
-   - Pick Tier 1, Tier 2, or Tier 3 template per Matrix above.
-   - Build PR body using the corresponding template file.
+   - Check if active repository defines `.github/PULL_REQUEST_TEMPLATE.md`. If present, build PR body matching project template fields.
+   - Otherwise, pick Tier 1, Tier 2, or Tier 3 template per Matrix above (`references/pr-tier*.md`).
    - Execute PR creation via `xd://github` (`op: pr_create`) or helper script `skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3>`.
 
 ---

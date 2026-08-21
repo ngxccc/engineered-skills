@@ -108,6 +108,17 @@ function validateTitle(params) {
 }
 
 function getTemplateForTier(tier) {
+	// 1. Check if the active repository defines a custom PULL_REQUEST_TEMPLATE.md
+	const projectPrTemplate = join(
+		process.cwd(),
+		".github",
+		"PULL_REQUEST_TEMPLATE.md",
+	);
+	if (tier === 2 && existsSync(projectPrTemplate)) {
+		return readFileSync(projectPrTemplate, "utf8");
+	}
+
+	// 2. Fallback to skill-bundled 3-Tier PR Matrix templates
 	const referencesDir = join(__dirname, "..", "references");
 	let templateFileName = "pr-tier2-standard.md";
 	if (tier === 1) templateFileName = "pr-tier1-patch.md";
