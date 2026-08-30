@@ -38,6 +38,35 @@ Before creating a branch or opening a PR, evaluate scope and risk to select the 
 
 ---
 
+## GitHub Native Sub-Issues Protocol
+
+When decomposing a parent Epic or Feature issue into sub-tasks, link them natively in GitHub Issues using the official REST API:
+
+1. **Create the Child Ticket:**
+
+   ```bash
+   gh issue create --title "<type>(<area>): <title>" --label "<labels>" --body "..."
+   ```
+
+2. **Extract Child Integer Database ID:**
+
+   ```bash
+   CHILD_ID=$(gh api repos/{owner}/{repo}/issues/<child_number> --jq .id)
+   ```
+
+3. **Link Child to Parent Issue via Native Sub-Issues Endpoint:**
+
+   ```bash
+   gh api --method POST repos/{owner}/{repo}/issues/<parent_number>/sub_issues -F sub_issue_id=$CHILD_ID
+   ```
+
+4. **Verify Parent Hierarchy:**
+   ```bash
+   gh api repos/{owner}/{repo}/issues/<parent_number>/sub_issues --jq '.[] | "#\(.number): \(.title)"'
+   ```
+
+---
+
 ## Human Audit & Verification Protocol (<critical>)
 
 1. **Inspection & Staging Proposal Only**: When requested to commit or run `git-flow`, the agent MUST ONLY check `git status` / `git diff`, propose the atomic commit slicing plan, and display the formatted Conventional Commit message (`format-commit.mjs` without `--execute`).

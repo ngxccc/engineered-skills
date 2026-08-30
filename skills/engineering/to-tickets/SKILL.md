@@ -71,6 +71,11 @@ Publish the approved tickets in dependency order (blockers first).
 
 2. **Publish Mechanism**:
    - **GitHub Issues**: Execute `gh issue create --title "<type>(<area>): <title>" --body "..." --label "<comma-separated-labels>"`. For multi-line bodies, pass via heredoc or file. Attach native blocking relationships where supported.
+   - **Native Sub-Issues Linking**: When child tickets belong to a parent issue, link them via the GitHub Native Sub-Issues API following the protocol in `skills/git-flow`:
+     ```bash
+     CHILD_ID=$(gh api repos/{owner}/{repo}/issues/<child_number> --jq .id)
+     gh api --method POST repos/{owner}/{repo}/issues/<parent_number>/sub_issues -F sub_issue_id=$CHILD_ID
+     ```
    - **Local files**: Write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order.
 
 Work the **frontier**: any ticket whose blockers are all done. Do NOT close or modify any parent issue.

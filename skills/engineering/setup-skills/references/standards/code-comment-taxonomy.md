@@ -34,19 +34,19 @@ flowchart TD
  *
  * @param param1 Description
  * @returns Description
- * @invariant INV-N Domain invariant reference
+ * @invariant INV-N (Optional: strictly reserved for high-risk core business logic & concurrency engine)
  */
 ```
 
 ---
 
-### Tier 2: `// WHY:` Comments — Technical Rationale & Invariants
+### Tier 2: Technical Rationale Comments (Natural Prose) — Why, Not What
 
 **Scope**: Non-obvious architectural decisions, security safeguards, concurrency handling, resilience strategies, and third-party library workarounds.  
-**Format**: MUST start with `// WHY: <Concrete technical reason>`.
+**Format**: Concise, natural English sentences explaining the technical reason, invariant, or failure mode prevented. (Do not mandate artificial prefixes like `// WHY:`; write direct, professional prose).
 
 ```ts
-// WHY: Fail-open strategy if Redis rate-limiter is offline, prioritizing API availability.
+// Fail-open strategy if Redis rate-limiter is offline, prioritizing API availability.
 return true;
 ```
 
