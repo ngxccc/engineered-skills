@@ -31,6 +31,7 @@ function parseArgs() {
 		summary: "",
 		body: "",
 		breaking: "",
+		ref: "",
 		fixes: "",
 		signoff: false,
 		message: "",
@@ -44,8 +45,13 @@ function parseArgs() {
 		else if (arg === "--summary" && args[i + 1]) params.summary = args[++i];
 		else if (arg === "--body" && args[i + 1]) params.body = args[++i];
 		else if (arg === "--breaking" && args[i + 1]) params.breaking = args[++i];
-		else if (arg === "--fixes" && args[i + 1]) params.fixes = args[++i];
-		else if (arg === "--signoff") params.signoff = true;
+		else if (arg === "--ref" && args[i + 1]) params.ref = args[++i];
+		else if (arg === "--fixes" && args[i + 1]) {
+			params.ref = args[++i];
+			console.warn(
+				"Warning: Auto-closing keywords (Fixes/Closes) are prohibited in commit messages. Using 'Ref:' instead.",
+			);
+		} else if (arg === "--signoff") params.signoff = true;
 		else if (arg === "--message" && args[i + 1]) params.message = args[++i];
 		else if (arg === "--execute") params.execute = true;
 	}
@@ -112,8 +118,10 @@ function validateAndBuildCommit(params) {
 	if (params.breaking) {
 		footers.push(`BREAKING CHANGE: ${params.breaking.trim()}`);
 	}
-	if (params.fixes) {
-		footers.push(`Fixes: ${params.fixes.trim()}`);
+	if (params.ref) {
+		footers.push(`Ref: ${params.ref.trim()}`);
+	} else if (params.fixes) {
+		footers.push(`Ref: ${params.fixes.trim()}`);
 	}
 	if (params.signoff) {
 		try {

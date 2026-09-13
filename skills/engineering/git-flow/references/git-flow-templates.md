@@ -11,8 +11,13 @@ Defines Conventional Commit specifications, rules, and the 3-Tier PR Selection M
 
 [optional body explaining why, what, and tradeoffs]
 
-[optional footer: BREAKING CHANGE: ..., Fixes: #123, Signed-off-by: Author <email>]
+[optional footer: BREAKING CHANGE: ..., Signed-off-by: Author <email>]
 ```
+
+### Issue Closing & Linking Protocol
+
+1. **Pull Request Descriptions (Primary)**: Declare `Resolves: #<id>` or `Closes: #<id>` under `## Linked Issues` in the PR body so GitHub natively links and automatically closes related issues upon merge.
+2. **Atomic Commit Messages**: Focus strictly on technical context and rationale. Footers are optional and reserved for `BREAKING CHANGE:` or standalone bugfix trailers (`Fixes: <hash>` per Linux kernel conventions).
 
 ### Allowed Types
 

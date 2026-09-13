@@ -67,6 +67,16 @@ When decomposing a parent Epic or Feature issue into sub-tasks, link them native
 
 ---
 
+## Issue Linking & Closing Protocol
+
+1. **Pull Request Descriptions (Primary Linking Mechanism)**:
+   - Issue tracking belongs at the Pull Request level, NOT in individual atomic commits.
+   - Under `## Linked Issues`, declare `Resolves #<child_issue>` or `Closes #<parent_epic>` so GitHub natively links and automatically closes all related issues upon PR merge.
+2. **Atomic Commit Messages**:
+   - Commits focus strictly on technical rationale; issue reference footers (`Ref: #<id>`) are NOT mandatory on individual branch commits.
+   - NEVER use auto-closing keywords (`Fixes:`, `Closes:`, `Resolves:`) in commit messages to prevent premature issue closure.
+   - Footers are strictly reserved for `BREAKING CHANGE:` or optional standalone bugfix trailers (`Fixes: <hash>` per Linux kernel conventions).
+
 ## Human Audit & Verification Protocol (<critical>)
 
 1. **Inspection & Staging Proposal Only**: When requested to commit or run `git-flow`, the agent MUST ONLY check `git status` / `git diff`, propose the atomic commit slicing plan, and display the formatted Conventional Commit message (`format-commit.mjs` without `--execute`).
@@ -77,12 +87,11 @@ When decomposing a parent Epic or Feature issue into sub-tasks, link them native
 ## Quick Reference Rules
 
 - `conventional-commits` - Format all messages as `<type>(<scope>): <description>`. Validate via `format-commit.mjs`.
+- `no-close-in-commits` - NEVER use Fixes/Closes/Resolves in commit messages. Reserve issue linking and auto-closing keywords strictly for Pull Request descriptions.
 - `clean-branching` - Use `feature/`, `fix/`, `hotfix/`, or `core/` branch naming prefixes.
 - `enterprise-pr` - Enforce clean titles and structured body template without emojis.
 - `no-force-push-main` - NEVER force-push to main or master branches.
 - `human-audit-required` - NEVER execute `git commit` or `--execute` without explicit user audit confirmation.
-
----
 
 ## References
 
