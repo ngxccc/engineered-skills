@@ -77,14 +77,6 @@ Show the user a draft of the `## Engineering Standards` block to add to `AGENTS.
 Update the `## Engineering Standards` block in-place using sharp context pointers:
 
 ```markdown
-## AI-Human Collaboration Protocol
-
-- **Boilerplate Scaffolding**: AI scaffolds boilerplate code only (DTO schemas, module registrations, route constants, guard/interceptor skeletons, test harness).
-- **Core Business Logic**: AI MUST NEVER write core business logic, domain calculations, database transactions, or algorithm implementations directly.
-- **Structured TODO Guiding**: For all core logic, AI provides structured step-by-step `// TODO:` guidance and architectural review; human writes the implementation directly.
-
----
-
 ## Engineering Standards
 
 MUST read the corresponding standard file under `docs/standards/` before modifying related code or tests:
