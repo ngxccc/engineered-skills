@@ -164,15 +164,16 @@ func TestDiscoverSkillsAndSourcePath(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	// Scaffold skills in engineering, productivity, misc, and .claude/skills
+	// Scaffold skills in engineering, productivity, in-progress, misc, and .claude/skills
 	os.MkdirAll(filepath.Join(tmpDir, ".claude", "skills", "ag-docs"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "skills", "engineering", "diagnosing-bugs"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "skills", "productivity", "teach"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, "skills", "in-progress", "writing-polish"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "skills", "misc", "setup-pre-commit"), 0755)
 
 	discovered := config.DiscoverSkills(tmpDir)
-	if len(discovered) != 4 {
-		t.Fatalf("Expected 4 discovered skills, got %d", len(discovered))
+	if len(discovered) != 5 {
+		t.Fatalf("Expected 5 discovered skills, got %d", len(discovered))
 	}
 
 	sourcePathAgDocs := config.SkillSourcePath(tmpDir, "ag-docs")
@@ -185,6 +186,12 @@ func TestDiscoverSkillsAndSourcePath(t *testing.T) {
 	expectedBug := filepath.Join("skills", "engineering", "diagnosing-bugs")
 	if sourcePathBug != expectedBug {
 		t.Errorf("Expected source path '%s', got '%s'", expectedBug, sourcePathBug)
+	}
+
+	sourcePathInProgress := config.SkillSourcePath(tmpDir, "writing-polish")
+	expectedInProgress := filepath.Join("skills", "in-progress", "writing-polish")
+	if sourcePathInProgress != expectedInProgress {
+		t.Errorf("Expected source path '%s', got '%s'", expectedInProgress, sourcePathInProgress)
 	}
 
 	sourcePathMisc := config.SkillSourcePath(tmpDir, "setup-pre-commit")

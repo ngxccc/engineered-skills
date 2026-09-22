@@ -171,7 +171,7 @@ func main() {
 			selectedTargets = selected
 		}
 		if *skillsOpt == "" {
-			categories := []string{"Engineering", "Productivity", "Misc", "Core Harness"}
+			categories := []string{"Engineering", "Productivity", "In Progress", "Misc", "Core Harness"}
 			grouped := make(map[string][]config.SkillInfo)
 			for _, s := range discoveredSkills {
 				cat := s.Category
