@@ -1,0 +1,5 @@
+interface:
+  display_name: "I Have ADHD"
+  short_description: "Shape output for an ADHD brain"
+policy:
+  allow_implicit_invocation: false
