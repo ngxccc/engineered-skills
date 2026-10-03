@@ -1,0 +1,3 @@
+interface:
+  display_name: "Writing Flashcards"
+  short_description: "Decompose knowledge into high-signal atomic retrieval flashcards"
