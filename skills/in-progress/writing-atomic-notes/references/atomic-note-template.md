@@ -1,103 +1,155 @@
 # Atomic Note Reference & Templates
 
-A comprehensive guide and template for creating high-leverage atomic notes in Obsidian, Logseq, or Markdown-based Second Brain vaults.
+A comprehensive guide and reference template for creating high-leverage atomic notes adhering strictly to the Vault's **SSOT**, **Lean Taxonomy ($\le 2$ tags)**, and **Quality Gate**.
 
 ---
 
-## 1. The Standard Atomic Note Template
+## 1. Standard Concept Note Skeleton (`type/concept`)
 
-Copy and fill this skeleton for new notes:
+Use this skeleton for definitions, theories, algorithms, or mental models (`30_Resources/Concepts/`):
 
 ```markdown
 ---
-title: "Declarative Propositional Statement"
-type: atomic
-status: seedling | evergreen
-tags:
-  - domain/subdomain
-sources:
-  - "Author (Year) - Title, or URL"
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
+tags: [type/concept, status/permanent]
+aliases:
+  - Concept Alias Name
+  - English Full Name
+date: YYYY-MM-DD
+description: "Mô tả ngắn gọn 1 câu về bản chất và cơ chế cốt lõi của ghi chú."
 ---
 
-# Declarative Propositional Statement
+# Concept Title in English or Standard Form
 
-[Paragraph 1: The Core Claim & Context. State the core insight directly in active voice. Explain the invariant or boundary condition.]
+## TL;DR
 
-[Paragraph 2: The Mechanism. Explain _why_ or _how_ it works. Avoid vague abstractions; focus on the cause-and-effect relationship.]
+- **Bản chất**: Định nghĩa súc tích bản chất cơ chế / nguyên lý.
+- **Mục đích**: Giải quyết bài toán gì, tối ưu hóa điểm nào.
+- **Điểm mấu chốt**: Điểm giới hạn vật lý, failure mode, hoặc trade-off chính.
 
-## Grounding & Examples
+---
 
-[Provide a concrete real-world scenario, code snippet, numerical comparison, or counter-example that proves or grounds the claim.]
+## Core Concept
 
-## Connections
+[Phân tích cơ chế sâu, cấu trúc bộ nhớ, luồng thực thi Kernel/CPU, hoặc nguyên lý hoạt động. Thuật ngữ tiếng Anh giữ nguyên inline.]
 
-- Requires: [[Prerequisite Note]] — why this concept depends on that one.
-- Supports: [[Target Note]] — how this claim provides evidence or mechanisms for another.
-- Contrasts with: [[Alternative Note]] — how this perspective differs or trades off against another.
-- Enables: [[Downstream Note]] — what becomes possible once this claim is accepted.
-- Upstream MOC: [[MOC - Core Domain]]
+---
+
+## Practical Implementation / Failure Modes
+
+[Cấu hình thực tế, CLI flags, benchmark latency, hoặc kịch bản sập hệ thống (Failure Mode).]
+
+---
+
+## Related Notes
+
+- [[Prerequisite_Concept_Note]]: Cung cấp nền tảng nguyên lý cho cơ chế này.
+- [[Downstream_Application_Note]]: Hệ quả hoặc ứng dụng thực tế.
+- [[000_Concepts_MOC]]: Danh mục tri thức nền tảng trong vault.
 ```
 
 ---
 
-## 2. Complete Real-World Example
+## 2. Standard Method Note Skeleton (`type/method`)
 
-Here is a finished, high-quality atomic note demonstrating every principle:
+Use this skeleton for actionable SOPs, checklists, execution roadmaps, or workflows (`30_Resources/Methods/`):
 
 ```markdown
 ---
-title: "Deep modules lower cognitive load by placing extensive behavior behind small interfaces"
-type: atomic
-status: evergreen
-tags:
-  - architecture/interface-design
-  - engineering/complexity
-sources:
-  - "John Ousterhout (2018) - A Philosophy of Software Design, Chapter 4"
-created: 2026-09-13
+tags: [type/method, status/permanent]
+aliases:
+  - Method Workflow Name
+  - Execution SOP Name
+date: YYYY-MM-DD
+description: "Mô tả ngắn gọn 1 câu về quy trình thực thi, mục tiêu giải quyết và phạm vi áp dụng."
 ---
 
-# Deep modules lower cognitive load by placing extensive behavior behind small interfaces
+# Method or SOP Title
 
-A module is "deep" when its interface is dramatically simpler than the implementation behind it. The value of a module lies in the ratio of complexity hidden to interface surface area exposed. When a module encapsulates substantial complexity while offering only a handful of well-chosen methods, consumers can reason about the system without loading internal mechanics into working memory.
+## TL;DR
 
-Conversely, "shallow" modules—where the interface is nearly as complex as the implementation—provide negative leverage. They force the caller to manage internal details (such as multi-step lifecycle initialization or leaky error flags) while adding indirection without abstraction.
+- **Bản chất**: Định nghĩa quy trình thực thi hoặc framework hành động.
+- **Mục đích**: Đạt được kết quả gì, loại bỏ rủi ro nào.
+- **Điểm mấu chốt**: Tiêu chí hoàn thành (Definition of Done) hoặc nguyên tắc cốt lõi.
 
-## Grounding & Examples
+---
 
-- **Standard Unix I/O:** Five simple system calls (`open`, `read`, `write`, `close`, `lseek`) hide massive complexity across file systems, disk drivers, buffer caches, and network sockets. A consumer needs zero knowledge of block allocation or interrupt routines.
-- **Counter-example (Shallow Class):** A `UserValidationHelper` class with 10 lines of code across 3 separate pass-through methods adds boilerplate and import overhead without saving the consumer from understanding the underlying validation logic.
+## Context: When to use?
 
-## Connections
+[Ngữ cảnh cụ thể khi nào nên áp dụng SOP này, điều kiện tiên quyết, và khi nào KHÔNG nên áp dụng.]
 
-- Requires: [[Information hiding prevents state leakage across architectural seams]] — foundational concept behind deep interface boundaries.
-- Contrasts with: [[Micro-abstractions increase system entropy through dependency fan-out]] — shallow modules create tangled call graphs.
-- Enables: [[Stable seams allow independent refactoring without breaking callers]] — callers depend only on the minimal API contract.
-- Upstream MOC: [[MOC - Software Architecture]]
+---
+
+## Step-by-Step Implementation
+
+1. **Bước 1 (Preparation)**: Các bước chuẩn bị và invariant cần kiểm tra.
+2. **Bước 2 (Execution)**: Lệnh thực thi, code mẫu, hoặc hành động cụ thể.
+3. **Bước 3 (Verification)**: Lệnh kiểm thử, đo lường kết quả thực tế.
+
+---
+
+## Related Notes
+
+- [[Associated_Concept_Note]]: Nền tảng lý thuyết đằng sau quy trình này.
+- [[000_Methods_MOC]]: Danh mục quy trình thực thi trong vault.
 ```
 
 ---
 
-## 3. Anti-Patterns vs. Modern Best Practices
+## 3. Real-World Vault Reference Example
 
-| Anti-Pattern                                                                              | Why It Fails                                                                                   | Modern Atomic Pattern                                                                                                                 |
-| :---------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
-| **Topic Titles:**<br>`# Caching`                                                          | Doesn't make a claim. Reader and RAG models must open the file to know what it argues.         | **Propositional API:**<br>`# Write-through caches eliminate read latency at the expense of write throughput`                          |
-| **Bare Link Dumps:**<br>`See also: [[A]], [[B]], [[C]]`                                   | Dead graph edges. Zero information about _why_ they relate, breaking semantic graph traversal. | **Annotated Predicates:**<br>`- Contrasts with: [[Write-around caching]] which avoids polluting cache with one-off bulk writes.`      |
-| **Source Summaries:**<br>Three pages summarizing Chapter 2 of a book.                     | Monolithic note that cannot be reused across different projects or contexts.                   | **Atomized Extraction:**<br>Extract 3–5 standalone claims from Chapter 2 into separate atomic notes, each linking back to the source. |
-| **Corporate AI Slop:**<br>_"Caching plays a vital role in fostering scalable paradigms."_ | Zero information density. Fails the Portability Test.                                          | **Concrete Mechanics:**<br>_"LRU eviction bounds memory consumption to O(N) entries with O(1) amortized access time."_                |
+```markdown
+---
+tags: [type/concept, status/permanent]
+aliases:
+  - Redis Event Loop Architecture
+  - Redis Single Threaded Event Loop
+date: 2026-10-02
+description: "Bản chất kiến trúc Single-threaded Event Loop của Redis: phân tách Network Layer qua I/O Multiplexing epoll/kqueue và Execution Layer tuần tự trên RAM."
+---
+
+# Redis Single Threaded Event Loop Architecture
+
+## TL;DR
+
+- **Bản chất**: Redis vận hành dựa trên Reactor Pattern: tách bạch tầng Network I/O qua I/O Multiplexing (epoll/kqueue) và tầng Execution xử lý tuần tự từng Command trên đúng 1 luồng chính duy nhất.
+- **Mục đích**: Loại bỏ chi phí Thread Context Switch, triệt tiêu Lock Contention, và tối đa hóa CPU Cache Locality khi thao tác trực tiếp trên RAM.
+- **Điểm mấu chốt**: Vì Command Engine là Single-threaded tuần tự, bất kỳ lệnh nào có Time Complexity O(N) sẽ gây ra Head-of-Line Blocking làm tê liệt toàn bộ Event Loop.
 
 ---
 
-## 4. Pre-Save Quality Checklist
+## Core Concept
 
-Before finalizing an atomic note, verify:
+[Phân tích kiến trúc chi tiết...]
 
-- [ ] **Propositional Title:** Does the title read as a complete, declarative sentence?
-- [ ] **Strict Atomicity:** Does this note make exactly one core claim?
-- [ ] **Self-Contained:** Can an engineer or reader understand this note without opening its sources?
-- [ ] **Portability Test:** Is the note free of generic filler and buzzwords?
-- [ ] **Annotated Edges:** Does every `[[wikilink]]` have an explicit relationship predicate?
-- [ ] **Upstream Anchor:** Is it hooked into at least one Map of Content (MOC) or index?
+---
+
+## Practical Implementation
+
+[Code và cấu hình thực tế...]
+
+---
+
+## Related Notes
+
+- [[Latency_Percentiles_and_Throughput_Fundamentals]]: Nguyên lý độ trễ p99 khi bị tắc nghẽn Single-thread.
+- [[000_Tech_MOC]]: Bản đồ điều hướng kỹ thuật công nghệ.
+```
+
+---
+
+## 4. Pre-Commit Quality Checklist
+
+Trước khi lưu file hoặc kết thúc lượt làm việc:
+
+- [ ] **Tên file**: Định dạng `Pascal_Snake_Case.md`.
+- [ ] **Lean Tags**: Tối đa 2 tags (`type/*` bắt buộc, `status/*` tùy chọn).
+- [ ] **Frontmatter**: Đầy đủ `tags`, `aliases`, `date`, `description`.
+- [ ] **Heading 1**: Khớp với tên file hoặc luận điểm chính.
+- [ ] **Mục TL;DR**: Đúng 3 bullets (`Bản chất`, `Mục đích`, `Điểm mấu chốt`).
+- [ ] **Thuật ngữ**: Giữ nguyên English terms inline, giải thích bằng tiếng Việt tự nhiên.
+- [ ] **Không Emoji**: 100% sạch icon/emoji.
+- [ ] **Related Notes**: Có mục `## Related Notes` với liên kết ngữ cảnh có chú thích.
+- [ ] **Quality Gate**: Chạy lệnh và đạt $0$ lỗi:
+  ```bash
+  bun .claude/skills/writing-atomic-notes/scripts/validate-atomic-notes.mjs <path-to-file>
+  ```
