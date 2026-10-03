@@ -11,6 +11,7 @@ const scripts = [
 	{ name: "Design Docs", file: "validate-design-docs.mjs" },
 	{ name: "Formal Specs", file: "validate-formal-specs.mjs" },
 	{ name: "Workflow Docs", file: "validate-workflow-docs.mjs" },
+	{ name: "Benchmark Reports", file: "validate-benchmarks.mjs" },
 ];
 
 function runScript(script) {

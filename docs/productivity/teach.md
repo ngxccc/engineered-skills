@@ -29,6 +29,9 @@ Manually reading AI code line-by-line by eye causes Cognitive Load overload and 
 **How does empirical verification work?**  
 Mental models must be proven against runtime reality: inspecting CLI outputs, network packet frames, log traces, running failing-to-passing tests, or profiling memory/CPU metrics.
 
+**What is the 3-Phase Learner Progression Model?**  
+Derived from empirical research on AI-native engineering pedagogy, it structures mastery into three progressive phases: Phase 1 (Master System Fundamentals & Runtime Mechanics via hands-on scaffolding without abstractions), Phase 2 (Invariant & Test-Driven Specification defining strict boundary assertions before business code), and Phase 3 (AI Agent Orchestration & Observability for automated verification at scale).
+
 ## It's working if
 
 - It asks targeted Socratic questions calibrated to your Zone of Proximal Development (ZPD) instead of dumping essay explanations.

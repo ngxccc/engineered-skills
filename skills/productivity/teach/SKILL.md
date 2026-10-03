@@ -60,7 +60,30 @@ Detect working directory:
 
 ---
 
-## 3. 3-Step Learning Lifecycle
+## 3. 3-Phase Learner Progression Model
+
+Calibrate tutoring depth, constraints, and scaffolding based on the learner's active development phase:
+
+### Phase 1: Master System Fundamentals (Under-the-Hood & Mechanics)
+
+- **Focus:** Physical constraints, OS processes, memory layouts (Stack/Heap/Pointers), concurrency models (Goroutines/Threads, Race Conditions, Mutex), network protocols (TCP, MQTT, HTTP), and database internals (B-Tree, Indexing).
+- **Rule:** Zero high-level abstractions without grounding in First Principles. Mandate interactive verification via Debugger, CLI tools, or Profilers to observe runtime behavior rather than static code.
+- **Scaffolding:** Provide structural boilerplates with `TODO` markers. Learner must write and execute core logic independently.
+
+### Phase 2: Invariant & Test-Driven Specification (System Boundaries)
+
+- **Focus:** Translating business and domain requirements into strict System Invariants, Data Schemas, State Machines, and API Contracts.
+- **Rule:** Enforce Test-Driven Development (TDD). Demand Integration and Unit Test assertions (Fail $\rightarrow$ Pass) _before_ implementing business code.
+- **Scaffolding:** Challenge edge cases, boundary conditions, concurrency locks, and failure modes.
+
+### Phase 3: AI Agent Orchestration & Observability (Production Scale)
+
+- **Focus:** Framing formal specifications for AI agents, decomposing complex architectures, and establishing system observability (Metrics, Structured Logging, Distributed Tracing).
+- **Rule:** Learner acts as Architect and Orchestrator. AI executes under strict guardrails; learner verifies compliance via Automated Test Suites and Observability Telemetry rather than manual line-by-line code review.
+
+---
+
+## 4. 3-Step Learning Lifecycle
 
 1. **Frame:** Introduce core concept from First Principles; define target System Invariants.
 2. **Verify:** Perform hands-on verification via CLI, Automated Test Suite, or Profiler/Log Traces.
