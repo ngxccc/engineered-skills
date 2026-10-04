@@ -39,7 +39,7 @@ Lead each section with the recommended answer so the user can accept it in a wor
 
 Default posture: if `git remote` points at GitHub, propose GitHub. If GitLab, propose GitLab. Otherwise:
 
-- **GitHub** — issues live in repo's GitHub Issues (uses `gh` CLI)
+- **GitHub** — issues live in repo's GitHub Issues (uses `gh` CLI). If `.github/ISSUE_TEMPLATE/` is absent, scaffold standardized issue forms (`task.yml`, `sub_issue.yml`, `bug_report.yml`, `feature_request.yml`, `config.yml`) from `references/issue-templates/`.
 - **GitLab** — issues live in repo's GitLab Issues (uses `glab` CLI)
 - **Local markdown** — issues live as files under `.scratch/<feature>/`
 - **Other** (Jira, Linear, etc.) — record freeform prose description
@@ -103,6 +103,7 @@ Scaffold all standard files into `docs/standards/` using the seed templates in `
 - [references/standards/testing-and-fixtures.md](./references/standards/testing-and-fixtures.md) → `docs/standards/testing-and-fixtures.md`
 - [references/standards/security-and-cryptography.md](./references/standards/security-and-cryptography.md) → `docs/standards/security-and-cryptography.md`
 - [references/standards/git-flow-and-pr-matrix.md](./references/standards/git-flow-and-pr-matrix.md) → `docs/standards/git-flow-and-pr-matrix.md`
+- [references/issue-templates/](./references/issue-templates/) → `.github/ISSUE_TEMPLATE/` (if GitHub tracker and missing)
 
 Format requirement: high density — decision tables, code snippets, sharp context pointers. No narrative fluff, no redundant parentheses, zero tutorial prose.
 
