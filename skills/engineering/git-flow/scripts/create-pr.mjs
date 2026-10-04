@@ -6,7 +6,7 @@
  * Validates PR title, body, Conventional Commits format, and strict emoji prohibition.
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -300,12 +300,22 @@ function main() {
 
 	if (params.execute) {
 		try {
-			let cmd = `gh pr create --title "${title}" --body "${prBody}" --base "${params.base}"`;
-			if (params.draft) cmd += " --draft";
-			for (const l of params.labels) cmd += ` --label "${l}"`;
-			for (const a of params.assignees) cmd += ` --assignee "${a}"`;
-			console.log(`Executing: ${cmd}`);
-			const output = execSync(cmd, { encoding: "utf8" });
+			const ghArgs = [
+				"pr",
+				"create",
+				"--title",
+				title,
+				"--body",
+				prBody,
+				"--base",
+				params.base,
+			];
+			if (params.draft) ghArgs.push("--draft");
+			for (const l of params.labels) ghArgs.push("--label", l);
+			for (const a of params.assignees) ghArgs.push("--assignee", a);
+
+			console.log("Executing: gh pr create with sanitized arguments");
+			const output = execFileSync("gh", ghArgs, { encoding: "utf8" });
 			console.log(output);
 		} catch (e) {
 			console.error("Failed to execute gh pr create:", e.message);
