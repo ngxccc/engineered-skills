@@ -37,13 +37,13 @@ const files = fs.readdirSync(designDir).filter((f) => f.endsWith(".md"));
 
 if (files.length === 0) {
 	console.log(
-		`${colors.yellow}Warning: No Design Doc files found in docs/design or second-brain/Docs/Design.${colors.reset}`,
+		`${colors.yellow}Warning: No Design Spec files found in docs/design or second-brain/Docs/Design.${colors.reset}`,
 	);
 	process.exit(0);
 }
 
 console.log(
-	`${colors.cyan}Auditing ${files.length} System Design & Workflow Documents...${colors.reset}\n`,
+	`${colors.cyan}Auditing ${files.length} System Design Specs (per consolidated design standard)...${colors.reset}\n`,
 );
 
 const requiredSections = [
@@ -58,20 +58,32 @@ for (const file of files) {
 	const content = fs.readFileSync(filePath, "utf-8");
 	const currentFileFailures = failures;
 
-	// 1. Check filename format (e.g., booking-payment-workflow.md or feature-topic-design.md)
-	if (!/^[a-z0-9-]+(-workflow|-design)?\.md$/.test(file)) {
+	// 1. Check filename format: clean kebab-case (e.g. booking-core-concurrency.md)
+	if (!/^[a-z0-9-]+\.md$/.test(file)) {
 		logError(
 			file,
-			"Filename must be kebab-case, e.g., 'booking-payment-workflow.md'",
+			"Filename must be clean kebab-case, e.g., 'shows-seating-chart-matrix.md'",
 		);
 	}
 
-	// 2. Check for H1 Title
+	// 2. Check frontmatter docType
+	if (
+		!/docType:\s*(feature-design|infrastructure-design|feature-workflow|infrastructure-workflow)/.test(
+			content,
+		)
+	) {
+		logError(
+			file,
+			"Missing or invalid frontmatter 'docType'. Must be 'feature-design' or 'infrastructure-design'.",
+		);
+	}
+
+	// 3. Check for Level 1 Heading (# Title)
 	if (!/^#\s+.+/m.test(content)) {
 		logError(file, "File must contain a Level 1 Heading (# Title)");
 	}
 
-	// 3. Check Required Sections (flexible matching for section headers)
+	// 4. Check Required Positive Sections
 	for (const section of requiredSections) {
 		const regex = new RegExp(`##.*${section}`, "i");
 		if (!regex.test(content)) {
@@ -79,8 +91,25 @@ for (const file of files) {
 		}
 	}
 
+	// 5. Positive Check: Mandatory Mermaid Sequence Diagram (Runtime View)
+	const hasSequence = /```mermaid\s*\n\s*sequenceDiagram/m.test(content);
+	if (!hasSequence) {
+		logError(
+			file,
+			"Design Spec MUST contain an autonumbered Mermaid sequence diagram (```mermaid\\nsequenceDiagram).",
+		);
+	}
+
+	// 6. STRICT NEGATIVE CHECK: Ban Work Breakdown Structure (WBS) tables
+	if (/\|\s*WBS Code\s*\|\s*Component/i.test(content)) {
+		logError(
+			file,
+			"ANTI-PATTERN: Work Breakdown Structure (WBS) tables are strictly forbidden in design docs. Track tasks in GitHub Issues/Jira.",
+		);
+	}
+
 	if (failures === currentFileFailures) {
-		logSuccess(file, "Passed structural and naming validation.");
+		logSuccess(file, "Passed consolidated design spec validation.");
 	}
 }
 
@@ -92,7 +121,7 @@ if (failures > 0) {
 	process.exit(1);
 } else {
 	console.log(
-		`\n${colors.green}${colors.bold}All Design Docs passed validation cleanly.${colors.reset}`,
+		`\n${colors.green}${colors.bold}All System Design Specs passed validation cleanly.${colors.reset}`,
 	);
 	process.exit(0);
 }
