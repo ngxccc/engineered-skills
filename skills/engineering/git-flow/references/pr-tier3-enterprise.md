@@ -23,9 +23,7 @@ RS256 signed JWT tokens verified at edge gateways.
 
 BREAKING CHANGE: Authentication header now requires `Bearer <token>`.
 
-Fixes: #104
 Signed-off-by: Developer <dev@company.com>
-ADR: docs/adr/0002-jwt-bearer-auth.md
 ```
 
 ---
@@ -33,40 +31,53 @@ ADR: docs/adr/0002-jwt-bearer-auth.md
 ## 2. PR Body Markdown Template
 
 ```markdown
-## Summary & Architectural Intent
+## Summary
 
-High-level description of architectural changes and system-level rationale.
+<Mermaid sequence/flowchart diagram, call tree, component tree, or embedded architecture image>
 
-## Linked ADR / RFC Spec
+System-level architectural rationale and intent.
+
+## Context
 
 - ADR / RFC: `docs/adr/NNNN-slug.md` (Mandatory for Tier 3 changes)
+- Resolves: #<issue_number>
+- Relates to: #<issue_number>
 
-## Type of Change
+## Changes
+
+Type of change:
 
 - [ ] core: Architectural / Kernel overhaul
 - [ ] breaking: Breaking API change (`!`)
 - [ ] security: Security vulnerability patch
 - [ ] schema: Database migration / DDL update
 
-## Detailed Architectural Impact
+Architectural impact:
 
 - **Data Models / State**: Changes to state machines or database tables.
 - **Interfaces / Seams**: API contracts or boundary modifications.
-- **Performance & Latency Impact**: Expected latency/throughput tradeoffs.
+- **Performance & Latency**: Expected latency/throughput tradeoffs.
 
-## Atomic Commit Verification
+## Evidence
 
-- [ ] Every commit in PR branch compiles and passes test suite independently.
-
-## Verification Evidence & Logs
+- **Before:** <benchmark metrics, system state, or failing execution logs>
+- **After:** <benchmark metrics, system state, or passing execution logs>
 ```
 
-[Paste full terminal test logs, benchmark execution outputs, or integration test evidence]
+[Full execution logs, test traces, or benchmark outputs]
 
 ```
 
-## Security & Audit Assessment
+## Risk
+
+- **Door:** <one-way door (breaking DDL, permanent migration, security cutover) | two-way door>
+- **Blast Radius:** <exact downstream consumers, services, or data stores affected>
+- **Rollback:** <documented step-by-step procedure to revert if failure occurs>
+
+## Checklist
+
+- [ ] Every commit in PR branch compiles and passes test suite independently (Atomic)
 - [ ] Zero hardcoded credentials or unmasked secrets
 - [ ] RBAC / Authorization boundaries validated
-- [ ] Production rollback strategy documented
+- [ ] Production rollback strategy verified
 ```

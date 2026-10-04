@@ -16,7 +16,7 @@ Defines Conventional Commit specifications, rules, and the 3-Tier PR Selection M
 
 ### Issue Closing & Linking Protocol
 
-1. **Pull Request Descriptions (Primary)**: Declare `Resolves: #<id>` or `Closes: #<id>` under `## Linked Issues` in the PR body so GitHub natively links and automatically closes related issues upon merge.
+1. **Pull Request Descriptions (Primary)**: Declare `Resolves: #<id>` (to auto-close upon merge) or `Relates to: #<id>` (for non-closing reference / backlink) under `## Context` in the PR body.
 2. **Atomic Commit Messages**: Focus strictly on technical context and rationale. Footers are optional and reserved for `BREAKING CHANGE:` or standalone bugfix trailers (`Fixes: <hash>` per Linux kernel conventions).
 
 ### Allowed Types
@@ -80,5 +80,5 @@ node skills/engineering/git-flow/scripts/format-commit.mjs --type test --scope a
 | Tier                      | Scope / Risk                                             | Reference Template                                            | Key Requirements                                                            |
 | :------------------------ | :------------------------------------------------------- | :------------------------------------------------------------ | :-------------------------------------------------------------------------- |
 | **Tier 1 (Patch)**        | Typo, docs, minor dependency bump.                       | [`references/pr-tier1-patch.md`](pr-tier1-patch.md)           | 2-line PR body, minimal ceremony.                                           |
-| **Tier 2 (Standard)**     | Feature, bugfix, module refactor (Default).              | [`references/pr-tier2-standard.md`](pr-tier2-standard.md)     | Full 5-section PR body with verification logs.                              |
+| **Tier 2 (Standard)**     | Feature, bugfix, module refactor (Default).              | [`references/pr-tier2-standard.md`](pr-tier2-standard.md)     | Full 6-section PR body with visual summary and evidence.                    |
 | **Tier 3 (Kernel-Grade)** | Core architecture, DB schema, security, breaking change. | [`references/pr-tier3-enterprise.md`](pr-tier3-enterprise.md) | Atomic commits, mandatory ADR/RFC link, Signed-off-by, full benchmark logs. |

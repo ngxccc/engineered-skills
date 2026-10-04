@@ -21,7 +21,7 @@ Example: `docs(readme): fix typo in quick start guide`
 
 Quick documentation / patch update.
 
-## Verification
+## Checklist
 
 - [x] Manual check completed
 ```

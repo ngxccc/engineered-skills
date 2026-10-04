@@ -22,9 +22,18 @@ Examples:
 ```markdown
 ## Summary
 
+<diagram, component/call tree, diff sketch, or embedded screenshot/media>
+
 Concise explanation of changes introduced by this PR and the technical reason.
 
-## Type of Change
+## Context
+
+- Resolves: #<issue_number>
+- Relates to: #<issue_number>
+
+## Changes
+
+Type of change:
 
 - [ ] feat: New feature
 - [ ] fix: Bug fix
@@ -34,29 +43,25 @@ Concise explanation of changes introduced by this PR and the technical reason.
 - [ ] docs: Documentation update
 - [ ] chore: Maintenance update
 
-## Context & Related References
-
-- Relates to #<issue_number>
-
-## Changes Made
+Key changes:
 
 - Technical breakdown of specific changes made across files/packages.
 
-## Verification & Testing
+## Evidence
 
-- [ ] Type check passed (`bun run check-types` / `tsc --noEmit`)
-- [ ] Unit & integration test suite passed (`bun test`)
+- **Before:** <embedded screenshot/image, failing test execution log, or old behavior>
+- **After:** <embedded screenshot/image, passing test execution log, or new behavior>
+
+## Risk
+
+- **Door:** <two-way door (low risk, cheap to roll back) | one-way door (high friction/irreversible)>
+- **Blast Radius:** <scope of impact, downstream modules, or services affected>
+
+## Checklist
+
+- [ ] Type check passed (`tsc --noEmit` / language equivalent)
+- [ ] Unit & integration test suite passed
 - [ ] Manual verification completed
-
-### Testing Evidence
-```
-
-[Paste execution output, test suite logs, or smoke test command results here]
-
-```
-
-## Security & Compliance Checklist
-- [ ] No hardcoded secrets or API tokens
-- [ ] Zero Semantic Noise commenting standards maintained
-- [ ] Backwards-compatibility verified
+- [ ] Zero hardcoded secrets or API tokens
+- [ ] No breaking changes to existing public APIs
 ```
