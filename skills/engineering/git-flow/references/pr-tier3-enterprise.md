@@ -40,11 +40,9 @@ System-level architectural rationale and intent.
 ## Context
 
 - ADR / RFC: `docs/adr/NNNN-slug.md` (Mandatory for Tier 3 changes)
-
-<!-- Optional issue links: omit if this PR does not relate to an existing ticket -->
-
-- Resolves: #<issue_number>
-- Relates to: #<issue_number>
+- Resolves: #<issue_number> <!-- If completing an issue -->
+- Relates to: #<issue_number> <!-- If referencing an issue without closing -->
+- None <!-- If no related issue -->
 
 ## Changes
 

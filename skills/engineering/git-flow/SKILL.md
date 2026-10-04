@@ -127,7 +127,7 @@ When decomposing a parent Epic or Feature issue into sub-tasks, link them native
 1. **Pull Request Descriptions (Primary Linking Mechanism)**:
    - Issue tracking belongs at the Pull Request level, NOT in individual atomic commits.
    - Under `## Context`, declare `Resolves: #<id>` (to auto-close the issue on merge) or `Relates to: #<id>` (for non-closing reference / backlink).
-   - **Optional:** If the PR is standalone or does not originate from an existing issue, omit `## Context` or issue references entirely. NEVER self-reference the PR itself or invent placeholder links.
+   - If the PR is standalone or does not relate to an existing issue, keep `## Context` and specify `- None`. Do NOT omit `## Context` (ensuring every PR shares the identical 6-part layout) and NEVER self-reference the PR itself (`Relates to: #<own-pr-id>`).
 2. **Atomic Commit Messages**:
    - Commits focus strictly on technical rationale; issue reference footers (`Ref: #<id>`) are NOT mandatory on individual branch commits.
    - NEVER use auto-closing keywords (`Fixes:`, `Closes:`, `Resolves:`) in commit messages to prevent premature issue closure.

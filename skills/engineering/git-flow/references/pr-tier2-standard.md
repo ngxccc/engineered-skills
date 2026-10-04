@@ -28,10 +28,9 @@ Concise explanation of changes introduced by this PR and the technical reason.
 
 ## Context
 
-<!-- Optional: omit this section entirely if this PR does not relate to an existing issue/ticket -->
-
-- Resolves: #<issue_number>
-- Relates to: #<issue_number>
+- Resolves: #<issue_number> <!-- If completing an issue -->
+- Relates to: #<issue_number> <!-- If referencing an issue without closing -->
+- None <!-- If standalone / no related issue -->
 
 ## Changes
 

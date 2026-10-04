@@ -171,9 +171,10 @@ function validateBody(body, tier) {
 		if (!hasHeading("Checklist"))
 			errors.push("Missing required section: '## Checklist'");
 	} else {
-		// Tier 2 and Tier 3 required core sections (Context is optional if standalone)
+		// Tier 2 and Tier 3 required canonical 6 sections (Context is mandatory, use 'None' if standalone)
 		const requiredSections = [
 			"Summary",
+			"Context",
 			"Changes",
 			"Evidence",
 			"Risk",
@@ -185,14 +186,16 @@ function validateBody(body, tier) {
 			}
 		}
 
-		// Check context section only if present
+		// Check context section: must have either valid issue link or explicit None
 		if (hasHeading("Context")) {
 			const isExplicitNone = /none|standalone|n\/a/i.test(body);
 			const hasLink = /(Resolves:|Relates to:|Fixes:|Closes:)\s*#\d+/i.test(
 				body,
 			);
 			if (!hasLink && !isExplicitNone && tier !== 3) {
-				// Informational only, not a hard warning
+				warnings.push(
+					"Section '## Context' should link an issue (Resolves: #<id>, Relates to: #<id>) or state '- None'.",
+				);
 			}
 		}
 
