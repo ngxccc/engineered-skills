@@ -97,30 +97,36 @@ Use `## Notes` to call out specific areas for the reviewer to scrutinize, archit
 
 ---
 
-## GitHub Native Sub-Issues Protocol
+## GitHub Issue Creation & Native Sub-Issues Protocol
 
-When decomposing a parent Epic or Feature issue into sub-tasks, link them natively in GitHub Issues using the official REST API:
+When creating issues or decomposing a parent Epic/Feature into sub-tasks:
 
-1. **Create the Child Ticket:**
+1. **Create and Link via `create-issue.mjs` (Recommended)**:
 
    ```bash
-   gh issue create --title "<type>(<area>): <title>" --label "<labels>" --body "..."
+   node skills/engineering/git-flow/scripts/create-issue.mjs \
+     --type task \
+     --title "task(<scope>): <summary>" \
+     --parent <parent_number> \
+     --blocked-by <blocked_by_number> \
+     --execute
    ```
 
-2. **Extract Child Integer Database ID:**
+   Automatically validates Conventional Commit title, verifies the single-noun body schema (`Context`, `Scope`, `Acceptance`), publishes the issue, and links it to the parent via the GitHub Native Sub-Issues API.
+
+2. **Manual Native Sub-Issues Linking (Under the Hood)**:
 
    ```bash
+   # 1. Create child ticket
+   gh issue create --title "task(<scope>): <title>" --label "type:task" --body "..."
+
+   # 2. Extract child integer database ID
    CHILD_ID=$(gh api repos/{owner}/{repo}/issues/<child_number> --jq .id)
-   ```
 
-3. **Link Child to Parent Issue via Native Sub-Issues Endpoint:**
-
-   ```bash
+   # 3. Link child to parent issue via REST API
    gh api --method POST repos/{owner}/{repo}/issues/<parent_number>/sub_issues -F sub_issue_id=$CHILD_ID
-   ```
 
-4. **Verify Parent Hierarchy:**
-   ```bash
+   # 4. Verify parent hierarchy
    gh api repos/{owner}/{repo}/issues/<parent_number>/sub_issues --jq '.[] | "#\(.number): \(.title)"'
    ```
 

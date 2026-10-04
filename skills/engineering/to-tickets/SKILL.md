@@ -70,48 +70,56 @@ Publish the approved tickets in dependency order (blockers first).
    - Check if the repository defines custom issue forms in `.github/ISSUE_TEMPLATE/` (e.g. `feature_request.yml`, `task.yml`). If present, structure the ticket body to align with those fields.
 
 2. **Publish Mechanism**:
-   - **GitHub Issues**: Execute `gh issue create --title "<type>(<area>): <title>" --body "..." --label "<comma-separated-labels>"`. For multi-line bodies, pass via heredoc or file. Attach native blocking relationships where supported.
-   - **Native Sub-Issues Linking**: When child tickets belong to a parent issue, link them via the GitHub Native Sub-Issues API following the protocol in `skills/git-flow`:
+   - **GitHub Issues via `create-issue.mjs` (Recommended)**:
      ```bash
-     CHILD_ID=$(gh api repos/{owner}/{repo}/issues/<child_number> --jq .id)
-     gh api --method POST repos/{owner}/{repo}/issues/<parent_number>/sub_issues -F sub_issue_id=$CHILD_ID
+     node skills/engineering/git-flow/scripts/create-issue.mjs \
+       --type task \
+       --title "task(<scope>): <summary>" \
+       --parent <parent_id> \
+       --blocked-by <blocked_by_id> \
+       --body-file <ticket_body_file> \
+       --execute
      ```
+     Automatically validates Conventional Commit title, verifies the single-noun body schema, creates the issue, and attaches it via the GitHub Native Sub-Issues API.
+   - **Manual CLI Fallback**: Execute `gh issue create --title "task(<scope>): <summary>" --body "..." --label "type:task"`.
    - **Local files**: Write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order.
 
 Work the **frontier**: any ticket whose blockers are all done. Do NOT close or modify any parent issue.
 <local-ticket-template>
 
-# <NN> — <Ticket title>
+# <NN> — <type>(<scope>): <Ticket title>
 
-**What to build:** the end-to-end behaviour this ticket makes work, from the user's perspective — not a layer-by-layer implementation list.
+## Context
 
-**Blocked by:** the numbers/titles of the tickets that gate this one, or "None — can start immediately".
+- Parent: None
+- Blocked by: None
 
-**Status:** ready-for-agent
+## Scope
 
-- [ ] Acceptance criterion 1
-- [ ] Acceptance criterion 2
+The end-to-end behaviour this ticket makes work, from the user's perspective — not a layer-by-layer implementation list.
+
+## Acceptance
+
+- [ ] Criterion 1
+- [ ] Criterion 2
 
 </local-ticket-template>
 
 <issue-template>
 
-## Parent
+## Context
 
-A reference to the parent issue on the tracker (if the source was an existing issue, otherwise omit this section).
+- Parent: #<parent_number> <!-- Or None if root task -->
+- Blocked by: #<blocking_number> <!-- Or None if ready immediately -->
 
-## What to build
+## Scope
 
-The end-to-end behaviour this ticket makes work, from the user's perspective — not layer-by-layer implementation.
+The end-to-end behaviour this ticket makes work, from the user's perspective — not a layer-by-layer implementation list.
 
-## Acceptance criteria
+## Acceptance
 
 - [ ] Criterion 1
 - [ ] Criterion 2
-
-## Blocked by
-
-- A reference to each blocking ticket, or "None — can start immediately".
 
 </issue-template>
 
