@@ -171,30 +171,28 @@ function validateBody(body, tier) {
 		if (!hasHeading("Checklist"))
 			errors.push("Missing required section: '## Checklist'");
 	} else {
-		// Tier 2 and Tier 3 require canonical 6 single-noun sections
-		const canonicalSections = [
+		// Tier 2 and Tier 3 required core sections (Context is optional if standalone)
+		const requiredSections = [
 			"Summary",
-			"Context",
 			"Changes",
 			"Evidence",
 			"Risk",
 			"Checklist",
 		];
-		for (const sec of canonicalSections) {
+		for (const sec of requiredSections) {
 			if (!hasHeading(sec)) {
 				errors.push(`Missing required section: '## ${sec}'`);
 			}
 		}
 
-		// Check context section for issue linking
+		// Check context section only if present
 		if (hasHeading("Context")) {
+			const isExplicitNone = /none|standalone|n\/a/i.test(body);
 			const hasLink = /(Resolves:|Relates to:|Fixes:|Closes:)\s*#\d+/i.test(
 				body,
 			);
-			if (!hasLink) {
-				warnings.push(
-					"Section '## Context' should link an issue (Resolves: #<id> or Relates to: #<id>).",
-				);
+			if (!hasLink && !isExplicitNone && tier !== 3) {
+				// Informational only, not a hard warning
 			}
 		}
 

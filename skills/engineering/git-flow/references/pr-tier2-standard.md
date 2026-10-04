@@ -22,11 +22,13 @@ Examples:
 ```markdown
 ## Summary
 
-<diagram, component/call tree, diff sketch, or embedded screenshot/media>
+[Optional visual: screenshot/image, Mermaid diagram, call tree, or diff sketch - include only if helpful]
 
 Concise explanation of changes introduced by this PR and the technical reason.
 
 ## Context
+
+<!-- Optional: omit this section entirely if this PR does not relate to an existing issue/ticket -->
 
 - Resolves: #<issue_number>
 - Relates to: #<issue_number>

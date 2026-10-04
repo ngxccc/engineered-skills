@@ -38,9 +38,9 @@ Before creating a branch or opening a PR, evaluate scope and risk to select the 
 
 ## Visual-First PR Body Formatting
 
-When constructing PR bodies (Tier 2 Standard & Tier 3 Enterprise), prioritize instant visual comprehension so reviewers grasp changes in under 30 seconds:
+When constructing PR bodies (Tier 2 Standard & Tier 3 Enterprise), prioritize instant comprehension. Visuals (diagrams, images, trees) are **optional and context-dependent**: include them when they genuinely clarify changes (e.g. UI overhauls, complex architecture/state transitions). For straightforward fixes, refactors, or config changes, concise plain text is completely sufficient — **never fabricate artificial diagrams or trees where they add no value**.
 
-### 1. Summary Visuals (Match format to change type)
+### 1. Summary Visuals (Include only when helpful)
 
 - **UI / Frontend Changes:** Embed screenshots, side-by-side Before/After image tables, or recording links:
   ```markdown
@@ -127,6 +127,7 @@ When decomposing a parent Epic or Feature issue into sub-tasks, link them native
 1. **Pull Request Descriptions (Primary Linking Mechanism)**:
    - Issue tracking belongs at the Pull Request level, NOT in individual atomic commits.
    - Under `## Context`, declare `Resolves: #<id>` (to auto-close the issue on merge) or `Relates to: #<id>` (for non-closing reference / backlink).
+   - **Optional:** If the PR is standalone or does not originate from an existing issue, omit `## Context` or issue references entirely. NEVER self-reference the PR itself or invent placeholder links.
 2. **Atomic Commit Messages**:
    - Commits focus strictly on technical rationale; issue reference footers (`Ref: #<id>`) are NOT mandatory on individual branch commits.
    - NEVER use auto-closing keywords (`Fixes:`, `Closes:`, `Resolves:`) in commit messages to prevent premature issue closure.

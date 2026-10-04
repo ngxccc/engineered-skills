@@ -33,13 +33,16 @@ Signed-off-by: Developer <dev@company.com>
 ```markdown
 ## Summary
 
-<Mermaid sequence/flowchart diagram, call tree, component tree, or embedded architecture image>
+[Optional visual: Mermaid diagram, architecture image, call tree, or component hierarchy - include if helpful]
 
 System-level architectural rationale and intent.
 
 ## Context
 
 - ADR / RFC: `docs/adr/NNNN-slug.md` (Mandatory for Tier 3 changes)
+
+<!-- Optional issue links: omit if this PR does not relate to an existing ticket -->
+
 - Resolves: #<issue_number>
 - Relates to: #<issue_number>
 
