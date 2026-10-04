@@ -64,5 +64,5 @@ System-level architectural rationale and intent.
 
 ## Notes
 
-- <Special instructions for deployment, migration sequencing, review strategy, or None>
+- None <!-- Or special instructions for deployment, migration sequencing, review strategy -->
 ```

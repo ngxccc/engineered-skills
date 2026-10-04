@@ -54,5 +54,5 @@ Concise explanation of changes introduced by this PR and the technical reason.
 
 ## Notes
 
-- <Special notes for reviewer, tradeoffs accepted, open questions, or None>
+- None <!-- Or special notes for reviewer, tradeoffs accepted, open questions -->
 ```
