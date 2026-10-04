@@ -91,6 +91,10 @@ Always evaluate risk along two clear axes in `## Risk`:
   - **One-way door:** Irreversible or high friction to undo (destructive DB migration, breaking API cutover, auth provider change). Demands rigorous pre-merge review.
 - **Blast Radius:** Explicitly name potential downstream impacts (e.g. mobile client breakages, cache invalidation storms, dependent microservices).
 
+### 4. Reviewer Notes
+
+Use `## Notes` to call out specific areas for the reviewer to scrutinize, architectural tradeoffs accepted, deployment/migration order, or open questions. If no special notes are needed, write `- None`.
+
 ---
 
 ## GitHub Native Sub-Issues Protocol

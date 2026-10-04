@@ -32,9 +32,7 @@ Concise explanation of changes introduced by this PR and the technical reason.
 - Relates to: #<issue_number> <!-- If referencing an issue without closing -->
 - None <!-- If standalone / no related issue -->
 
-## Changes
-
-Type of change:
+## Type
 
 - [ ] feat: New feature
 - [ ] fix: Bug fix
@@ -44,25 +42,17 @@ Type of change:
 - [ ] docs: Documentation update
 - [ ] chore: Maintenance update
 
-Key changes:
-
-- Technical breakdown of specific changes made across files/packages.
-
 ## Evidence
 
-- **Before:** <embedded screenshot/image, failing test execution log, or old behavior>
-- **After:** <embedded screenshot/image, passing test execution log, or new behavior>
+- **Before:** <screenshot/image, previous behavior, or manual test steps>
+- **After:** <screenshot/image, observed new behavior, or manual verification output>
 
 ## Risk
 
 - **Door:** <two-way door (low risk, cheap to roll back) | one-way door (high friction/irreversible)>
 - **Blast Radius:** <scope of impact, downstream modules, or services affected>
 
-## Checklist
+## Notes
 
-- [ ] Type check passed (`tsc --noEmit` / language equivalent)
-- [ ] Unit & integration test suite passed
-- [ ] Manual verification completed
-- [ ] Zero hardcoded secrets or API tokens
-- [ ] No breaking changes to existing public APIs
+- <Special notes for reviewer, tradeoffs accepted, open questions, or None>
 ```

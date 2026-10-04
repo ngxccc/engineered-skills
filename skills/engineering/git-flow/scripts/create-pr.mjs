@@ -163,22 +163,22 @@ function validateBody(body, tier) {
 		}
 	}
 
-	const hasHeading = (h) => new RegExp(`^##\\s+${h}\\b`, "im").test(body);
+	const hasHeading = (h) => new RegExp(`^#{1,3}\\s+${h}\\b`, "im").test(body);
 
 	if (tier === 1) {
 		if (!hasHeading("Summary"))
 			errors.push("Missing required section: '## Summary'");
-		if (!hasHeading("Checklist"))
-			errors.push("Missing required section: '## Checklist'");
+		if (!hasHeading("Evidence"))
+			errors.push("Missing required section: '## Evidence'");
 	} else {
-		// Tier 2 and Tier 3 required canonical 6 sections (Context is mandatory, use 'None' if standalone)
+		// Tier 2 and Tier 3 required canonical 6 sections: Summary, Context, Type, Evidence, Risk, Notes
 		const requiredSections = [
 			"Summary",
 			"Context",
-			"Changes",
+			"Type",
 			"Evidence",
 			"Risk",
-			"Checklist",
+			"Notes",
 		];
 		for (const sec of requiredSections) {
 			if (!hasHeading(sec)) {
@@ -195,6 +195,17 @@ function validateBody(body, tier) {
 			if (!hasLink && !isExplicitNone && tier !== 3) {
 				warnings.push(
 					"Section '## Context' should link an issue (Resolves: #<id>, Relates to: #<id>) or state '- None'.",
+				);
+			}
+		}
+
+		// Check type section
+		if (hasHeading("Type")) {
+			const hasType =
+				/(feat|fix|refactor|perf|test|docs|chore|core|security)\b/i.test(body);
+			if (!hasType) {
+				warnings.push(
+					"Section '## Type' should specify change type (e.g. - [x] feat, fix, refactor, docs, chore).",
 				);
 			}
 		}

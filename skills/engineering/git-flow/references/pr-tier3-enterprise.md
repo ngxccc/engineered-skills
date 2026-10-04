@@ -44,30 +44,17 @@ System-level architectural rationale and intent.
 - Relates to: #<issue_number> <!-- If referencing an issue without closing -->
 - None <!-- If no related issue -->
 
-## Changes
-
-Type of change:
+## Type
 
 - [ ] core: Architectural / Kernel overhaul
 - [ ] breaking: Breaking API change (`!`)
 - [ ] security: Security vulnerability patch
 - [ ] schema: Database migration / DDL update
 
-Architectural impact:
-
-- **Data Models / State**: Changes to state machines or database tables.
-- **Interfaces / Seams**: API contracts or boundary modifications.
-- **Performance & Latency**: Expected latency/throughput tradeoffs.
-
 ## Evidence
 
-- **Before:** <benchmark metrics, system state, or failing execution logs>
-- **After:** <benchmark metrics, system state, or passing execution logs>
-```
-
-[Full execution logs, test traces, or benchmark outputs]
-
-```
+- **Before:** <benchmark metrics, system state, or previous behavior>
+- **After:** <benchmark metrics, system state, or observed new behavior>
 
 ## Risk
 
@@ -75,10 +62,7 @@ Architectural impact:
 - **Blast Radius:** <exact downstream consumers, services, or data stores affected>
 - **Rollback:** <documented step-by-step procedure to revert if failure occurs>
 
-## Checklist
+## Notes
 
-- [ ] Every commit in PR branch compiles and passes test suite independently (Atomic)
-- [ ] Zero hardcoded credentials or unmasked secrets
-- [ ] RBAC / Authorization boundaries validated
-- [ ] Production rollback strategy verified
+- <Special instructions for deployment, migration sequencing, review strategy, or None>
 ```

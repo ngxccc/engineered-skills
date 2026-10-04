@@ -77,8 +77,8 @@ node skills/engineering/git-flow/scripts/format-commit.mjs --type test --scope a
 
 ## 3-Tier PR Selection Matrix
 
-| Tier                      | Scope / Risk                                             | Reference Template                                            | Key Requirements                                                            |
-| :------------------------ | :------------------------------------------------------- | :------------------------------------------------------------ | :-------------------------------------------------------------------------- |
-| **Tier 1 (Patch)**        | Typo, docs, minor dependency bump.                       | [`references/pr-tier1-patch.md`](pr-tier1-patch.md)           | 2-line PR body, minimal ceremony.                                           |
-| **Tier 2 (Standard)**     | Feature, bugfix, module refactor (Default).              | [`references/pr-tier2-standard.md`](pr-tier2-standard.md)     | Full 6-section PR body with visual summary and evidence.                    |
-| **Tier 3 (Kernel-Grade)** | Core architecture, DB schema, security, breaking change. | [`references/pr-tier3-enterprise.md`](pr-tier3-enterprise.md) | Atomic commits, mandatory ADR/RFC link, Signed-off-by, full benchmark logs. |
+| Tier                      | Scope / Risk                                             | Reference Template                                            | Key Requirements                                                         |
+| :------------------------ | :------------------------------------------------------- | :------------------------------------------------------------ | :----------------------------------------------------------------------- |
+| **Tier 1 (Patch)**        | Typo, docs, minor dependency bump.                       | [`references/pr-tier1-patch.md`](pr-tier1-patch.md)           | 2-line PR body, minimal ceremony.                                        |
+| **Tier 2 (Standard)**     | Feature, bugfix, module refactor (Default).              | [`references/pr-tier2-standard.md`](pr-tier2-standard.md)     | Lean 6-section PR body (Summary, Context, Type, Evidence, Risk, Notes).  |
+| **Tier 3 (Kernel-Grade)** | Core architecture, DB schema, security, breaking change. | [`references/pr-tier3-enterprise.md`](pr-tier3-enterprise.md) | Lean 6-section PR body with mandatory ADR/RFC link, rollback, and notes. |
