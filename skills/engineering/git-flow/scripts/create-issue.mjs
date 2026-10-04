@@ -8,9 +8,19 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-const VALID_ISSUE_TYPES = ["task", "bug", "feature", "feat", "fix"];
+const VALID_ISSUE_TYPES = [
+	"task",
+	"bug",
+	"feature",
+	"feat",
+	"fix",
+	"sub-issue",
+	"sub_issue",
+	"subissue",
+];
 
 const CONVENTIONAL_TYPES = [
 	"task",
@@ -28,6 +38,177 @@ const CONVENTIONAL_TYPES = [
 	"security",
 ];
 
+const ISSUE_TEMPLATES = {
+	"config.yml": "blank_issues_enabled: true\n",
+	"task.yml": `name: "Task / Tracer-Bullet Ticket"
+description: "Vertical slice or sub-task for feature/spec implementation"
+title: "task(<scope>): <summary>"
+labels: ["type:task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for vertical slice tickets decomposed from a plan, spec, or parent issue.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: "Specify parent issue and blockers"
+      value: |
+        - Parent: None
+        - Blocked by: None
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: "Describe the end-to-end behavior to build (avoid layer-by-layer file inventories)"
+      placeholder: "Concise description of the end-to-end behavior delivered..."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance
+      description: "Checklist of observable acceptance criteria"
+      value: |
+        - [ ] 
+    validations:
+      required: true
+`,
+	"sub_issue.yml": `name: "Sub-Issue / Child Task"
+description: "Child vertical slice ticket linked to a parent Epic or Feature"
+title: "task(<scope>): <summary>"
+labels: ["type:task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for child vertical slices explicitly attached to a parent Epic or Feature issue.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: "Parent issue number (mandatory) and blockers (if any)"
+      value: |
+        - Parent: #<parent_issue_number>
+        - Blocked by: None
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: "Describe the end-to-end behavior to build for this slice (avoid layer-by-layer file inventories)"
+      placeholder: "Concise description of the end-to-end behavior delivered..."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance
+      description: "Checklist of observable acceptance criteria"
+      value: |
+        - [ ] 
+    validations:
+      required: true
+`,
+	"bug_report.yml": `name: "Bug Report"
+description: "File an actionable bug report with reproduction steps"
+title: "fix(<scope>): <summary>"
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report a bug, unexpected behavior, or crash.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: "Clear and concise description of the bug and what was expected to happen"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: "Minimal steps to reproduce the behavior"
+      value: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: "OS, version, and relevant logs"
+      value: |
+        - OS / Version:
+        - Logs / Output:
+    validations:
+      required: true
+`,
+	"feature_request.yml": `name: "Feature Request / Proposal"
+description: "Propose an architectural change, new feature, or RFC"
+title: "feat(<scope>): <summary>"
+labels: ["type:feat"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest an enhancement, new capability, or RFC.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: "Motivation and problem statement: why is this capability needed?"
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: "High-level architecture and implementation approach"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: "ADR/RFC references or alternatives considered"
+      value: |
+        - ADR / RFC: None
+        - Alternatives considered:
+    validations:
+      required: true
+`,
+};
+
+function initIssueTemplates(targetDir = process.cwd(), force = false) {
+	const templateDir = join(targetDir, ".github", "ISSUE_TEMPLATE");
+	if (!existsSync(templateDir)) {
+		mkdirSync(templateDir, { recursive: true });
+	}
+
+	console.log(`Scaffolding GitHub Issue Templates into ${templateDir}:`);
+	for (const [filename, content] of Object.entries(ISSUE_TEMPLATES)) {
+		const filePath = join(templateDir, filename);
+		if (existsSync(filePath) && !force) {
+			console.log(
+				`  - [SKIP] ${filename} already exists (use --force to overwrite)`,
+			);
+		} else {
+			writeFileSync(filePath, content, "utf8");
+			console.log(`  - [CREATED] ${filename}`);
+		}
+	}
+	console.log("Issue template initialization complete.");
+}
+
 function parseArgs() {
 	const args = process.argv.slice(2);
 	const params = {
@@ -44,6 +225,8 @@ function parseArgs() {
 		execute: false,
 		printBody: false,
 		validateOnly: false,
+		initTemplates: false,
+		force: false,
 	};
 
 	for (let i = 0; i < args.length; i++) {
@@ -65,20 +248,39 @@ function parseArgs() {
 		} else if (arg === "--execute") params.execute = true;
 		else if (arg === "--print-body") params.printBody = true;
 		else if (arg === "--validate-only") params.validateOnly = true;
+		else if (arg === "--init-templates") params.initTemplates = true;
+		else if (arg === "--force") params.force = true;
 	}
 
 	if (params.bodyFile && existsSync(params.bodyFile)) {
 		params.body = readFileSync(params.bodyFile, "utf8");
 	}
 
+	if (params.initTemplates) {
+		return params;
+	}
+
 	if (!VALID_ISSUE_TYPES.includes(params.type)) {
 		console.error(
-			`Error: Unknown issue type '${params.type}'. Allowed types: task, bug, feature`,
+			`Error: Unknown issue type '${params.type}'. Allowed types: task, bug, feature, sub-issue`,
 		);
 		process.exit(1);
 	}
 
 	// Normalize alias types
+	if (
+		params.type === "sub-issue" ||
+		params.type === "sub_issue" ||
+		params.type === "subissue"
+	) {
+		if (!params.parent) {
+			console.error(
+				"Error: Issue type 'sub-issue' requires a parent issue (--parent <number>)",
+			);
+			process.exit(1);
+		}
+		params.type = "task";
+	}
 	if (params.type === "feat") params.type = "feature";
 	if (params.type === "fix") params.type = "bug";
 	return params;
@@ -296,8 +498,13 @@ function linkSubIssue(parentNumber, childNumber) {
 
 function main() {
 	const params = parseArgs();
-	const title = validateTitle(params);
 
+	if (params.initTemplates) {
+		initIssueTemplates(process.cwd(), params.force);
+		return;
+	}
+
+	const title = validateTitle(params);
 	let body = params.body;
 	if (!body) {
 		body = getTemplateForType(params.type, params);
