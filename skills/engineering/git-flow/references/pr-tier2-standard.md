@@ -22,9 +22,17 @@ Examples:
 ```markdown
 ## Summary
 
+[Optional visual: screenshot/image, Mermaid diagram, call tree, or diff sketch - include only if helpful]
+
 Concise explanation of changes introduced by this PR and the technical reason.
 
-## Type of Change
+## Context
+
+- Resolves: #<issue_number> <!-- If completing an issue -->
+- Relates to: #<issue_number> <!-- If referencing an issue without closing -->
+- None <!-- If standalone / no related issue -->
+
+## Type
 
 - [ ] feat: New feature
 - [ ] fix: Bug fix
@@ -34,29 +42,17 @@ Concise explanation of changes introduced by this PR and the technical reason.
 - [ ] docs: Documentation update
 - [ ] chore: Maintenance update
 
-## Context & Related References
+## Evidence
 
-- Relates to #<issue_number>
+- **Before:** <screenshot/image, previous behavior, or manual test steps>
+- **After:** <screenshot/image, observed new behavior, or manual verification output>
 
-## Changes Made
+## Risk
 
-- Technical breakdown of specific changes made across files/packages.
+- **Door:** <two-way door (low risk, cheap to roll back) | one-way door (high friction/irreversible)>
+- **Blast Radius:** <scope of impact, downstream modules, or services affected>
 
-## Verification & Testing
+## Notes
 
-- [ ] Type check passed (`bun run check-types` / `tsc --noEmit`)
-- [ ] Unit & integration test suite passed (`bun test`)
-- [ ] Manual verification completed
-
-### Testing Evidence
-```
-
-[Paste execution output, test suite logs, or smoke test command results here]
-
-```
-
-## Security & Compliance Checklist
-- [ ] No hardcoded secrets or API tokens
-- [ ] Zero Semantic Noise commenting standards maintained
-- [ ] Backwards-compatibility verified
+- None <!-- Or special notes for reviewer, tradeoffs accepted, open questions -->
 ```

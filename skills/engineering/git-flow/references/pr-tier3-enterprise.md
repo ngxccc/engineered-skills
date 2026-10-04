@@ -23,9 +23,7 @@ RS256 signed JWT tokens verified at edge gateways.
 
 BREAKING CHANGE: Authentication header now requires `Bearer <token>`.
 
-Fixes: #104
 Signed-off-by: Developer <dev@company.com>
-ADR: docs/adr/0002-jwt-bearer-auth.md
 ```
 
 ---
@@ -33,40 +31,38 @@ ADR: docs/adr/0002-jwt-bearer-auth.md
 ## 2. PR Body Markdown Template
 
 ```markdown
-## Summary & Architectural Intent
+## Summary
 
-High-level description of architectural changes and system-level rationale.
+[Optional visual: Mermaid diagram, architecture image, call tree, or component hierarchy - include if helpful]
 
-## Linked ADR / RFC Spec
+System-level architectural rationale and intent.
+
+## Context
 
 - ADR / RFC: `docs/adr/NNNN-slug.md` (Mandatory for Tier 3 changes)
+- Resolves: #<issue_number> <!-- If completing an issue -->
+- Relates to: #<issue_number> <!-- If referencing an issue without closing -->
+- None <!-- If no related issue -->
 
-## Type of Change
+## Type
 
 - [ ] core: Architectural / Kernel overhaul
 - [ ] breaking: Breaking API change (`!`)
 - [ ] security: Security vulnerability patch
 - [ ] schema: Database migration / DDL update
 
-## Detailed Architectural Impact
+## Evidence
 
-- **Data Models / State**: Changes to state machines or database tables.
-- **Interfaces / Seams**: API contracts or boundary modifications.
-- **Performance & Latency Impact**: Expected latency/throughput tradeoffs.
+- **Before:** <benchmark metrics, system state, or previous behavior>
+- **After:** <benchmark metrics, system state, or observed new behavior>
 
-## Atomic Commit Verification
+## Risk
 
-- [ ] Every commit in PR branch compiles and passes test suite independently.
+- **Door:** <one-way door (breaking DDL, permanent migration, security cutover) | two-way door>
+- **Blast Radius:** <exact downstream consumers, services, or data stores affected>
+- **Rollback:** <documented step-by-step procedure to revert if failure occurs>
 
-## Verification Evidence & Logs
-```
+## Notes
 
-[Paste full terminal test logs, benchmark execution outputs, or integration test evidence]
-
-```
-
-## Security & Audit Assessment
-- [ ] Zero hardcoded credentials or unmasked secrets
-- [ ] RBAC / Authorization boundaries validated
-- [ ] Production rollback strategy documented
+- None <!-- Or special instructions for deployment, migration sequencing, review strategy -->
 ```

@@ -8,9 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const scripts = [
 	{ name: "ADRs", file: "validate-adrs.mjs" },
 	{ name: "RFCs", file: "validate-rfcs.mjs" },
-	{ name: "Design Docs", file: "validate-design-docs.mjs" },
-	{ name: "Formal Specs", file: "validate-formal-specs.mjs" },
-	{ name: "Workflow Docs", file: "validate-workflow-docs.mjs" },
+	{ name: "Design Specs", file: "validate-design-docs.mjs" },
 	{ name: "Benchmark Reports", file: "validate-benchmarks.mjs" },
 ];
 

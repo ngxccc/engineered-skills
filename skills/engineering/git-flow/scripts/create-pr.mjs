@@ -6,7 +6,7 @@
  * Validates PR title, body, Conventional Commits format, and strict emoji prohibition.
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,6 +37,7 @@ function parseArgs() {
 		type: "",
 		scope: "",
 		body: "",
+		bodyFile: "",
 		adr: "",
 		rfc: "",
 		draft: false,
@@ -45,6 +46,7 @@ function parseArgs() {
 		assignees: [],
 		execute: false,
 		printBody: false,
+		validateOnly: false,
 	};
 
 	for (let i = 0; i < args.length; i++) {
@@ -55,6 +57,7 @@ function parseArgs() {
 		else if (arg === "--type" && args[i + 1]) params.type = args[++i];
 		else if (arg === "--scope" && args[i + 1]) params.scope = args[++i];
 		else if (arg === "--body" && args[i + 1]) params.body = args[++i];
+		else if (arg === "--body-file" && args[i + 1]) params.bodyFile = args[++i];
 		else if (arg === "--adr" && args[i + 1]) params.adr = args[++i];
 		else if (arg === "--rfc" && args[i + 1]) params.rfc = args[++i];
 		else if (arg === "--draft") params.draft = true;
@@ -64,6 +67,11 @@ function parseArgs() {
 			params.assignees.push(args[++i]);
 		else if (arg === "--execute") params.execute = true;
 		else if (arg === "--print-body") params.printBody = true;
+		else if (arg === "--validate-only") params.validateOnly = true;
+	}
+
+	if (params.bodyFile && existsSync(params.bodyFile)) {
+		params.body = readFileSync(params.bodyFile, "utf8");
 	}
 
 	return params;
@@ -108,7 +116,6 @@ function validateTitle(params) {
 }
 
 function getTemplateForTier(tier) {
-	// 1. Check if the active repository defines a custom PULL_REQUEST_TEMPLATE.md
 	const projectPrTemplate = join(
 		process.cwd(),
 		".github",
@@ -118,7 +125,6 @@ function getTemplateForTier(tier) {
 		return readFileSync(projectPrTemplate, "utf8");
 	}
 
-	// 2. Fallback to skill-bundled 3-Tier PR Matrix templates
 	const referencesDir = join(__dirname, "..", "references");
 	let templateFileName = "pr-tier2-standard.md";
 	if (tier === 1) templateFileName = "pr-tier1-patch.md";
@@ -126,9 +132,126 @@ function getTemplateForTier(tier) {
 
 	const templatePath = join(referencesDir, templateFileName);
 	if (existsSync(templatePath)) {
-		return readFileSync(templatePath, "utf8");
+		const raw = readFileSync(templatePath, "utf8");
+		const match = raw.match(/```markdown\n([\s\S]*?)\n```/);
+		return match ? match[1] : raw;
 	}
 	return "";
+}
+
+function validateBody(body, tier) {
+	const errors = [];
+	const warnings = [];
+
+	if (!body || !body.trim()) {
+		return { isValid: false, errors: ["PR body is empty."], warnings };
+	}
+
+	const emojiRegex =
+		/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+	if (emojiRegex.test(body)) {
+		errors.push("Emojis are strictly prohibited in enterprise PR body.");
+	}
+
+	// Check for forbidden compound headings with '&'
+	const lines = body.split("\n");
+	for (const line of lines) {
+		if (/^##\s+.*&.*/.test(line)) {
+			errors.push(
+				`Compound heading with '&' prohibited: "${line.trim()}". Use single-noun headings (## Summary, ## Context, ## Changes, ## Evidence, ## Risk, ## Checklist).`,
+			);
+		}
+	}
+
+	const hasHeading = (h) => new RegExp(`^#{1,3}\\s+${h}\\b`, "im").test(body);
+
+	if (tier === 1) {
+		if (!hasHeading("Summary"))
+			errors.push("Missing required section: '## Summary'");
+		if (!hasHeading("Evidence"))
+			errors.push("Missing required section: '## Evidence'");
+	} else {
+		// Tier 2 and Tier 3 required canonical 6 sections: Summary, Context, Type, Evidence, Risk, Notes
+		const requiredSections = [
+			"Summary",
+			"Context",
+			"Type",
+			"Evidence",
+			"Risk",
+			"Notes",
+		];
+		for (const sec of requiredSections) {
+			if (!hasHeading(sec)) {
+				errors.push(`Missing required section: '## ${sec}'`);
+			}
+		}
+
+		// Check context section: must have either valid issue link or explicit None
+		if (hasHeading("Context")) {
+			const isExplicitNone = /none|standalone|n\/a/i.test(body);
+			const hasLink = /(Resolves:|Relates to:|Fixes:|Closes:)\s*#\d+/i.test(
+				body,
+			);
+			if (!hasLink && !isExplicitNone && tier !== 3) {
+				warnings.push(
+					"Section '## Context' should link an issue (Resolves: #<id>, Relates to: #<id>) or state '- None'.",
+				);
+			}
+		}
+
+		// Check type section
+		if (hasHeading("Type")) {
+			const hasType =
+				/(feat|fix|refactor|perf|test|docs|chore|core|security)\b/i.test(body);
+			if (!hasType) {
+				warnings.push(
+					"Section '## Type' should specify change type (e.g. - [x] feat, fix, refactor, docs, chore).",
+				);
+			}
+		}
+
+		// Check evidence section for Before and After
+		if (hasHeading("Evidence")) {
+			const hasBefore = /Before:/i.test(body);
+			const hasAfter = /After:/i.test(body);
+			if (!hasBefore || !hasAfter) {
+				warnings.push(
+					"Section '## Evidence' should include both 'Before:' and 'After:' evidence.",
+				);
+			}
+		}
+
+		// Check risk section for door
+		if (hasHeading("Risk")) {
+			const hasDoor = /Door:/i.test(body);
+			if (!hasDoor) {
+				warnings.push(
+					"Section '## Risk' should specify 'Door:' (one-way or two-way).",
+				);
+			}
+		}
+
+		if (tier === 3) {
+			const hasAdr = /(ADR|RFC):\s*`?docs\/(adr|rfc)\//i.test(body);
+			if (!hasAdr) {
+				errors.push(
+					"Tier 3 Enterprise PR requires an ADR or RFC link in '## Context' (e.g. ADR: docs/adr/NNNN-slug.md).",
+				);
+			}
+			const hasRollback = /Rollback/i.test(body);
+			if (!hasRollback) {
+				warnings.push(
+					"Tier 3 Enterprise PR should explicitly document a 'Rollback:' strategy under '## Risk'.",
+				);
+			}
+		}
+	}
+
+	return {
+		isValid: errors.length === 0,
+		errors,
+		warnings,
+	};
 }
 
 function main() {
@@ -142,6 +265,7 @@ function main() {
 	}
 
 	const templateBody = getTemplateForTier(params.tier);
+	const prBody = params.body || templateBody;
 
 	console.log(`PR Validation Summary:`);
 	console.log(`- Tier: Tier ${params.tier}`);
@@ -152,23 +276,62 @@ function main() {
 	if (params.assignees.length)
 		console.log(`- Assignees: ${params.assignees.join(", ")}`);
 
+	// Validate PR body if body content is present
+	if (prBody) {
+		const bodyValidation = validateBody(prBody, params.tier);
+		if (bodyValidation.warnings.length) {
+			console.log("\nPR Body Warnings:");
+			for (const w of bodyValidation.warnings) console.warn(`  - ${w}`);
+		}
+		if (!bodyValidation.isValid) {
+			console.error("\nPR Body Errors:");
+			for (const err of bodyValidation.errors) console.error(`  - ${err}`);
+			if (params.execute || params.validateOnly) {
+				console.error(
+					"\nValidation failed. Fix the PR body errors before proceeding.",
+				);
+				process.exit(1);
+			}
+		} else {
+			console.log(
+				`- Body Structure: Valid (Passed single-noun layout checks for Tier ${params.tier})`,
+			);
+		}
+	}
+
 	if (params.printBody) {
 		console.log("\n--- PR Body Template ---");
-		console.log(params.body || templateBody);
+		console.log(prBody);
 		console.log("------------------------");
+	}
+
+	if (params.validateOnly) {
+		console.log("\nValidation passed successfully.");
+		process.exit(0);
 	}
 
 	if (params.execute) {
 		try {
-			let cmd = `gh pr create --title "${title}" --body "${params.body || "See PR description"}" --base "${params.base}"`;
-			if (params.draft) cmd += " --draft";
-			for (const l of params.labels) cmd += ` --label "${l}"`;
-			for (const a of params.assignees) cmd += ` --assignee "${a}"`;
-			console.log(`Executing: ${cmd}`);
-			const output = execSync(cmd, { encoding: "utf8" });
+			const ghArgs = [
+				"pr",
+				"create",
+				"--title",
+				title,
+				"--body",
+				prBody,
+				"--base",
+				params.base,
+			];
+			if (params.draft) ghArgs.push("--draft");
+			for (const l of params.labels) ghArgs.push("--label", l);
+			for (const a of params.assignees) ghArgs.push("--assignee", a);
+
+			console.log("Executing: gh pr create with sanitized arguments");
+			const output = execFileSync("gh", ghArgs, { encoding: "utf8" });
 			console.log(output);
 		} catch (e) {
 			console.error("Failed to execute gh pr create:", e.message);
+			process.exit(1);
 		}
 	}
 }

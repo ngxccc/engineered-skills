@@ -9,18 +9,16 @@ Must contain YAML frontmatter (`docType: feature-workflow | infrastructure-workf
 - `## Overview & Context` (Executive summary, Goals, Non-Goals)
 - `## Architecture` (C4 Container Diagram / Mermaid block diagram)
 - `## Operational Flow` (Autonumbered Mermaid sequence diagram, State transitions)
-- `## Work Breakdown Structure` (4-Level WBS Table: L1 Module, L2 Component, L3 Logic, L4 Execution)
-- `## Data Contracts` (Database DDL / ERD, API Payloads)
-- `## Security & Reliability` (RBAC, Failovers, Circuit breakers)
+- `## Security & Reliability` (RBAC, Fail-open degradation, Rate limiting, Circuit breakers)
+- `## Domain Invariant Taxonomy` (Formal `INV-N` matrix and verification test mapping)
 
-## 4-Level WBS Table Template
+## Symbol Referencing Standard
 
-| WBS Code  | Component / Feature | Level         | Description / Task                | Output / Artifact                                     |
-| :-------- | :------------------ | :------------ | :-------------------------------- | :---------------------------------------------------- |
-| `1.0`     | Booking Module      | L1: Module    | Core booking reservation engine   | `src/modules/booking`                                 |
-| `1.1`     | Reservation Service | L2: Component | Handle seat locks and timeouts    | `src/modules/booking/services/reservation.service.ts` |
-| `1.1.1`   | Create Reservation  | L3: Task      | Validate payload and reserve seat | `createReservation()`                                 |
-| `1.1.1.1` | DB Query / Lock     | L4: Execution | Select for update seat row        | `bun test tests/booking/create.test.ts`               |
+Per `docs/standards/domain-docs.md`:
+
+- **Do NOT copy-paste raw TypeScript interfaces or raw SQL DDL schemas** into Markdown files.
+- Reference code symbols directly by file path and identifier (e.g. `ShowSeatsResponseDto` in `src/modules/shows/dto/show-seats-response.dto.ts`).
+- OpenAPI/Swagger is the authoritative Single Source of Truth for API schemas.
 
 ## Frontmatter Template
 
@@ -28,9 +26,9 @@ Must contain YAML frontmatter (`docType: feature-workflow | infrastructure-workf
 ---
 title: "Booking System Design & Workflow"
 docType: "feature-workflow"
-status: "Draft"
-date: 2026-08-19
-author: "Team / Agent"
+status: "approved"
+date: YYYY-MM-DD
+author: "Team / Core Architecture"
 version: "1.0.0"
 ---
 ```
