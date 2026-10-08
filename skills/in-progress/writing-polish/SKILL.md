@@ -37,6 +37,8 @@ If context is ambiguous, clarify only what's necessary:
 - **AI literary fluff:** _tapestry, realm, beacon, nestled, multifaceted, meticulous, intricate, paramount, transformative, elevate, embark, supercharge, harness, ever-evolving, testament to, enduring legacy_.
 - **Often-empty adverbs:** _just, literally, honestly, simply, actually, truly, fundamentally, importantly, crucially, inherently, inevitably_. Cut when they add zero information.
 - **Throat-clearing openers & filler phrases:** _it's worth noting, it's important to remember, at the end of the day, when it comes to, at its core, in today's fast-paced world, the reality is, the truth is, in order to, going forward, let's dive in_.
+- **Chatbot artifacts & conversational residue:** _"I hope this helps!"_, _"Let me know if you have any questions"_, _"Would you like me to expand on this?"_, _"Feel free to ask"_. Delete completely from published prose.
+- **Fake-candid setups:** _"Honestly?"_, _"Let's be real"_, _"Real talk:"_ used as theatrical pauses before ordinary claims. Cut manufactured intimacy.
 
 ### 2. Syntactic & structural habits
 
@@ -48,6 +50,10 @@ If context is ambiguous, clarify only what's necessary:
 - **Negative listing:** _"Not a tool. Not a framework. A philosophy."_ Cut the theater; say what it is.
 - **Formulaic "Challenges & Outlook" sections:** Rigid essay templates that insert: _"Despite these successes, X faces challenges..."_ followed by vague optimism about the future. Integrate constraints naturally where relevant.
 - **Fake-profound kickers & summary recaps:** Mic-drop final sentences, forced metaphors, or _"In conclusion / Ultimately..."_ summaries. End on the last concrete takeaway, implication, or next step.
+- **Actorless passive:** Passive voice with the actor deleted (_"The decision was made to sunset the tier"_, _"The pricing page was updated"_). Restore human agency (_"We decided"_, _"The team updated"_).
+- **Inanimate subjects with human verbs:** Anthropomorphizing software or abstractions (_"The dashboard understands your team"_, _"The platform cares about speed"_). Tools lack minds; describe what they display or compute.
+- **Aphorism formulas:** Generic pseudo-philosophical templates (_"X is the language of Y"_, _"X is the currency of Z"_). State the concrete mechanism directly.
+- **Formulaic CTA & headline templates:** Empty CTAs (_"Get Started"_, _"Learn More"_) or cliché templates (_"Verb your Noun without the Headache"_). State the exact action and destination.
 
 ### 3. Epistemic & attribution tells
 
@@ -60,6 +66,8 @@ If context is ambiguous, clarify only what's necessary:
 - **Robotic symmetry:** Monotonous paragraph lengths, identical sentence structures, and stacked punchy fragments (_"X. And Y. And Z. That's it."_). Vary sentence length naturally; allow complex ideas to breathe in compound sentences.
 - **Formatting slop:** Sprinkling bold mid-sentence for fake emphasis, converting naturally flowing prose into bulleted lists, or adding emojis to section headers. Let the prose carry the structure.
 - **Em dash addiction:** Using em dashes as an all-purpose rhythm crutch. In short pieces, use zero. In longer essays, allow 1–2 only where they beat commas, parentheses, or a period.
+- **Synonym cycling:** Mechanically rotating through synonyms across adjacent sentences to dodge repetition penalties (_"The tool is fast. The platform is quick. The solution is speedy."_). Use the single clearest noun or verb consistently.
+- **Staccato drama:** A rapid sequence of clipped 1–2 word declarative fragments to manufacture cheap suspense (_"No templates. No defaults. No safety."_). Connect related thoughts into balanced compound sentences.
 
 ## Workflow
 
