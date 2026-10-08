@@ -1,13 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
-	"engineered-skills/cmd/engineered-cli/config"
-	"engineered-skills/cmd/engineered-cli/installer"
-	"engineered-skills/cmd/engineered-cli/tui"
+	"engineered-skills/internal/config"
+	"engineered-skills/internal/installer"
+	"engineered-skills/internal/tui"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -218,5 +220,188 @@ func TestResolveDependencies(t *testing.T) {
 		if !expectedMap[s] {
 			t.Errorf("Unexpected skill '%s' in resolved dependencies", s)
 		}
+	}
+}
+
+func TestParseSubcommand(t *testing.T) {
+	subcmd, isGlobal, kitPath, cmdArgs := parseSubcommand([]string{"enable", "dashboard-ui", "tdd"})
+	if subcmd != "enable" {
+		t.Errorf("Expected subcmd 'enable', got '%s'", subcmd)
+	}
+	if isGlobal {
+		t.Errorf("Expected isGlobal false, got true")
+	}
+	if len(cmdArgs) != 2 || cmdArgs[0] != "dashboard-ui" || cmdArgs[1] != "tdd" {
+		t.Errorf("Unexpected cmdArgs: %v", cmdArgs)
+	}
+
+	subcmd, isGlobal, kitPath, cmdArgs = parseSubcommand([]string{"--global", "enable", "git-flow"})
+	if subcmd != "enable" || !isGlobal {
+		t.Errorf("Expected enable + global, got subcmd=%s, isGlobal=%v", subcmd, isGlobal)
+	}
+	if len(cmdArgs) != 1 || cmdArgs[0] != "git-flow" {
+		t.Errorf("Unexpected cmdArgs: %v", cmdArgs)
+	}
+
+	subcmd, isGlobal, kitPath, cmdArgs = parseSubcommand([]string{"disable", "-g", "dashboard-ui"})
+	if subcmd != "disable" || !isGlobal {
+		t.Errorf("Expected disable + global, got subcmd=%s, isGlobal=%v", subcmd, isGlobal)
+	}
+	if len(cmdArgs) != 1 || cmdArgs[0] != "dashboard-ui" {
+		t.Errorf("Unexpected cmdArgs: %v", cmdArgs)
+	}
+
+	subcmd, _, _, _ = parseSubcommand([]string{"status"})
+	if subcmd != "status" {
+		t.Errorf("Expected status subcmd, got %s", subcmd)
+	}
+
+	if kitPath != "" {
+		t.Errorf("Unexpected kitPath %s", kitPath)
+	}
+}
+
+func TestProfiles(t *testing.T) {
+	mockSkills := []config.SkillInfo{
+		{Name: "ask-skills"},
+		{Name: "git-flow"},
+		{Name: "dashboard-ui"},
+	}
+
+	coreSkills, ok := config.GetProfileSkills("core", mockSkills)
+	if !ok || len(coreSkills) == 0 {
+		t.Fatalf("Expected core profile to exist")
+	}
+
+	fullSkills, ok := config.GetProfileSkills("full", mockSkills)
+	if !ok || len(fullSkills) != len(mockSkills) {
+		t.Fatalf("Expected full profile to contain %d skills, got %d", len(mockSkills), len(fullSkills))
+	}
+
+	_, ok = config.GetProfileSkills("non-existent-profile", mockSkills)
+	if ok {
+		t.Fatalf("Expected non-existent profile to return false")
+	}
+}
+
+func TestEnableAndDisableSkills(t *testing.T) {
+	tmpKit, err := os.MkdirTemp("", "kit-repo-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp kit: %v", err)
+	}
+	defer os.RemoveAll(tmpKit)
+
+	skillDir := filepath.Join(tmpKit, "skills", "engineering", "my-skill")
+	if err := os.MkdirAll(skillDir, 0755); err != nil {
+		t.Fatalf("Failed to create mock skill dir: %v", err)
+	}
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0644)
+
+	tmpProject, err := os.MkdirTemp("", "project-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp project: %v", err)
+	}
+	defer os.RemoveAll(tmpProject)
+
+	origWd, _ := os.Getwd()
+	os.Chdir(tmpProject)
+	defer os.Chdir(origWd)
+
+	// Test Enable
+	enabled, err := installer.EnableSkills(tmpKit, []string{"my-skill"}, false)
+	if err != nil {
+		t.Fatalf("EnableSkills failed: %v", err)
+	}
+	if len(enabled) != 1 || enabled[0] != "my-skill" {
+		t.Errorf("Unexpected enabled list: %v", enabled)
+	}
+
+	symlinkPath := filepath.Join(".claude", "skills", "my-skill")
+	fi, err := os.Lstat(symlinkPath)
+	if err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected symlink at %s, got err=%v", symlinkPath, err)
+	}
+
+	cfg := config.LoadConfig()
+	if cfg == nil || len(cfg.Skills.Include) != 1 || cfg.Skills.Include[0] != "my-skill" {
+		t.Fatalf("Expected config with my-skill, got %v", cfg)
+	}
+
+	// Test Disable
+	disabled, err := installer.DisableSkills([]string{"my-skill"}, false)
+	if err != nil {
+		t.Fatalf("DisableSkills failed: %v", err)
+	}
+	if len(disabled) != 1 || disabled[0] != "my-skill" {
+		t.Errorf("Unexpected disabled list: %v", disabled)
+	}
+
+	if _, err := os.Lstat(symlinkPath); !os.IsNotExist(err) {
+		t.Fatalf("Expected symlink to be removed at %s", symlinkPath)
+	}
+
+	cfgAfter := config.LoadConfig()
+	if cfgAfter == nil || len(cfgAfter.Skills.Include) != 0 {
+		t.Fatalf("Expected config skills include to be empty, got %v", cfgAfter.Skills.Include)
+	}
+}
+
+func TestRunVersion(t *testing.T) {
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	err := run([]string{"--version"}, stdout, stderr)
+	if err != nil {
+		t.Fatalf("run --version failed: %v", err)
+	}
+	if !strings.Contains(stdout.String(), "engineered-cli v") {
+		t.Errorf("Expected version in stdout, got: %s", stdout.String())
+	}
+}
+
+func TestRunHelp(t *testing.T) {
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	err := run([]string{"--help"}, stdout, stderr)
+	if err != nil {
+		t.Fatalf("run --help failed: %v", err)
+	}
+	if !strings.Contains(stdout.String(), "Usage:") {
+		t.Errorf("Expected Usage in stdout, got: %s", stdout.String())
+	}
+}
+
+func TestRunUnknownProfile(t *testing.T) {
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	err := run([]string{"--profile", "invalid-profile-xyz"}, stdout, stderr)
+	if err == nil {
+		t.Fatalf("Expected error for unknown profile, got nil")
+	}
+	if !strings.Contains(err.Error(), "unknown profile") {
+		t.Errorf("Expected 'unknown profile' in error, got: %v", err)
+	}
+}
+
+func TestRunStatus(t *testing.T) {
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	err := run([]string{"status"}, stdout, stderr)
+	if err != nil {
+		t.Fatalf("run status failed: %v", err)
+	}
+	if !strings.Contains(stdout.String(), "ENGINEERED SKILLS STATUS") {
+		t.Errorf("Expected status in stdout, got: %s", stdout.String())
+	}
+}
+
+func TestRunDryRun(t *testing.T) {
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	err := run([]string{"--dry-run", "--profile", "core", "--yes"}, stdout, stderr)
+	if err != nil {
+		t.Fatalf("run dry-run failed: %v", err)
+	}
+	if !strings.Contains(stdout.String(), "[DRY RUN]") {
+		t.Errorf("Expected DRY RUN in stdout, got: %s", stdout.String())
 	}
 }

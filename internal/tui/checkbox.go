@@ -3,7 +3,7 @@ package tui
 import (
 	"fmt"
 
-	"engineered-skills/cmd/engineered-cli/config"
+	"engineered-skills/internal/config"
 	tea "github.com/charmbracelet/bubbletea"
 )
 

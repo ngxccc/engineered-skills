@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"engineered-skills/cmd/engineered-cli/config"
-	"engineered-skills/cmd/engineered-cli/tui"
+	"engineered-skills/internal/config"
+	"engineered-skills/internal/tui"
 )
 
 func CopyFile(src, dst string) error {
