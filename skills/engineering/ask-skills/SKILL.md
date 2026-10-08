@@ -92,6 +92,7 @@ Off the main flow entirely.
 - **`/writing-for-agents`** — reference for writing documents agents consume: skills, AGENTS.md, pointed-at docs.
 - **`/docs`** — analyze codebase, manage ADRs (Simple & Formal), RFCs, System Design Specs, Formal Specs (Invariants & Edge Cases), and SSOT Workflows with automated validation scripts.
 - **`/git-flow`** — git branching, Conventional Commits, and 3-Tier PR creation workflows.
+- **`/dashboard-ui`** — in-app UI and design system for dashboards, data tables, forms, modals, and settings screens with full tokens, responsive layouts, and anti-slop rules.
 
 ## Precondition
 

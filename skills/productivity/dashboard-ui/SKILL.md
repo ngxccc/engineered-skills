@@ -1,5 +1,5 @@
 ---
-name: ui-ux
+name: dashboard-ui
 description: Gu UI/UX cho hệ thống app — dashboard, danh sách, bảng, form, cài đặt, modal, trang người dùng cuối lướt để chọn. Mặc định làm như một designer - brief, việc chính của từng màn, 2–3 wireframe có nội dung thật, người dùng chọn rồi mới dựng. Nhánh khác chỉ khi đề nói rõ - soi UI đang có, đề xuất sửa ("xem giúp", "review"), dựng lại giữ brand ("giữ brand", "keep the brand"), dựng lại theo gu skill ("bỏ style cũ"), refactor giữ nguyên hình, dựng luôn không wireframe ("dựng luôn", "just build it"), dựng design system trước ("UI kit", "component library"), sửa một component nhỏ. Mặc định flat, làm được glassmorphism, gradient, nổi, nền tối. Landing page, cửa hàng online, blog chưa được dạy - vẫn làm, báo trước một dòng. Dùng khi dựng, làm lại hay sửa giao diện app, refactor CSS, nhờ xem ảnh hay link app, hoặc khi nhắc "làm UI cho đẹp", "dựng màn", "thiết kế", "làm lại UX", "nhìn rối", "build a page", "design this screen", "redesign", "make it look good", "ecommerce", "ui-ux", "evon".
 ---
 
@@ -16,9 +16,8 @@ description: Gu UI/UX cho hệ thống app — dashboard, danh sách, bảng, fo
 > không wireframe; dựng design system trước; sửa một component nhỏ.
 
 Skill này không dạy "thế nào là đẹp" bằng tính từ. Nó làm ba việc: **đi đúng thứ
-tự** trước khi dựng, **cấm** những thói quen làm giao diện lộ ngay ra là AI dựng,
+tự** trước khi dựng, **cấm** những thói quen làm giao diện lộ ngay ra là AI dựng (`references/anti-slop-rules.md`),
 và **ràng buộc bằng con số** để phần còn lại tự sạch.
-
 Phạm vi: **màn hình trong app**. Dashboard, danh sách, bảng, form, cài đặt,
 modal. Không lo trang bán hàng, trừ bảng giá (`references/layouts/pricing.md`).
 

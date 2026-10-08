@@ -8,44 +8,60 @@ Composable, small, model-agnostic skills for software engineering with AI agents
 
 Two ways in, two philosophies. Link skills directly from this central repository into your project directory for instant live updates across all agent sessions.
 
-### 1. Get the skills
+### 1. Setup Architecture: Hybrid 2-Tier
 
-#### Method 1: Using Compiled Go CLI (Fastest & Standalone)
+We use a **Hybrid 2-Tier** model to balance instant availability with clean context windows:
 
-Run the compiled Go binary to interactively select skills or perform instant bulk symlinking:
+- **Tier 1: Core Skills (Global)** — Essential skills (`ask-skills`, `git-flow`, `diagnosing-bugs`, `tdd`) linked once to user home directories (`~/.claude/skills`, `~/.omp/agent/skills`, `~/.agents/skills`). Always available across all repos with zero setup.
+- **Tier 2: Domain Skills (Per-Project)** — Specialized or heavy skills (e.g. `dashboard-ui`, `wayfinder`, `to-tickets`) toggled only when a specific project needs them.
 
-```bash
-# Interactive TUI mode:
-~/workspace/40-tools/engineered-skills/bin/engineered-cli
-
-# Automatic fast symlink mode (in your target project directory):
-~/workspace/40-tools/engineered-skills/bin/engineered-cli --link --yes
-```
-
-To run `engineered-cli` globally from anywhere on your machine, copy the binary to your local bin path:
+#### Tier 1: Install Global Core Skills (One-time Setup)
 
 ```bash
+# Copy CLI binary to local bin:
 cp ~/workspace/40-tools/engineered-skills/bin/engineered-cli ~/.local/bin/
 
-# Then run inside any project:
-engineered-cli --link --yes
+# Link Core profile globally across Claude Code, Oh My Pi, and Agents:
+engineered-cli --global --profile core --yes
 ```
 
-#### Method 2: Direct Manual Symlink Commands
+#### Tier 2: Manage Project Skills (Fast Toggles)
+
+Inside any project directory:
 
 ```bash
-# In your target project directory:
+# Quickly enable specific skills (auto-resolves dependencies):
+engineered-cli enable dashboard-ui
+engineered-cli enable to-tickets wayfinder
+
+# Quickly disable skills:
+engineered-cli disable dashboard-ui
+
+# Check active global and project skills:
+engineered-cli status
+
+# Or apply a project preset profile:
+engineered-cli --profile frontend --link --yes
+
+# Or open interactive TUI:
+engineered-cli
+```
+
+Available Profiles:
+
+- `core`: `ask-skills`, `git-flow`, `diagnosing-bugs`, `tdd`
+- `frontend`: `core` + `dashboard-ui`
+- `writing`: `writing-for-agents`, `writing-flashcards`, `writing-atomic-notes`, `writing-polish`
+- `full`: all available skills
+
+#### Manual Symlink Fallback
+
+```bash
+# Manual project symlinks:
 mkdir -p .claude/skills
-
-# Symlink specific skills from this repository:
-ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/grill-with-docs .claude/skills/
-ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/to-tickets .claude/skills/
-ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/implement .claude/skills/
 ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/tdd .claude/skills/
-ln -s ~/workspace/40-tools/engineered-skills/skills/engineering/code-review .claude/skills/
-
-# Symlink for Codex / Oh My Pi cross-agent compatibility:
 ln -s .claude/skills .agents/skills
+ln -s .claude/skills .omp/skills
 ```
 
 ### 2. Run `/setup-skills`
@@ -123,4 +139,5 @@ General workflow tools, not code-specific.
 
 - **[docs](./skills/productivity/docs/SKILL.md)** — Manage codebase documentation, ADRs (Simple & Formal), RFCs, System Design Specs, and SSOT Workflows with automated validation.
 - **[grilling](./skills/productivity/grilling/SKILL.md)** — Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved. The reusable interview primitive behind `grill-me`, `grill-with-docs`, `triage`, `wayfinder` and `improve-codebase-architecture`.
+- **[dashboard-ui](./skills/productivity/dashboard-ui/SKILL.md)** — In-app UI and design system for dashboards, data tables, forms, modals, and settings screens.
 - **[writing-for-agents](./skills/productivity/writing-for-agents/SKILL.md)** — Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.

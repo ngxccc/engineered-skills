@@ -13,7 +13,7 @@ import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-const skillDir = "skills/ui-ux";
+const skillDir = "skills/productivity/dashboard-ui";
 
 // Lý lẽ từng dẫn tới bản sai (locked-rules.md, dòng 1 và 3).
 const rejectedArgumentPattern =
@@ -56,6 +56,7 @@ function collectChangedLines() {
 		["diff", "HEAD", "--unified=0", "--no-color", "--", skillDir],
 		{
 			encoding: "utf8",
+			maxBuffer: 50 * 1024 * 1024,
 		},
 	);
 	let currentFile = "";

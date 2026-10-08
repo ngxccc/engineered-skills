@@ -1929,12 +1929,10 @@ function measureInPage({ minTapSize, isMobile, isSweep = false }) {
 		].filter(Boolean);
 		for (const key of keys) {
 			if (!surfacesByComponent.has(key)) surfacesByComponent.set(key, []);
-			surfacesByComponent
-				.get(key)
-				.push({
-					element,
-					radius: Math.round(parseFloat(style.borderTopLeftRadius) || 0),
-				});
+			surfacesByComponent.get(key).push({
+				element,
+				radius: Math.round(parseFloat(style.borderTopLeftRadius) || 0),
+			});
 		}
 	}
 	const mismatchedRadii = [];
