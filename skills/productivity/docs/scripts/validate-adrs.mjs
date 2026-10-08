@@ -39,7 +39,7 @@ const files = fs.readdirSync(adrDir).filter((f) => f.endsWith(".md"));
 
 if (files.length === 0) {
 	console.log(
-		`${colors.yellow}Warning: No ADR files found in docs/adr.${colors.reset}`,
+		`${colors.yellow}No ADR files found in ${adrDir}.${colors.reset}`,
 	);
 	process.exit(0);
 }
@@ -69,56 +69,116 @@ for (const file of files) {
 	// 2. Check Level 1 Heading
 	const lines = content.split("\n");
 	const firstLine = lines[0] ? lines[0].trim() : "";
-	const h1Regex = /^#\s+(?:(\d+)\.\s+)?(.+)$/;
+	const h1Regex = /^#\s+(\d+)\.\s+(.+)$/;
 	const h1Match = firstLine.match(h1Regex);
 
 	if (!h1Match) {
 		logError(
 			file,
-			"File must start with a level 1 heading in format '# <Title>' or '# <Number>. <Title>'",
+			"File must start with a level 1 heading in format '# <Number>. <Title>'",
 		);
 		continue;
 	}
 
-	if (h1Match[1]) {
-		const headingNum = parseInt(h1Match[1], 10);
-		if (fileNum !== headingNum) {
-			logError(
-				file,
-				`ADR number mismatch: filename specifies '${fileNum}' but H1 specifies '${headingNum}'`,
-			);
-		}
+	const headingNum = parseInt(h1Match[1], 10);
+	if (fileNum !== headingNum) {
+		logError(
+			file,
+			`ADR number mismatch: filename specifies '${fileNum}' but H1 specifies '${headingNum}'`,
+		);
 	}
 
 	// 3. Determine Layout (Formal vs Simple)
 	const isFormal =
-		content.includes("## Status") || content.includes("## Context");
+		content.includes("## Context") || content.includes("Status:");
 
 	if (isFormal) {
-		// Formal ADR Checks
-		const dateRegex = /^Date:\s+\d{4}-\d{2}-\d{2}/m;
-		if (!dateRegex.test(content)) {
+		// Formal ADR Checks: Status, Date, Deciders at top
+		const statusLineRegex =
+			/^Status:\s+(Accepted|Proposed|Superseded|Deprecated)$/m;
+		if (!statusLineRegex.test(content)) {
 			logError(
 				file,
-				"Formal ADR: Missing or invalid Date format. Must contain 'Date: YYYY-MM-DD'",
+				"Formal ADR: Missing or invalid inline 'Status: <Accepted|Proposed|Superseded|Deprecated>' line.",
 			);
 		}
 
-		const requiredSections = [
-			{ title: "Status", heading: "## Status" },
-			{ title: "Context", heading: "## Context" },
-			{ title: "Decision", heading: "## Decision" },
-			{ title: "Consequences", heading: "## Consequences" },
-			{ title: "Explicit Tradeoffs", heading: "### Explicit Tradeoffs" },
+		const dateRegex = /^Date:\s+\d{4}-\d{2}-\d{2}$/m;
+		if (!dateRegex.test(content)) {
+			logError(
+				file,
+				"Formal ADR: Missing or invalid Date format. Must contain 'Date: YYYY-MM-DD' on its own line.",
+			);
+		}
+
+		// Exact H2 headings required
+		const requiredH2Headings = [
+			/^##\s+Context$/m,
+			/^##\s+Decision$/m,
+			/^##\s+Positive Consequences$/m,
+			/^##\s+Negative Consequences \/ Risks$/m,
+			/^##\s+Explicit Tradeoffs$/m,
 		];
 
-		for (const sec of requiredSections) {
-			if (!content.includes(sec.heading)) {
+		for (const reg of requiredH2Headings) {
+			if (!reg.test(content)) {
 				logError(
 					file,
-					`Formal ADR: Missing required section heading '${sec.heading}'`,
+					`Formal ADR: Missing exact required H2 heading matching '${reg}'`,
 				);
 			}
+		}
+
+		// Anti-pattern: Banned redundant H2 Status
+		if (/^##\s+Status$/m.test(content)) {
+			logError(
+				file,
+				"ANTI-PATTERN: Redundant '## Status' heading is forbidden. Use 'Status: <Accepted>' header line under H1.",
+			);
+		}
+
+		// Anti-pattern: Banned legacy sections
+		if (/^###\s+Metadata$/m.test(content)) {
+			logError(
+				file,
+				"ANTI-PATTERN: Legacy '### Metadata' block is forbidden. Put references in Context.",
+			);
+		}
+		if (/^##\s+Status\s+&\s+Approval$/m.test(content)) {
+			logError(
+				file,
+				"ANTI-PATTERN: Legacy '## Status & Approval' footer is forbidden.",
+			);
+		}
+		if (/^##\s+Metadata\s+&\s+References$/m.test(content)) {
+			logError(
+				file,
+				"ANTI-PATTERN: Legacy '## Metadata & References' footer is forbidden.",
+			);
+		}
+		if (/^##\s+Consequences$/m.test(content)) {
+			logError(
+				file,
+				"ANTI-PATTERN: Generic '## Consequences' is obsolete. Use H2 '## Positive Consequences', '## Negative Consequences / Risks', and '## Explicit Tradeoffs'.",
+			);
+		}
+		if (/^##\s+Decision Outcome$/m.test(content)) {
+			logError(
+				file,
+				"ANTI-PATTERN: Non-standard '## Decision Outcome' must be renamed to '## Decision'.",
+			);
+		}
+
+		// Anti-pattern: Raw TypeScript implementation blocks (per docs/standards/domain-docs.md)
+		if (
+			/^```(?:ts|typescript)\r?\n[\s\S]*?(?:export\s+(?:function|const|class)|function\s+\w+)/m.test(
+				content,
+			)
+		) {
+			logError(
+				file,
+				"ANTI-PATTERN: Raw TypeScript code definitions in ADR are forbidden. Reference symbols by path.",
+			);
 		}
 	} else {
 		// Simple ADR Checks (Lightweight)
@@ -141,12 +201,12 @@ for (const file of files) {
 console.log(`\n${"─".repeat(50)}`);
 if (failures > 0) {
 	console.error(
-		`\n${colors.red}${colors.bold}Audit failed with ${failures} error(s).${colors.reset}`,
+		`\n${colors.red}${colors.bold}Audit failed:${colors.reset} ${failures} issue(s) detected across ADRs.\n`,
 	);
 	process.exit(1);
 } else {
 	console.log(
-		`\n${colors.green}${colors.bold}All ADRs passed validation cleanly.${colors.reset}`,
+		`\n${colors.green}${colors.bold}All ADRs passed validation cleanly.${colors.reset}\n`,
 	);
 	process.exit(0);
 }
