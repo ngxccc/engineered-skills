@@ -11,7 +11,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const VALID_ISSUE_TYPES = [
+const VALID_ISSUE_TYPES = new Set([
 	"task",
 	"bug",
 	"feature",
@@ -20,7 +20,7 @@ const VALID_ISSUE_TYPES = [
 	"sub-issue",
 	"sub_issue",
 	"subissue",
-];
+]);
 
 const CONVENTIONAL_TYPES = [
 	"task",
@@ -260,7 +260,7 @@ function parseArgs() {
 		return params;
 	}
 
-	if (!VALID_ISSUE_TYPES.includes(params.type)) {
+	if (!VALID_ISSUE_TYPES.has(params.type)) {
 		console.error(
 			`Error: Unknown issue type '${params.type}'. Allowed types: task, bug, feature, sub-issue`,
 		);

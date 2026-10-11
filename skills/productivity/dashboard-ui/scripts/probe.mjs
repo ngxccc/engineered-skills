@@ -258,9 +258,9 @@ function measureInPage({ minTapSize, isMobile, isSweep = false }) {
 		/^(bg|fill|stroke|ring|inset-ring|outline|decoration|shadow|from|via|to)-/.test(
 			className,
 		) ||
-		(/^text-/.test(className) &&
+		(className.startsWith("text-") &&
 			!/^text-(xs|sm|base|lg|\d?xl|\[)/.test(className)) ||
-		(/^border-/.test(className) &&
+		(className.startsWith("border-") &&
 			!/^border-(\d|[trblxy]($|-\d))/.test(className));
 	// Tập các đường thẻ + class (bỏ class màu) của con cháu ba tầng, không tính số lượng: ô lịch hai việc
 	// với ô ba việc cùng cấu trúc, nên ô ba việc cao lệch 2px vẫn bị bắt (26/09/2026).
@@ -3839,13 +3839,13 @@ function findPopupDetails(freezeCss) {
 	for (const tag of freezeTags) tag.media = "not all";
 	const describeLayer = (element) =>
 		`${element.tagName.toLowerCase()}${element.getAttribute("role") ? `[role=${element.getAttribute("role")}]` : ""} "${(element.textContent || "").trim().replace(/\s+/g, " ").slice(0, 30)}"`;
-	const motionProperties = [
+	const motionProperties = new Set([
 		"all",
 		"opacity",
 		"transform",
 		"scale",
 		"translate",
-	];
+	]);
 	const motionless = [];
 	const scrollyLayers = [];
 	for (const layer of document.querySelectorAll(
@@ -3881,7 +3881,7 @@ function findPopupDetails(freezeCss) {
 				.split(",")
 				.some(
 					(property, index) =>
-						motionProperties.includes(property.trim()) &&
+						motionProperties.has(property.trim()) &&
 						(durations[index] ?? durations[0]) > 0,
 				);
 			if (style.animationName !== "none" || hasTransition) {
@@ -5283,7 +5283,7 @@ function findStaticHoverBlocks() {
 	const findings = [];
 	for (const node of document.querySelectorAll("[class*='hover:bg-']")) {
 		const classes = (node.getAttribute("class") || "").split(/\s+/);
-		if (!classes.some((name) => /^hover:bg-/.test(name))) continue;
+		if (!classes.some((name) => name.startsWith("hover:bg-"))) continue;
 		const rect = node.getBoundingClientRect();
 		if (rect.width * rect.height < 400 || node.closest(interactiveSelector))
 			continue;
@@ -5297,7 +5297,7 @@ function findStaticHoverBlocks() {
 			.trim()
 			.slice(0, 30);
 		findings.push(
-			`${node.tagName.toLowerCase()}.${classes.find((name) => /^hover:bg-/.test(name))} "${text}"`,
+			`${node.tagName.toLowerCase()}.${classes.find((name) => name.startsWith("hover:bg-"))} "${text}"`,
 		);
 	}
 

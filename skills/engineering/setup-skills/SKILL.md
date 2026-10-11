@@ -50,6 +50,7 @@ Record the choice in `docs/standards/issue-tracker.md`.
 
 Ask: "Do you want to keep the default triage labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`)? (recommended: **yes**)"
 
+Record the vocabulary directly in `docs/standards/issue-tracker.md` under `## Triage Label Vocabulary` (single source of truth). Do not generate a separate `triage-labels.md`.
 **Section C — Domain docs.** Default to **single-context** — one `CONTEXT.md` + `docs/adr/` at the repo root. Offer multi-context only for monorepos. Record rules in `docs/standards/domain-docs.md`.
 
 **Section D — Engineering Standards (`docs/standards/`).**
