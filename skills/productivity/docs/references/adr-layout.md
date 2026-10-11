@@ -20,7 +20,7 @@ We decided to use raw SQL with SQLx instead of an ORM for the write model. The c
 
 ## 2. Formal ADR (Audit-Ready)
 
-Must contain Level 1 Title (`# <Num>. <Title>`), followed immediately by inline header metadata lines (`Status:`, `Date:`, `Deciders:`), and exact H2 headings:
+Must contain Level 1 Title (`# <Num>. <Title>`), followed immediately by inline header metadata lines (`Status:`, `Date:`, `Deciders:`), and exact H2 headings. `Deciders:` MUST default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`), never generic (`Team / Core Architecture`) or AI names:
 
 - `## Context`
 - `## Decision`
@@ -35,7 +35,7 @@ _(Note: `## Status` as an H2 heading is obsolete and forbidden to eliminate redu
 
 Status: Accepted
 Date: 2026-08-19
-Deciders: Team / Core Architecture
+Deciders: <github-username>
 
 ## Context
 

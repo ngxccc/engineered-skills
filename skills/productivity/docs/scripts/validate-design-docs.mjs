@@ -26,10 +26,6 @@ function logError(file, message) {
 	failures++;
 }
 
-function logSuccess(file, message) {
-	console.log(`${colors.green}PASS:${colors.reset} [${file}] ${message}`);
-}
-
 if (!fs.existsSync(designDir)) {
 	fs.mkdirSync(designDir, { recursive: true });
 }
@@ -133,7 +129,16 @@ for (const file of files) {
 		if (!fm.author) {
 			logError(
 				file,
-				"Frontmatter missing required field: 'author' (e.g. 'Team / Core Architecture')",
+				"Frontmatter missing required field: 'author' (default to local GitHub username via 'gh api user --jq .login' or 'git config user.name')",
+			);
+		} else if (
+			/^(team(\s*\/\s*(core architecture|agent))?|agent|ai|claude|chatgpt|assistant|<.+>)$/i.test(
+				fm.author.trim(),
+			)
+		) {
+			logError(
+				file,
+				`Frontmatter 'author' must be the author's local GitHub username, not generic or AI attribution (got: '${fm.author}')`,
 			);
 		}
 		if (!fm.version || !/^\d+\.\d+\.\d+$/.test(fm.version)) {
@@ -205,7 +210,7 @@ for (const file of files) {
 	// In KaTeX / MathJax / LaTeX:
 	// A) Plain unescaped underscores in math mode ($..._...$ or $$..._...$$) outside intentional subscript
 	// B) Text-like macros in math with underscores: \text{..._...}, \texttt{..._...}
-	const mathBlocks = content.match(/\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$/g) || [];
+	const mathBlocks = content.match(/\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/g) || [];
 	for (const math of mathBlocks) {
 		// Detect unescaped underscores in any \text, \texttt, \operatorname, \mathrm, \mathbf macros
 		const textWithUnderscore = math.match(
@@ -230,10 +235,6 @@ for (const file of files) {
 			);
 			break;
 		}
-	}
-
-	if (failures === currentFileFailures) {
-		logSuccess(file, "Passed consolidated design spec validation.");
 	}
 }
 

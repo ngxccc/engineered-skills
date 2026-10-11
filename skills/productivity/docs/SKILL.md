@@ -21,6 +21,17 @@ Parse `$ARGUMENTS` first word:
 | `/docs design`    | `references/design-doc-layout.md`       | Create or validate System Design Specs under `docs/design/`.                 |
 | `/docs benchmark` | `references/benchmark-report-layout.md` | Create or validate Benchmark & Performance Reports under `docs/benchmarks/`. |
 
+## Author & Attribution Convention
+
+When authoring or updating docs that contain author, decider, or owner fields (RFCs, System Design Specs, Benchmark Reports, Formal ADRs):
+
+- **Default to local GitHub username**: Resolve the user's GitHub username from the local environment in the following order:
+  1. `gh api user --jq .login`
+  2. `git config github.user`
+  3. `git config user.name`
+  4. System user (`$USER` / `whoami`)
+- **Forbidden attributions**: NEVER attribute to generic placeholders (e.g. `Team`, `Core Architecture`, `<Engineering Team / Author>`) or AI/agent identities (e.g. `Agent`, `AI`, `Claude`, `ChatGPT`, `Team / Agent`, `Assistant`).
+
 ## Automated Validation Scripts
 
 Validation suites under `skills/productivity/docs/scripts/`:
@@ -38,5 +49,4 @@ Validation suites under `skills/productivity/docs/scripts/`:
 - [references/adr-layout.md](references/adr-layout.md) - Simple vs Formal ADR layouts.
 - [references/rfc-layout.md](references/rfc-layout.md) - RFC proposal layout.
 - [references/design-doc-layout.md](references/design-doc-layout.md) - System Design layout.
-- [references/workflow-documentation-standard.md](references/workflow-documentation-standard.md) - SSOT Workflow Standard (Mermaid sequence diagrams).
 - [references/benchmark-report-layout.md](references/benchmark-report-layout.md) - Benchmark & Performance Report layout (SUT, KPIs, RED/USE, Comparison Matrix).

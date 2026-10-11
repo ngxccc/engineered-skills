@@ -72,4 +72,4 @@ Only offer to create an ADR when all three are true:
 2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
 3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
 
-If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./references/ADR-FORMAT.md) (Simple vs Formal ADRs). For managing system-wide ADRs, RFCs, Design Specs, or running automated ADR validation, reach for the [`docs`](../../productivity/docs/SKILL.md) skill (`bun run skills/productivity/docs/scripts/validate-adrs.mjs`).
+If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./references/ADR-FORMAT.md) (Simple vs Formal ADRs). When creating a Formal ADR with `Deciders:`, default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`), never generic (`Team`) or AI names. For managing system-wide ADRs, RFCs, Design Specs, or running automated ADR validation, reach for the [`docs`](../../productivity/docs/SKILL.md) skill (`bun run skills/productivity/docs/scripts/validate-adrs.mjs`).

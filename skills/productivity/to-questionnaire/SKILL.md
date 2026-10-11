@@ -24,7 +24,7 @@ Frame the document as a **discovery questionnaire**: the user lacks context, the
 
 **Purpose:** why this questionnaire exists and the decision riding on it.
 
-**From:** <the user> — **To:** <the recipient> — **How your answers will be used:** <where they go>
+**From:** <github-username> (default to user's local GitHub username via `gh api user --jq .login` or `git config user.name`, never generic or AI name) — **To:** <the recipient> — **How your answers will be used:** <where they go>
 
 ## Context
 
@@ -44,6 +44,7 @@ One `##` section per theme. Under each, its questions, most-important-first. Eve
 _Why this matters: it decides whether we provision for burst traffic now or defer it._
 
 >
+
 </question-example>
 
 ## Anything else?

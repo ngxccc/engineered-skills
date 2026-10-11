@@ -29,6 +29,9 @@ Use **Simple ADR** (1 title + 1-3 sentences) for quick inline recording during a
 **Where do generated ADRs, RFCs, and Design Docs live?**  
 ADRs live in `docs/adr/` (`0001-slug.md`), RFCs live in `docs/rfc/` (`0001-slug.md`), and Design/Workflow specs live in `docs/design/` (`slug-workflow.md`).
 
+**How are authors and deciders attributed in generated documents?**  
+All generated documentation (ADRs, RFCs, System Design Specs, Benchmark Reports) defaults author and decider fields to the user's local GitHub username retrieved directly from the machine (`gh api user --jq .login` or `git config user.name`). Generic placeholders (such as "Team") and AI attributions (such as "Agent" or "Claude") are explicitly disallowed.
+
 ## It's working if
 
 - Running `bun run skills/productivity/docs/scripts/validate-docs.mjs` executes validation suites and reports PASS for valid ADRs, RFCs, and Design Docs.

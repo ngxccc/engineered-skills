@@ -27,10 +27,6 @@ function logError(file, message) {
 	failures++;
 }
 
-function logSuccess(file, message) {
-	console.log(`${colors.green}PASS:${colors.reset} [${file}] ${message}`);
-}
-
 if (!fs.existsSync(adrDir)) {
 	fs.mkdirSync(adrDir, { recursive: true });
 }
@@ -111,6 +107,25 @@ for (const file of files) {
 			);
 		}
 
+		const decidersMatch = content.match(/^Deciders:\s*(.*)$/m);
+		if (!decidersMatch || !decidersMatch[1].trim()) {
+			logError(
+				file,
+				"Formal ADR: Missing inline 'Deciders: <github-username>' line under Title/Status/Date.",
+			);
+		} else {
+			const decidersVal = decidersMatch[1].trim();
+			if (
+				/^(team(\s*\/\s*(core architecture|agent))?|agent|ai|claude|chatgpt|assistant|<.+>)$/i.test(
+					decidersVal,
+				)
+			) {
+				logError(
+					file,
+					`Formal ADR: 'Deciders' must be the user's local GitHub username, not generic or AI attribution (got: '${decidersVal}').`,
+				);
+			}
+		}
 		// Exact H2 headings required
 		const requiredH2Headings = [
 			/^##\s+Context$/m,
@@ -188,13 +203,6 @@ for (const file of files) {
 				"Simple ADR: Document content is too short (must be at least 1 paragraph).",
 			);
 		}
-	}
-
-	if (failures === currentFileFailures) {
-		logSuccess(
-			file,
-			`Valid ${isFormal ? "Formal" : "Simple"} ADR structure (${file})`,
-		);
 	}
 }
 

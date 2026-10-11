@@ -4,7 +4,9 @@ Location: `docs/rfc/NNNN-slug.md` (4-digit prefix, kebab-case).
 
 ## Required Structure
 
-Must contain Level 1 Title (`# <Num>. <Title>`), Date (`Date: YYYY-MM-DD`), Status (`Status: Draft | Under Review | Approved | Rejected | Superseded by ADR-XXXX`), and exact section headings:
+Must contain Level 1 Title (`# <Num>. <Title>`), Date (`Date: YYYY-MM-DD`), Author (`Author: <github-username>`), Status (`Status: Draft | Under Review | Approved | Rejected | Superseded by ADR-XXXX`), and exact section headings:
+
+- **Author Attribution**: MUST default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`). Never generic (`Team`) or AI names (`Agent`, `Claude`).
 
 - `## Summary`
 - `## Context & Motivation`
@@ -18,7 +20,7 @@ Must contain Level 1 Title (`# <Num>. <Title>`), Date (`Date: YYYY-MM-DD`), Stat
 # 1. Payment Gateway Refactor
 
 Date: 2026-08-19
-Author: Team / Agent
+Author: <github-username>
 Status: Draft
 
 ## Summary

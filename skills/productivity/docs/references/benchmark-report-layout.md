@@ -10,7 +10,7 @@ Document quantitative performance baselines, stress test saturation thresholds, 
 
 ## Benchmark Report Template (Audit-Ready)
 
-Must contain Level 1 Heading, Metadata block, and exact required sections:
+Must contain Level 1 Heading, Metadata block, and exact required sections. **Author** MUST default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`), never generic placeholders (`<Engineering Team / Author>`) or AI names:
 
 ```md
 # Baseline Performance Report: <Target Component / Endpoint>
@@ -18,7 +18,7 @@ Must contain Level 1 Heading, Metadata block, and exact required sections:
 **Status**: Baseline Completed | Regression Failed | Optimization Verified | Draft  
 **Target**: <Route or Service Method, e.g. GET /api/v1/shows/:id/seats>  
 **Date**: YYYY-MM-DD  
-**Author**: <Engineering Team / Author>
+**Author**: <github-username>
 
 ---
 

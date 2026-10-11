@@ -21,3 +21,5 @@ Stateful idea-sharpening interview that maintains project glossary and architect
 4. **Route artifact**:
    - **High-Risk Class** (Auth, Billing, DB Schema, Public API, Gateway, Secrets) → author Formal Specification via `/docs formal-spec`.
    - **Standard Features** → author System Design via `/docs design` or proceed directly to `/to-spec`.
+
+When authoring documentation artifacts (ADRs, System Design, Formal Specs), author and decider fields MUST default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`), never generic placeholders (`Team`) or AI names (`Agent`, `Claude`).

@@ -25,10 +25,6 @@ function logError(file, message) {
 	failures++;
 }
 
-function logSuccess(file, message) {
-	console.log(`${colors.green}PASS:${colors.reset} [${file}] ${message}`);
-}
-
 if (!fs.existsSync(benchmarkDir)) {
 	fs.mkdirSync(benchmarkDir, { recursive: true });
 }
@@ -96,6 +92,27 @@ for (const file of files) {
 		);
 	}
 
+	// Check for metadata Author
+	const authorMatch = content.match(/(\*\*Author\*\*|Author):\s*(.*)/i);
+	if (!authorMatch || !authorMatch[2].trim()) {
+		logError(
+			file,
+			"Missing Author metadata. Must contain '**Author**: <github-username>' or 'Author: <github-username>'",
+		);
+	} else {
+		const authorVal = authorMatch[2].trim();
+		if (
+			/^(team(\s*\/\s*(core architecture|agent))?|agent|ai|claude|chatgpt|assistant|<.+>)$/i.test(
+				authorVal,
+			)
+		) {
+			logError(
+				file,
+				`Author must be the author's local GitHub username, not generic or AI attribution (got: '${authorVal}').`,
+			);
+		}
+	}
+
 	// 4. Check for metadata Status
 	if (!/(\*\*Status\*\*|Status):\s*.+/i.test(content)) {
 		logError(
@@ -109,10 +126,6 @@ for (const file of files) {
 		if (!rule.regex.test(content)) {
 			logError(file, `Missing required section matching '${rule.name}'`);
 		}
-	}
-
-	if (failures === currentFileFailures) {
-		logSuccess(file, "Passed benchmark structural and metadata validation.");
 	}
 }
 

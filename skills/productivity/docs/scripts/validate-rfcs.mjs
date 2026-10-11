@@ -25,10 +25,6 @@ function logError(file, message) {
 	failures++;
 }
 
-function logSuccess(file, message) {
-	console.log(`${colors.green}PASS:${colors.reset} [${file}] ${message}`);
-}
-
 if (!fs.existsSync(rfcDir)) {
 	fs.mkdirSync(rfcDir, { recursive: true });
 }
@@ -103,6 +99,26 @@ for (const file of files) {
 		);
 	}
 
+	const authorMatch = content.match(/^Author:\s*(.*)$/m);
+	if (!authorMatch || !authorMatch[1].trim()) {
+		logError(
+			file,
+			"Missing or invalid Author format. Must contain 'Author: <github-username>'",
+		);
+	} else {
+		const authorVal = authorMatch[1].trim();
+		if (
+			/^(team(\s*\/\s*(core architecture|agent))?|agent|ai|claude|chatgpt|assistant|<.+>)$/i.test(
+				authorVal,
+			)
+		) {
+			logError(
+				file,
+				`Author must be the author's local GitHub username, not generic or AI attribution (got: '${authorVal}').`,
+			);
+		}
+	}
+
 	const statusRegex =
 		/^Status:\s+(Draft|Under Review|Approved|Rejected|Superseded by .+)/m;
 	if (!statusRegex.test(content)) {
@@ -117,10 +133,6 @@ for (const file of files) {
 		if (!content.includes(sec.heading)) {
 			logError(file, `Missing required section heading '${sec.heading}'`);
 		}
-	}
-
-	if (failures === currentFileFailures) {
-		logSuccess(file, `Valid RFC structure (RFC #${headingNum})`);
 	}
 }
 

@@ -10,13 +10,13 @@ You invoke this by typing `/grill-with-docs` — the agent will not reach for it
 
 Reach for it at the start of a change, in a repo, when the plan is still fuzzy and the words for the thing are not settled yet. It is the single-session tool. Which grilling skill you want depends on what is in front of you:
 
-| What you have | Reach for |
-| --- | --- |
-| You aren't working in a working directory at all | [grill-me](https://aihero.dev/skills-grill-me) |
-| A repo, and a change you can settle in one session | `grill-with-docs` |
-| An effort too big to hold in one session — a greenfield build, a large feature | [wayfinder](https://aihero.dev/skills-wayfinder) |
-| A repo with no domain docs at all, and no particular feature in mind | `grill-with-docs`, aimed at the repo rather than a change |
-| A decision blocked on knowledge in someone else's head | [to-questionnaire](https://aihero.dev/skills-to-questionnaire) |
+| What you have                                                                  | Reach for                                                      |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| You aren't working in a working directory at all                               | [grill-me](https://aihero.dev/skills-grill-me)                 |
+| A repo, and a change you can settle in one session                             | `grill-with-docs`                                              |
+| An effort too big to hold in one session — a greenfield build, a large feature | [wayfinder](https://aihero.dev/skills-wayfinder)               |
+| A repo with no domain docs at all, and no particular feature in mind           | `grill-with-docs`, aimed at the repo rather than a change      |
+| A decision blocked on knowledge in someone else's head                         | [to-questionnaire](https://aihero.dev/skills-to-questionnaire) |
 
 The wayfinder split comes down to session count: `/grill-with-docs` for single-session planning, `/wayfinder` for multi-session planning.
 
@@ -30,11 +30,11 @@ It also needs two other skills present, because its own `SKILL.md` is one line t
 
 Three things come out of a session, and they are not equal.
 
-| What resolved | Where it lands |
-| --- | --- |
-| A term — the project's own word for a thing | `CONTEXT.md`, inline, the moment it resolves |
-| A decision that is hard to reverse, surprising without context, and a real trade-off | An ADR under `docs/adr/` |
-| Everything else you decided | The conversation, and nowhere else |
+| What resolved                                                                        | Where it lands                               |
+| ------------------------------------------------------------------------------------ | -------------------------------------------- |
+| A term — the project's own word for a thing                                          | `CONTEXT.md`, inline, the moment it resolves |
+| A decision that is hard to reverse, surprising without context, and a real trade-off | An ADR under `docs/adr/`                     |
+| Everything else you decided                                                          | The conversation, and nowhere else           |
 
 That third row is the one that catches people out. `CONTEXT.md` is a glossary and is deliberately kept as one — no implementation details, no [spec](https://www.aihero.dev/ai-coding-dictionary/spec), no scratch notes. ADRs are gated on all three conditions at once, so most decisions do not qualify and most sessions produce none. A session that yields a sharper glossary and zero ADRs is working as designed, but it means the bulk of what you agreed exists only in the [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) you agreed it in. Hand that same conversation to [to-spec](https://aihero.dev/skills-to-spec) rather than [clearing](https://www.aihero.dev/ai-coding-dictionary/clearing) it.
 
@@ -66,12 +66,15 @@ Yes. This is the right skill for a codebase with no ADRs, no domain language and
 **What should I do when the session ends?**
 The skill's closing message tends to be open-ended, which is a known rough edge. In the main flow the answer is [to-spec](https://aihero.dev/skills-to-spec), in the same conversation. If the change is small enough to build immediately, go straight to [implement](https://aihero.dev/skills-implement) instead.
 
+**Who gets named as author on the ADRs and specs it outputs?**  
+Your local GitHub username on the machine (`gh api user --jq .login` or `git config user.name`). The skill never uses generic placeholders ("Team") or AI identities ("Claude" / "Agent").
+
 **Why is it called that?**
 Nobody is happy with the name. There is an open suggestion to rename it `grill-domain-model`, which describes the behaviour more honestly. Nothing has moved on it. If a rename ever lands, the docs page moves with it and the URL changes.
 
 ## It's working if
 
-- `CONTEXT.md` changes *during* the session, term by term, rather than appearing in one lump at the end.
+- `CONTEXT.md` changes _during_ the session, term by term, rather than appearing in one lump at the end.
 - The glossary reads as pure vocabulary — your project's words with tight definitions — and contains no implementation detail or spec-like prose.
 - Questions the codebase can answer get answered by reading the codebase, not asked of you.
 - You get few or no ADRs, and the ones you get are decisions you would be annoyed to have to re-litigate.

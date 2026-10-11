@@ -12,6 +12,10 @@ Must contain YAML frontmatter (`docType: feature-workflow | infrastructure-workf
 - `## Security & Reliability` (RBAC, Fail-open degradation, Rate limiting, Circuit breakers)
 - `## Domain Invariant Taxonomy` (Formal `INV-N` matrix and verification test mapping)
 
+## Author Attribution Standard
+
+The frontmatter `author` field MUST default to the user's local GitHub username (resolved via `gh api user --jq .login` or `git config user.name`). NEVER use generic team titles (e.g. `"Team / Core Architecture"`) or AI identities (`"Claude"`, `"Agent"`).
+
 ## Symbol Referencing Standard
 
 Per `docs/standards/domain-docs.md`:
@@ -28,7 +32,7 @@ title: "Booking System Design & Workflow"
 docType: "feature-workflow"
 status: "approved"
 date: YYYY-MM-DD
-author: "Team / Core Architecture"
+author: "<github-username>"
 version: "1.0.0"
 ---
 ```
