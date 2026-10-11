@@ -16,7 +16,7 @@ Stateful idea-sharpening interview that maintains project glossary and architect
    - Present architectural forks as a **Trade-Off Matrix** (2–3 options with recommendation).
    - Evaluate across the **7 Baseline Engineering Domains** (Security, UX, Performance, Reliability, Maintainability, Observability, Compliance).
 3. **Persist discoveries**:
-   - Record new or refined domain terminology in `CONTEXT.md` (via `/domain-modeling`).
+   - Record new or refined domain terminology in `GLOSSARY.md` (via `/domain-modeling`).
    - Record architectural decisions as ADRs in `docs/adr/` (via `/docs adr`).
 4. **Route artifact**:
    - **High-Risk Class** (Auth, Billing, DB Schema, Public API, Gateway, Secrets) → author Formal Specification via `/docs formal-spec`.

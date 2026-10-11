@@ -8,15 +8,15 @@ It does not answer you in the conversation. The output is a file, written where 
 
 Type `/research`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reaches for it automatically when a task turns into reading legwork.
 
-Reach for it when the next step is *finding something out* from outside the working directory — how a third-party API behaves, what a spec actually says, whether a version claim holds — and you'd rather not stall your own thread doing the reading. What you need decides which skill:
+Reach for it when the next step is _finding something out_ from outside the working directory — how a third-party API behaves, what a spec actually says, whether a version claim holds — and you'd rather not stall your own thread doing the reading. What you need decides which skill:
 
-| What you need | Reach for |
-| --- | --- |
-| An external fact a decision is waiting on | `research` |
-| A decision made *with* you, by interview | [grilling](https://aihero.dev/skills-grilling) |
-| A durable architecture decision, written into `CONTEXT.md` and ADRs | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
-| To find out whether an approach works in your codebase | [prototype](https://aihero.dev/skills-prototype) |
-| A plan too big to hold in one session | [wayfinder](https://aihero.dev/skills-wayfinder) |
+| What you need                                                        | Reach for                                                    |
+| -------------------------------------------------------------------- | ------------------------------------------------------------ |
+| An external fact a decision is waiting on                            | `research`                                                   |
+| A decision made _with_ you, by interview                             | [grilling](https://aihero.dev/skills-grilling)               |
+| A durable architecture decision, written into `GLOSSARY.md` and ADRs | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
+| To find out whether an approach works in your codebase               | [prototype](https://aihero.dev/skills-prototype)             |
+| A plan too big to hold in one session                                | [wayfinder](https://aihero.dev/skills-wayfinder)             |
 
 The line between `research` and `grill-with-docs` is the **shelf life of what comes back**. Research produces short-lived assets — what this library's auth mechanism does as of this week. An ADR records a decision you keep. If what you are producing is a decision rather than a fact, you are [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling), not researching.
 
@@ -42,7 +42,7 @@ The skill puts the file where the repo already keeps notes and does not have an 
 
 **What counts as a "high-trust" primary source, and who decides?**
 
-The [model](https://www.aihero.dev/ai-coding-dictionary/model) does. The skill names the *kinds* of source that qualify — official docs, source code, specs, first-party APIs — and there is no allowlist, no domain gate, and no verification pass. This was the loudest objection when the skill was first proposed and it has never been answered publicly: "Five research subagents pointed at junk just gives you five confident wrong answers faster. How are you gating what counts as high-trust sources?" The mitigation you actually have is the citation on each claim. Follow two or three of them. If they land on a summary of the thing rather than the thing, the run failed at its one job.
+The [model](https://www.aihero.dev/ai-coding-dictionary/model) does. The skill names the _kinds_ of source that qualify — official docs, source code, specs, first-party APIs — and there is no allowlist, no domain gate, and no verification pass. This was the loudest objection when the skill was first proposed and it has never been answered publicly: "Five research subagents pointed at junk just gives you five confident wrong answers faster. How are you gating what counts as high-trust sources?" The mitigation you actually have is the citation on each claim. Follow two or three of them. If they land on a summary of the thing rather than the thing, the run failed at its one job.
 
 **Does a later session reuse what an earlier run found?**
 
@@ -70,4 +70,4 @@ No, it now fires them for you. In the unreleased changes since v1.1, a charting 
 
 ## Where it fits
 
-A reach-for-it-anytime standalone that feeds the thinking skills rather than sitting in the build chain. Its file is something to take *into* the flow: [grilling](https://aihero.dev/skills-grilling) and [grill-with-docs](https://aihero.dev/skills-grill-with-docs) ask sharper questions when the facts are already on the table, and [to-spec](https://aihero.dev/skills-to-spec) can synthesise against it. [wayfinder](https://aihero.dev/skills-wayfinder) is the one skill that invokes it directly, resolving each research ticket on its map with a `/research` subagent. For the whole map, see [ask-skills](https://aihero.dev/skills-ask-skills).
+A reach-for-it-anytime standalone that feeds the thinking skills rather than sitting in the build chain. Its file is something to take _into_ the flow: [grilling](https://aihero.dev/skills-grilling) and [grill-with-docs](https://aihero.dev/skills-grill-with-docs) ask sharper questions when the facts are already on the table, and [to-spec](https://aihero.dev/skills-to-spec) can synthesise against it. [wayfinder](https://aihero.dev/skills-wayfinder) is the one skill that invokes it directly, resolving each research ticket on its map with a `/research` subagent. For the whole map, see [ask-skills](https://aihero.dev/skills-ask-skills).

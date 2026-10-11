@@ -20,4 +20,4 @@ For complete layout specifications (Simple vs Formal ADRs), layout selection mat
 
 ## Deciders & Author Attribution
 
-When recording an ADR with `Deciders:`, default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`). Never use generic placeholders (`Team`, `Core Architecture`) or AI names (`Agent`, `Claude`).
+When recording a Formal ADR with `deciders:` frontmatter, default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`). Never use generic placeholders (`Team`, `Core Architecture`) or AI names (`Agent`, `Claude`).

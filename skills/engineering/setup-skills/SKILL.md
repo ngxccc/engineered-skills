@@ -9,7 +9,7 @@ description: Configure this repo for the engineering skills — set up its issue
 Scaffold the per-repo configuration that the engineering skills assume:
 
 - **Issue tracker & triage** — where issues live and their triage label vocabulary
-- **Domain docs** — where `CONTEXT.md` and ADRs live, and consumer rules for reading them
+- **Domain docs** — where `GLOSSARY.md` and ADRs live, and consumer rules for reading them
 - **Engineering standards** — interactive 7-pillar SSOT under `docs/standards/` (Comments, API, Database, Concurrency, Testing, Security, Git Flow)
 
 This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
@@ -22,7 +22,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 - `git remote -v` and `.git/config` — is this a GitHub repo? Which one?
 - `AGENTS.md` and `CLAUDE.md` at the repo root — does either exist?
-- `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
+- `GLOSSARY.md` and `GLOSSARY-MAP.md` at the repo root
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/standards/` — does this skill's prior output already exist?
 - `.scratch/` — sign that a local-markdown issue tracker convention is already in use
@@ -51,7 +51,7 @@ Record the choice in `docs/standards/issue-tracker.md`.
 Ask: "Do you want to keep the default triage labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`)? (recommended: **yes**)"
 
 Record the vocabulary directly in `docs/standards/issue-tracker.md` under `## Triage Label Vocabulary` (single source of truth). Do not generate a separate `triage-labels.md`.
-**Section C — Domain docs.** Default to **single-context** — one `CONTEXT.md` + `docs/adr/` at the repo root. Offer multi-context only for monorepos. Record rules in `docs/standards/domain-docs.md`.
+**Section C — Domain docs.** Default to **single-context** — one `GLOSSARY.md` + `docs/adr/` at the repo root. Offer multi-context only for monorepos (with `GLOSSARY-MAP.md`). Record rules in `docs/standards/domain-docs.md`. Scaffold starter `GLOSSARY.md` if not present.
 
 **Section D — Engineering Standards (`docs/standards/`).**
 
@@ -105,6 +105,7 @@ Scaffold all standard files into `docs/standards/` using the seed templates in `
 - [references/standards/security-and-cryptography.md](./references/standards/security-and-cryptography.md) → `docs/standards/security-and-cryptography.md`
 - [references/standards/git-flow-and-pr-matrix.md](./references/standards/git-flow-and-pr-matrix.md) → `docs/standards/git-flow-and-pr-matrix.md`
 - [references/issue-templates/](./references/issue-templates/) → `.github/ISSUE_TEMPLATE/` (if GitHub tracker and missing)
+- If single-context and `GLOSSARY.md` does not exist, scaffold starter `GLOSSARY.md` at root with `# Glossary` header and domain purpose.
 
 Format requirement: high density — decision tables, code snippets, sharp context pointers. No narrative fluff, no redundant parentheses, zero tutorial prose.
 

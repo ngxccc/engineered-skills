@@ -62,16 +62,29 @@ for (const file of files) {
 
 	const fileNum = parseInt(fileMatch[1], 10);
 
-	// 2. Check Level 1 Heading
-	const lines = content.split("\n");
-	const firstLine = lines[0] ? lines[0].trim() : "";
+	// 2. Frontmatter vs Direct Heading & Determine Layout
+	const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+	const isFormal =
+		Boolean(frontmatterMatch) ||
+		content.includes("## Context") ||
+		/^(?:status|Status):/m.test(content);
+
+	let bodyContent = content;
+	if (frontmatterMatch) {
+		bodyContent = content.slice(frontmatterMatch[0].length).trim();
+	}
+
+	// Check Level 1 Heading in body
+	const bodyLines = bodyContent.split("\n");
+	const firstHeadingLine =
+		bodyLines.find((l) => l.trim().startsWith("#")) || "";
 	const h1Regex = /^#\s+(\d+)\.\s+(.+)$/;
-	const h1Match = firstLine.match(h1Regex);
+	const h1Match = firstHeadingLine.trim().match(h1Regex);
 
 	if (!h1Match) {
 		logError(
 			file,
-			"File must start with a level 1 heading in format '# <Number>. <Title>'",
+			"Document must contain a level 1 heading in format '# <Number>. <Title>'",
 		);
 		continue;
 	}
@@ -84,47 +97,70 @@ for (const file of files) {
 		);
 	}
 
-	// 3. Determine Layout (Formal vs Simple)
-	const isFormal =
-		content.includes("## Context") || content.includes("Status:");
-
 	if (isFormal) {
-		// Formal ADR Checks: Status, Date, Deciders at top
-		const statusLineRegex =
-			/^Status:\s+(Accepted|Proposed|Superseded|Deprecated)$/m;
-		if (!statusLineRegex.test(content)) {
+		// Formal ADR Checks: YAML Frontmatter (status, date, deciders)
+		if (!frontmatterMatch) {
 			logError(
 				file,
-				"Formal ADR: Missing or invalid inline 'Status: <Accepted|Proposed|Superseded|Deprecated>' line.",
-			);
-		}
-
-		const dateRegex = /^Date:\s+\d{4}-\d{2}-\d{2}$/m;
-		if (!dateRegex.test(content)) {
-			logError(
-				file,
-				"Formal ADR: Missing or invalid Date format. Must contain 'Date: YYYY-MM-DD' on its own line.",
-			);
-		}
-
-		const decidersMatch = content.match(/^Deciders:\s*(.*)$/m);
-		if (!decidersMatch || !decidersMatch[1].trim()) {
-			logError(
-				file,
-				"Formal ADR: Missing inline 'Deciders: <github-username>' line under Title/Status/Date.",
+				"Formal ADR: Missing YAML frontmatter block (enclosed in '---') at top of file.",
 			);
 		} else {
-			const decidersVal = decidersMatch[1].trim();
-			if (
+			const fmLines = frontmatterMatch[1].split("\n");
+			const fm = {};
+			for (const line of fmLines) {
+				const m = line.match(/^([a-zA-Z0-9_-]+):\s*(.*)$/);
+				if (m) {
+					fm[m[1].toLowerCase()] = m[2].trim().replace(/^["']|["']$/g, "");
+				}
+			}
+
+			const validStatuses = [
+				"accepted",
+				"proposed",
+				"superseded",
+				"deprecated",
+			];
+			if (!fm.status || !validStatuses.includes(fm.status.toLowerCase())) {
+				logError(
+					file,
+					`Formal ADR: Frontmatter 'status' must be 'Accepted' | 'Proposed' | 'Superseded' | 'Deprecated' (got: '${fm.status || "missing"}')`,
+				);
+			}
+
+			if (!fm.date || !/^\d{4}-\d{2}-\d{2}$/.test(fm.date)) {
+				logError(
+					file,
+					`Formal ADR: Frontmatter 'date' must be in YYYY-MM-DD format (got: '${fm.date || "missing"}')`,
+				);
+			}
+
+			if (!fm.deciders) {
+				logError(
+					file,
+					"Formal ADR: Frontmatter missing required field 'deciders' (default to local GitHub username via 'gh api user --jq .login' or 'git config user.name')",
+				);
+			} else if (
 				/^(team(\s*\/\s*(core architecture|agent))?|agent|ai|claude|chatgpt|assistant|<.+>)$/i.test(
-					decidersVal,
+					fm.deciders,
 				)
 			) {
 				logError(
 					file,
-					`Formal ADR: 'Deciders' must be the user's local GitHub username, not generic or AI attribution (got: '${decidersVal}').`,
+					`Formal ADR: Frontmatter 'deciders' must be the user's local GitHub username, not generic or AI attribution (got: '${fm.deciders}')`,
 				);
 			}
+		}
+
+		// Anti-pattern: Legacy inline Status/Date/Deciders in Markdown body
+		if (
+			/^Status:\s+/m.test(bodyContent) ||
+			/^Date:\s+/m.test(bodyContent) ||
+			/^Deciders:\s+/m.test(bodyContent)
+		) {
+			logError(
+				file,
+				"ANTI-PATTERN: Inline 'Status:', 'Date:', or 'Deciders:' in Markdown body is obsolete. Move all metadata to YAML frontmatter.",
+			);
 		}
 		// Exact H2 headings required
 		const requiredH2Headings = [
@@ -136,7 +172,7 @@ for (const file of files) {
 		];
 
 		for (const reg of requiredH2Headings) {
-			if (!reg.test(content)) {
+			if (!reg.test(bodyContent)) {
 				logError(
 					file,
 					`Formal ADR: Missing exact required H2 heading matching '${reg}'`,
@@ -145,10 +181,10 @@ for (const file of files) {
 		}
 
 		// Anti-pattern: Banned redundant H2 Status
-		if (/^##\s+Status$/m.test(content)) {
+		if (/^##\s+Status$/m.test(bodyContent)) {
 			logError(
 				file,
-				"ANTI-PATTERN: Redundant '## Status' heading is forbidden. Use 'Status: <Accepted>' header line under H1.",
+				"ANTI-PATTERN: Redundant '## Status' heading is forbidden. Use 'status: <Accepted>' in YAML frontmatter.",
 			);
 		}
 

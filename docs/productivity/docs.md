@@ -24,7 +24,7 @@ Invoke `/docs` when creating, updating, or auditing system documentation, or whe
 Use **Simple ADR** (1 title + 1-3 sentences) for quick inline recording during active coding or domain modeling when low ceremony is preferred. Use **Formal ADR** (ISO/Nygard structure with Status, Context, Decision, Consequences, and `### Explicit Tradeoffs`) for cross-team architectural changes, enterprise audit trails, or when automated validation is enforced via `validate-adrs.mjs`.
 
 **Why is `docs` separated from `domain-modeling`?**  
-`domain-modeling` focuses on Domain-Driven Design (DDD) business vocabulary, ubiquitous language (`CONTEXT.md`), and bounded context maps (`CONTEXT-MAP.md`). `docs` focuses on system-wide technical documentation management (RFCs, Design Specs, Workflows) and automated Markdown validation suites.
+`domain-modeling` focuses on Domain-Driven Design (DDD) business vocabulary, ubiquitous language (`GLOSSARY.md`), and bounded context maps (`GLOSSARY-MAP.md`). `docs` focuses on system-wide technical documentation management (RFCs, Design Specs, Workflows) and automated Markdown validation suites.
 
 **Where do generated ADRs, RFCs, and Design Docs live?**  
 ADRs live in `docs/adr/` (`0001-slug.md`), RFCs live in `docs/rfc/` (`0001-slug.md`), and Design/Workflow specs live in `docs/design/` (`slug-workflow.md`).

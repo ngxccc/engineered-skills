@@ -21,7 +21,7 @@ Before writing code or tests, ALWAYS read the standards in `docs/standards/` (or
 - `docs/standards/api-design-and-error-handling.md`
 - `docs/standards/database-and-migrations.md`
 - `docs/standards/git-flow-and-pr-matrix.md`
-- `CONTEXT.md` and ADRs under `docs/adr/` (if present)
+- `GLOSSARY.md` and ADRs under `docs/adr/` (if present)
 
 ### 2. Drive TDD via Vertical Slices
 

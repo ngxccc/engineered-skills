@@ -4,11 +4,11 @@ Location: `docs/adr/NNNN-slug.md` (4-digit prefix).
 
 ## AI Selection Matrix
 
-| Criterion      | Simple ADR (Micro)                                           | Formal ADR (Audit-Ready)                                                                                                                              |
-| -------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Scope**      | Single-team, inline domain decisions, low ceremony.          | Cross-team, hard-to-reverse, compliance/audit needs.                                                                                                  |
-| **Shape**      | `# Title` + 1–3 sentence paragraph (Context, Decision, Why). | Full Nygard structure (`Status:` header line, `Context`, `Decision`, `Positive Consequences`, `Negative Consequences / Risks`, `Explicit Tradeoffs`). |
-| **Validation** | Flexible.                                                    | Strict via `validate-adrs.mjs`.                                                                                                                       |
+| Criterion      | Simple ADR (Micro)                                           | Formal ADR (Audit-Ready)                                                                                                                                             |
+| -------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scope**      | Single-team, inline domain decisions, low ceremony.          | Cross-team, hard-to-reverse, compliance/audit needs.                                                                                                                 |
+| **Shape**      | `# Title` + 1–3 sentence paragraph (Context, Decision, Why). | Full Nygard structure (YAML frontmatter metadata, `# Title`, `Context`, `Decision`, `Positive Consequences`, `Negative Consequences / Risks`, `Explicit Tradeoffs`). |
+| **Validation** | Flexible.                                                    | Strict via `validate-adrs.mjs`.                                                                                                                                      |
 
 ## 1. Simple ADR (Micro)
 
@@ -20,7 +20,7 @@ We decided to use raw SQL with SQLx instead of an ORM for the write model. The c
 
 ## 2. Formal ADR (Audit-Ready)
 
-Must contain Level 1 Title (`# <Num>. <Title>`), followed immediately by inline header metadata lines (`Status:`, `Date:`, `Deciders:`), and exact H2 headings. `Deciders:` MUST default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`), never generic (`Team / Core Architecture`) or AI names:
+Must contain YAML frontmatter (`status`, `date`, `deciders`), followed by Level 1 Title (`# <Num>. <Title>`), and exact H2 headings. `deciders:` MUST default to the user's local GitHub username (via `gh api user --jq .login` or `git config user.name`), never generic (`Team / Core Architecture`) or AI names:
 
 - `## Context`
 - `## Decision`
@@ -28,14 +28,16 @@ Must contain Level 1 Title (`# <Num>. <Title>`), followed immediately by inline 
 - `## Negative Consequences / Risks`
 - `## Explicit Tradeoffs`
 
-_(Note: `## Status` as an H2 heading is obsolete and forbidden to eliminate redundancy with the `Status:` header line)._
+_(Note: Inline `Status:` / `Date:` / `Deciders:` or `## Status` in Markdown body are obsolete and forbidden; all metadata MUST live in the YAML frontmatter)._
 
 ```md
-# 1. Event-Sourced Order Ledger
+---
+status: Accepted
+date: 2026-08-19
+deciders: <github-username>
+---
 
-Status: Accepted
-Date: 2026-08-19
-Deciders: <github-username>
+# 1. Event-Sourced Order Ledger
 
 ## Context
 

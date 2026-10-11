@@ -10,13 +10,13 @@ The second thing that separates it from labelling by hand: it recommends and wai
 
 You invoke this by typing `/triage` and then describing what you want in plain language — the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) won't reach for it on its own. "Show me anything that needs my attention", "let's look at #42", "move #42 to ready-for-agent".
 
-| What you have | Where to go |
-| --- | --- |
-| A tracker full of raw reports from other people | `/triage` |
-| A rough idea of your own, nothing written down | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
-| A settled conversation to turn into a [spec](https://www.aihero.dev/ai-coding-dictionary/spec) | [to-spec](https://aihero.dev/skills-to-spec) |
-| A spec to split into agent-ready tickets | [to-tickets](https://aihero.dev/skills-to-tickets) |
-| A confirmed bug that needs a root cause, not a label | [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs) |
+| What you have                                                                                  | Where to go                                                  |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| A tracker full of raw reports from other people                                                | `/triage`                                                    |
+| A rough idea of your own, nothing written down                                                 | [grill-with-docs](https://aihero.dev/skills-grill-with-docs) |
+| A settled conversation to turn into a [spec](https://www.aihero.dev/ai-coding-dictionary/spec) | [to-spec](https://aihero.dev/skills-to-spec)                 |
+| A spec to split into agent-ready tickets                                                       | [to-tickets](https://aihero.dev/skills-to-tickets)           |
+| A confirmed bug that needs a root cause, not a label                                           | [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs) |
 
 ## Prerequisites
 
@@ -28,23 +28,23 @@ The tracker config also decides whether external pull requests count as a reques
 
 Every triaged item ends up carrying exactly one category role and one state role. Two categories: `bug` (something is broken) and `enhancement` (new feature or improvement). Five states:
 
-| State | Means |
-| --- | --- |
-| `needs-triage` | You need to evaluate it. Where an unlabelled issue normally lands first. |
-| `needs-info` | Waiting on the reporter. Returns to `needs-triage` when they reply. |
+| State             | Means                                                                                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `needs-triage`    | You need to evaluate it. Where an unlabelled issue normally lands first.                                                    |
+| `needs-info`      | Waiting on the reporter. Returns to `needs-triage` when they reply.                                                         |
 | `ready-for-agent` | Fully specified, with an agent brief attached. An [AFK](https://www.aihero.dev/ai-coding-dictionary/afk) agent can take it. |
-| `ready-for-human` | The same brief, plus why this can't be delegated — judgment, external access, manual testing. |
-| `wontfix` | Closed, with the reason recorded. |
+| `ready-for-human` | The same brief, plus why this can't be delegated — judgment, external access, manual testing.                               |
+| `wontfix`         | Closed, with the reason recorded.                                                                                           |
 
 That is the whole vocabulary, and the "exactly one state role" invariant is what keeps the queries simple. It is also the most-requested area of the [skill](https://www.aihero.dev/ai-coding-dictionary/skill): users have asked for a sixth state for work that is specified but blocked on another issue, for `deferred` work gated on a future trigger, and for a terminal `implemented` state. None of those has shipped. See the questions below.
 
 `wontfix` splits three ways, and the difference matters because only one of them writes to the knowledge base:
 
-| Why you're closing it | What happens |
-| --- | --- |
-| Already implemented | A comment pointing at where it already lives. Nothing is written to `.out-of-scope/` — it's a built feature, not a rejected one, and filing it there would poison the dedup checks. |
-| Rejected bug | Polite explanation, then close. |
-| Rejected enhancement | A file in `.out-of-scope/`, linked from the closing comment, then close. |
+| Why you're closing it | What happens                                                                                                                                                                        |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Already implemented   | A comment pointing at where it already lives. Nothing is written to `.out-of-scope/` — it's a built feature, not a rejected one, and filing it there would poison the dedup checks. |
+| Rejected bug          | Polite explanation, then close.                                                                                                                                                     |
+| Rejected enhancement  | A file in `.out-of-scope/`, linked from the closing comment, then close.                                                                                                            |
 
 `.out-of-scope/` is one markdown file per rejected **concept**, not per issue, written as a short design document rather than a database row: what was rejected, why, and every issue that has asked for it. `triage` reads the whole directory before it evaluates anything, and matches by concept rather than keyword — "night theme" matches `dark-mode.md`. When it hits a match it surfaces the old decision and asks whether you still feel the same way, instead of re-litigating the request from scratch.
 
@@ -60,7 +60,7 @@ All of it exists to make one artifact good: the **agent brief**, the structured 
 
 Where the tracker treats external pull requests as a request surface, they run through the same machine — same categories, same states, same transitions. The states just read against the diff: `ready-for-agent` means a brief is attached and an agent should take the next step on the code, `ready-for-human` means it's ready for a person to merge. A brief on a PR describes what's left to do to the existing diff, not how to build the thing from nothing.
 
-Discovery surfaces only *external* PRs, because a collaborator's in-flight branch is not triage work. That filter is discovery-only — name a PR explicitly and it gets triaged whoever wrote it. One rough edge: the GitHub template's external-PR listing command asks `gh pr list` for an `authorAssociation` field that `gh` does not expose, so the command as written fails outright ([#468](https://github.com/engineered-skills/skills/issues/468)).
+Discovery surfaces only _external_ PRs, because a collaborator's in-flight branch is not triage work. That filter is discovery-only — name a PR explicitly and it gets triaged whoever wrote it. One rough edge: the GitHub template's external-PR listing command asks `gh pr list` for an `authorAssociation` field that `gh` does not expose, so the command as written fails outright ([#468](https://github.com/engineered-skills/skills/issues/468)).
 
 ## Common questions
 
@@ -80,7 +80,7 @@ This is the most-filed gap on the skill, in three shapes. An issue that is fully
 The verification step here is deliberately shallow — enough to answer "is this real, and roughly where does it live", not to find a root cause. When a bug won't reproduce from the reporter's steps in a few minutes, the honest move is `needs-info`, or [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs) if you want to chase it now. Neither skill's text currently mentions the other; a user found that seam, and it is still open.
 
 **Can I point it at my whole backlog and let it run?**
-You can ask, but watch what it reads. The "show what needs attention" pass is a cheap listing meant for *selection* — you pick one, and then it gathers full [context](https://www.aihero.dev/ai-coding-dictionary/context) on the one you picked. Run it across twenty issues at once and an agent can quietly fall back to that cheap listing as its evidence base, which returns issue bodies but not comments. A user hit exactly this: three issues already carried a comment saying "already fixed, recommend closing", and all three got fresh agent briefs instead. If you want a bulk pass, say explicitly that comments must be read per issue.
+You can ask, but watch what it reads. The "show what needs attention" pass is a cheap listing meant for _selection_ — you pick one, and then it gathers full [context](https://www.aihero.dev/ai-coding-dictionary/context) on the one you picked. Run it across twenty issues at once and an agent can quietly fall back to that cheap listing as its evidence base, which returns issue bodies but not comments. A user hit exactly this: three issues already carried a comment saying "already fixed, recommend closing", and all three got fresh agent briefs instead. If you want a bulk pass, say explicitly that comments must be read per issue.
 
 **Does it work with Linear, or anything other than GitHub Issues?**
 Yes — the tracker is config, not a hard-coded assumption, and people run it against Linear (via the `linear` CLI), GitLab, and plain markdown files under `.scratch/`. A common split is Linear for issues and planning, GitHub for code and PRs: skills that say "issue tracker" map to Linear, skills that say "PR" map to GitHub. On the local-markdown tracker there is an open template bug where the generated file can carry the acceptance criteria twice, once at the top level and once inside the agent brief ([#200](https://github.com/engineered-skills/skills/issues/200)).
@@ -96,4 +96,4 @@ Yes — the tracker is config, not a hard-coded assumption, and people run it ag
 
 ## Where it fits
 
-`triage` is an **on-ramp**, not a step in the main chain. The main flow runs from an idea you had — grill, spec, tickets, implement, review — and `triage` is the parallel lane for work that arrived instead. It merges at the same place: an issue labelled `ready-for-agent` with a brief on it, which [implement](https://aihero.dev/skills-implement) picks up exactly as it would a ticket from [to-tickets](https://aihero.dev/skills-to-tickets). When a request needs sharpening before it can be briefed, `triage` runs [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) together, a round of questions at a time, so decisions land in `CONTEXT.md` and the ADRs as they're made. When you're not sure which lane you are in, [ask-skills](https://aihero.dev/skills-ask-skills) routes you.
+`triage` is an **on-ramp**, not a step in the main chain. The main flow runs from an idea you had — grill, spec, tickets, implement, review — and `triage` is the parallel lane for work that arrived instead. It merges at the same place: an issue labelled `ready-for-agent` with a brief on it, which [implement](https://aihero.dev/skills-implement) picks up exactly as it would a ticket from [to-tickets](https://aihero.dev/skills-to-tickets). When a request needs sharpening before it can be briefed, `triage` runs [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) together, a round of questions at a time, so decisions land in `GLOSSARY.md` and the ADRs as they're made. When you're not sure which lane you are in, [ask-skills](https://aihero.dev/skills-ask-skills) routes you.

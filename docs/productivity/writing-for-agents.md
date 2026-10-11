@@ -1,6 +1,6 @@
 ## What it does
 
-`writing-for-agents` is the reference you write agent-facing documents against — a skill, an `AGENTS.md` / `CLAUDE.md`, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), a runtime prompt, a README, any doc an [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reads. The packaging differs; the writing does not: the same levers make each one predictable, so the agent takes the same *process* every run rather than producing the same output.
+`writing-for-agents` is the reference you write agent-facing documents against — a skill, an `AGENTS.md` / `CLAUDE.md`, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), a runtime prompt, a README, any doc an [agent](https://www.aihero.dev/ai-coding-dictionary/agent) reads. The packaging differs; the writing does not: the same levers make each one predictable, so the agent takes the same _process_ every run rather than producing the same output.
 
 Its default move is deletion, not explanation. Ask an agent to write instructions for another agent and it spends most of its words explaining what the [model](https://www.aihero.dev/ai-coding-dictionary/model) already knows — every one of those lines is a **no-op**, paying [context](https://www.aihero.dev/ai-coding-dictionary/context) and changing no behaviour. This reference is the lens that finds them, which is why it earns its keep at least as often on a document you already have as on a blank file.
 
@@ -23,10 +23,10 @@ Once you think in these two loads, most authoring decisions — split or don't, 
 
 ## The levers
 
-- **[Context pointers](https://www.aihero.dev/ai-coding-dictionary/context-pointer)** — the reference held in context that names out-of-context material and encodes when to reach it. A skill description and an `AGENTS.md` line naming a doc are the same object; the pointer's *wording*, not its target, decides how reliably the agent reaches through it.
+- **[Context pointers](https://www.aihero.dev/ai-coding-dictionary/context-pointer)** — the reference held in context that names out-of-context material and encodes when to reach it. A skill description and an `AGENTS.md` line naming a doc are the same object; the pointer's _wording_, not its target, decides how reliably the agent reaches through it.
 - **Information hierarchy** — the ladder from in-file step, to in-file reference, to disclosed reference behind a pointer. **[Progressive disclosure](https://www.aihero.dev/ai-coding-dictionary/progressive-disclosure)** is the move down that ladder so the top stays legible.
 - **Completion criteria** — the clarity and demand of each step's done-condition, and the **legwork** that demand drives; the defence against **premature completion**.
-- **Leading words** — a compact concept already in the model's pretraining (*tight*, *red*, *tracer bullet*) that the agent thinks with while running the document. It anchors twice: execution in the body, invocation in the pointer.
+- **Leading words** — a compact concept already in the model's pretraining (_tight_, _red_, _tracer bullet_) that the agent thinks with while running the document. It anchors twice: execution in the body, invocation in the pointer.
 - **Pruning** — single source of truth, relevance, and the no-op test applied sentence by sentence, against **duplication**, **sediment** and **sprawl**.
 
 ## Common questions
@@ -67,4 +67,4 @@ No — finding the word that packs the most behaviour into the fewest [tokens](h
 
 ## Where it fits
 
-This is a reach-for-it-anytime standalone reference. It has no neighbour in the chain because it sits underneath the whole set rather than beside any one skill: every skill here was written against it, and the documents the other skills leave behind — a `CONTEXT.md` and its ADRs, a spec, a ticket — are exactly the text it governs once an agent has to read them. When you're unsure which skill or flow fits a task, [ask-skills](https://aihero.dev/skills-ask-skills) routes you over the whole set.
+This is a reach-for-it-anytime standalone reference. It has no neighbour in the chain because it sits underneath the whole set rather than beside any one skill: every skill here was written against it, and the documents the other skills leave behind — a `GLOSSARY.md` and its ADRs, a spec, a ticket — are exactly the text it governs once an agent has to read them. When you're unsure which skill or flow fits a task, [ask-skills](https://aihero.dev/skills-ask-skills) routes you over the whole set.

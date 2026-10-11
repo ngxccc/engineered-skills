@@ -12,12 +12,12 @@ You invoke this by typing `/improve-codebase-architecture` — the [agent](https
 
 It sits outside the build loop — it is not a step in the main loop but something you run periodically to queue up more work to improve the codebase. The four situations it gets used in:
 
-| Situation | How it is used |
-| --- | --- |
-| Routine upkeep | Run it every few days, or whenever a spare moment appears, to stop structure rotting between features. |
+| Situation          | How it is used                                                                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routine upkeep     | Run it every few days, or whenever a spare moment appears, to stop structure rotting between features.                                                  |
 | Before a big build | Point it at the [spec](https://www.aihero.dev/ai-coding-dictionary/spec): "how can we make this change easy?" This is the most effective prompt for it. |
-| Brownfield audit | Run it on a large, unstructured or [vibe-coded](https://www.aihero.dev/ai-coding-dictionary/vibe-coding) repo to find out what shape it is actually in. |
-| Legacy test work | Use it to find the missing seams first, before writing tests against untestable code. |
+| Brownfield audit   | Run it on a large, unstructured or [vibe-coded](https://www.aihero.dev/ai-coding-dictionary/vibe-coding) repo to find out what shape it is actually in. |
+| Legacy test work   | Use it to find the missing seams first, before writing tests against untestable code.                                                                   |
 
 Where it is confusable with siblings:
 
@@ -27,9 +27,9 @@ Where it is confusable with siblings:
 
 ## Prerequisites
 
-None to run it. It reads `CONTEXT.md` and any ADRs in `docs/adr/` if they exist, and speaks in your domain's own nouns when they do — a candidate reads as "deepen the Order intake module," not "refactor the FooBarHandler."
+None to run it. It reads `GLOSSARY.md` and any ADRs in `docs/adr/` if they exist, and speaks in your domain's own nouns when they do — a candidate reads as "deepen the Order intake module," not "refactor the FooBarHandler."
 
-It writes in two places. The report goes to `<tmpdir>/architecture-review-<timestamp>.html`, outside the repo. During the grilling loop it will add or sharpen terms in `CONTEXT.md`, creating that file if it does not exist, and offer to record a rejected candidate as an ADR so a future run does not re-suggest it.
+It writes in two places. The report goes to `<tmpdir>/architecture-review-<timestamp>.html`, outside the repo. During the grilling loop it will add or sharpen terms in `GLOSSARY.md`, creating that file if it does not exist, and offer to record a rejected candidate as an ADR so a future run does not re-suggest it.
 
 ## Depth, and the report that hunts for it
 
@@ -37,11 +37,11 @@ The skill turns on one idea: **depth**. A deep module puts a lot of behaviour be
 
 Each candidate is a card: the files involved, the friction, a plain-English solution, the benefit stated in terms of **locality** and **leverage**, a before/after diagram, and a strength badge.
 
-| Badge | What it means for you |
-| --- | --- |
-| `Strong` | The deletion test passes clearly and the friction is real. Take these seriously. |
-| `Worth exploring` | Plausible deepening, but the payoff depends on where the code is going next. |
-| `Speculative` | Surfaced for completeness. Most of these are safe to ignore. |
+| Badge             | What it means for you                                                            |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `Strong`          | The deletion test passes clearly and the friction is real. Take these seriously. |
+| `Worth exploring` | Plausible deepening, but the payoff depends on where the code is going next.     |
+| `Speculative`     | Surfaced for completeness. Most of these are safe to ignore.                     |
 
 The report ends with a **Top recommendation** — the one it would tackle first — and then the skill stops and asks which candidate you want to explore. Nothing has been decided at that point, and no code has moved.
 
@@ -98,4 +98,4 @@ There is no good answer shipped with the skill. The recurring request is for a `
 
 ## Where it fits
 
-`improve-codebase-architecture` is **periodic maintenance** — run it every few days, outside any chain, to queue up work rather than to do it. Its neighbours are [codebase-design](https://aihero.dev/skills-codebase-design), which owns the depth-and-seam vocabulary every candidate is written in, [grilling](https://aihero.dev/skills-grilling), which walks the decision tree once you have chosen a candidate, and [domain-modeling](https://aihero.dev/skills-domain-modeling), which keeps `CONTEXT.md` and the ADRs current as the decision settles. What it produces is an idea, which re-enters the main build flow at [grill-with-docs](https://aihero.dev/skills-grill-with-docs) or [to-spec](https://aihero.dev/skills-to-spec). For which skill fits a situation, [ask-skills](https://aihero.dev/skills-ask-skills) is the router over the whole set.
+`improve-codebase-architecture` is **periodic maintenance** — run it every few days, outside any chain, to queue up work rather than to do it. Its neighbours are [codebase-design](https://aihero.dev/skills-codebase-design), which owns the depth-and-seam vocabulary every candidate is written in, [grilling](https://aihero.dev/skills-grilling), which walks the decision tree once you have chosen a candidate, and [domain-modeling](https://aihero.dev/skills-domain-modeling), which keeps `GLOSSARY.md` and the ADRs current as the decision settles. What it produces is an idea, which re-enters the main build flow at [grill-with-docs](https://aihero.dev/skills-grill-with-docs) or [to-spec](https://aihero.dev/skills-to-spec). For which skill fits a situation, [ask-skills](https://aihero.dev/skills-ask-skills) is the router over the whole set.
