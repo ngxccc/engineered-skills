@@ -8,10 +8,10 @@ High rigor, audit-ready template for core architecture changes, breaking API cha
 
 - Every commit in the PR MUST be atomic: buildable and testable independently. No `wip` or `fixup` commits.
 - Breaking changes MUST include `!` in the prefix or `BREAKING CHANGE:` in the commit footer.
-- Commit body MUST explain:
-  1. **Problem / Motivation**: Why the change is needed.
-  2. **Solution**: Architectural approach taken.
-  3. **Trade-offs**: Explicitly named trade-offs.
+- Commit body MUST explain the changes using concise bullet points (`- ...`) instead of long paragraphs:
+  - **Problem / Motivation**: Why the change is needed.
+  - **Solution**: Architectural approach taken.
+  - **Trade-offs**: Explicitly named trade-offs.
 
 ### Example Commit Format
 

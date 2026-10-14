@@ -1,8 +1,6 @@
-# Conventional Commits & PR Tier Matrix
+# Conventional Commits & Slicing Reference
 
-Defines Conventional Commit specifications, rules, and the 3-Tier PR Selection Matrix.
-
----
+Detailed Conventional Commit rules, atomic slicing patterns, and helper script usage.
 
 ## Conventional Commit Structure
 
@@ -60,12 +58,6 @@ node skills/engineering/git-flow/scripts/format-commit.mjs --type docs --scope a
 
 # Step 2: Commit core logic changes
 git add src/modules/auth/
----
-
-## Human Audit Protocol
-
-1. When asked to commit, run `format-commit.mjs` without `--execute` to propose the message.
-2. Wait for explicit user approval ("commit") before executing `git commit`.
 node skills/engineering/git-flow/scripts/format-commit.mjs --type feat --scope auth --summary "add OAuth2 refresh token"
 
 # Step 3: Commit test updates
@@ -73,12 +65,32 @@ git add tests/auth/
 node skills/engineering/git-flow/scripts/format-commit.mjs --type test --scope auth --summary "add refresh token integration test"
 ```
 
+### Bulleted Descriptions Format
+
+When proposing atomic commit plans or including a commit body, **NEVER write long, dense paragraphs**. Format descriptions as concise, high-signal bullet points (`- ...`):
+
+```markdown
+1. deb3cea - feat(ui): add reusable LoadingScreen component:
+   - Add standalone LoadingScreen.tsx supporting both full-screen and inline containers.
+2. 7ff4bb0 - refactor(auth): migrate session management to Zustand useAuthStore:
+   - Add useAuthStore.ts centralizing session token, user profile, and logout flow.
+   - Update useUIStore.ts to sync .dark class to <html> upon store initialization.
+   - Eliminate prop-drilling across App.tsx, AppRoutes.tsx, LoginPage.tsx, RegisterPage.tsx, ProtectedRoute.tsx, SidebarUserProfile.tsx, and TopNav.tsx.
+3. a372d91 - refactor(dashboard): eliminate prop-drilling in canvas and modals:
+   - Remove hasPrivatePin prop-drilling from Sidebar.tsx and NoteSidebarItem.tsx (delegate directly to NoteActionMenu.tsx via auth store).
+   - Connect NoteEditor.tsx and UnlockCard.tsx to useWorkspaceStore fallback, decoupling DocumentCanvas.tsx.
+   - Connect SearchModal.tsx directly to useUIStore and useWorkspaceStore, freeing WorkspaceLayoutContent from 7 intermediate props and unnecessary search re-renders.
+4. e27bd99 - docs(architecture): update session design spec and standardize ADR frontmatters:
+   - Update Mermaid sequence diagram and invariants INV-AUTH-04, INV-AUTH-05 in docs/design/01-auth-session-and-pin-setup.md.
+   - Standardize YAML frontmatter across all 5 ADRs (0001 through 0005).
+```
+
 ---
 
-## 3-Tier PR Selection Matrix
+## PR Tier Selection Matrix
 
-| Tier                      | Scope / Risk                                             | Reference Template                                            | Key Requirements                                                         |
-| :------------------------ | :------------------------------------------------------- | :------------------------------------------------------------ | :----------------------------------------------------------------------- |
-| **Tier 1 (Patch)**        | Typo, docs, minor dependency bump.                       | [`references/pr-tier1-patch.md`](pr-tier1-patch.md)           | 2-line PR body, minimal ceremony.                                        |
-| **Tier 2 (Standard)**     | Feature, bugfix, module refactor (Default).              | [`references/pr-tier2-standard.md`](pr-tier2-standard.md)     | Lean 6-section PR body (Summary, Context, Type, Evidence, Risk, Notes).  |
-| **Tier 3 (Kernel-Grade)** | Core architecture, DB schema, security, breaking change. | [`references/pr-tier3-enterprise.md`](pr-tier3-enterprise.md) | Lean 6-section PR body with mandatory ADR/RFC link, rollback, and notes. |
+| Tier                      | Scope / Risk                                             | Reference Template                                 | Key Requirements                                                         |
+| :------------------------ | :------------------------------------------------------- | :------------------------------------------------- | :----------------------------------------------------------------------- |
+| **Tier 1 (Patch)**        | Typo, docs, minor dependency bump.                       | [`pr-tier1-patch.md`](pr-tier1-patch.md)           | 2-section PR body, minimal ceremony.                                     |
+| **Tier 2 (Standard)**     | Feature, bugfix, module refactor (Default).              | [`pr-tier2-standard.md`](pr-tier2-standard.md)     | Lean 6-section PR body (Summary, Context, Type, Evidence, Risk, Notes).  |
+| **Tier 3 (Kernel-Grade)** | Core architecture, DB schema, security, breaking change. | [`pr-tier3-enterprise.md`](pr-tier3-enterprise.md) | Lean 6-section PR body with mandatory ADR/RFC link, rollback, and notes. |

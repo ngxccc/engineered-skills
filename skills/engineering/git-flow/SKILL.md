@@ -1,167 +1,117 @@
 ---
 name: git-flow
-description: Git branching, Conventional Commits formatting, and 3-Tier PR creation workflows.
+description: Shape branches, slice atomic commits, create pull requests via the 3-Tier PR Matrix, or create sub-issues. Use when the user wants to branch, commit, push, create a PR, format commit messages, or manage GitHub issues.
 ---
 
-# Git Flow & Pull Request Protocol (`git-flow`)
+# Git Flow (`git-flow`)
 
-Manage git branch creation, Conventional Commits formatting, feature branching strategies, and enterprise Pull Requests (PRs) via an **Adaptive 3-Tier PR Matrix**.
+Shape clean git branches, slice atomic commits with bulleted details, create audit-ready Pull Requests matched to risk via the 3-Tier PR Matrix, and create linked GitHub sub-issues.
 
-## PR Tier Selection Matrix
+## PR Tier Matrix
 
-Before creating a branch or opening a PR, evaluate scope and risk to select the appropriate Tier:
+Match ceremony to risk before opening a branch or PR:
 
-| Tier                   | Scope & Risk                                                         | Template Reference                  | Requirements                                                           |
-| :--------------------- | :------------------------------------------------------------------- | :---------------------------------- | :--------------------------------------------------------------------- |
-| **Tier 1: Patch**      | Typo, docs, minor dependency update.                                 | `references/pr-tier1-patch.md`      | Single-sentence PR summary, low ceremony.                              |
-| **Tier 2: Standard**   | Feature, bugfix, routine refactor (Default).                         | `references/pr-tier2-standard.md`   | Conventional Commits, full 5-section body, test logs.                  |
-| **Tier 3: Enterprise** | Core architecture, DB schema, security patch, breaking change (`!`). | `references/pr-tier3-enterprise.md` | Atomic commits, mandatory ADR/RFC link, Signed-off-by, audit evidence. |
+| Tier                   | Scope & Risk                                                         | Reference                                                                | Key Requirements                                                              |
+| :--------------------- | :------------------------------------------------------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------- |
+| **Tier 1: Patch**      | Typo, docs, minor dependency update.                                 | [`references/pr-tier1-patch.md`](references/pr-tier1-patch.md)           | Single-sentence PR summary, low ceremony.                                     |
+| **Tier 2: Standard**   | Feature, bugfix, routine refactor (Default).                         | [`references/pr-tier2-standard.md`](references/pr-tier2-standard.md)     | Conventional Commits, lean 6-section body, before/after evidence.             |
+| **Tier 3: Enterprise** | Core architecture, DB schema, security patch, breaking change (`!`). | [`references/pr-tier3-enterprise.md`](references/pr-tier3-enterprise.md) | Sliced atomic commits, mandatory ADR/RFC link, rollback plan, audit evidence. |
 
 ---
 
 ## Step-by-Step Workflow
 
-1. **Check Working Directory Status:** Run `git status` or `node skills/engineering/git-flow/scripts/git-flow.mjs` to verify clean state and branch naming.
-2. **Execute Clean Feature Branching:**
-   - Feature branch pattern: `feature/<kebab-case-name>`
-   - Bugfix branch pattern: `fix/<kebab-case-name>`
-   - Hotfix branch pattern: `hotfix/<kebab-case-name>`
-   - Core / Tier 3 branch pattern: `core/<kebab-case-name>`
-3. **Analyze & Slice Atomic Commits:**
-   - Inspect `git status` / `git diff`.
-   - **Single Scope**: If all changes belong to one logical feature, stage and commit together.
-   - **Multiple Scopes**: If changes span distinct modules (e.g., `docs/` vs `src/auth/`), **DO NOT squash into one blob commit**. Perform **Logical Sliced Commits**: stage specific paths per scope (`git add <path>`) and run `node skills/engineering/git-flow/scripts/format-commit.mjs --type <type> --scope <scope> --summary "<summary>"`.
-4. **Select PR Tier & Create Pull Request:**
-   - Check if active repository defines `.github/PULL_REQUEST_TEMPLATE.md`. If present, build PR body matching project template fields.
-   - Otherwise, pick Tier 1, Tier 2, or Tier 3 template per Matrix above (`references/pr-tier*.md`).
-   - Execute PR creation via `xd://github` (`op: pr_create`) or helper script `skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3>`.
+### Step 1: Health Check & Clean Branching
 
-## Visual-First PR Body Formatting
+Verify clean working tree and ensure branch naming reflects scope:
 
-When constructing PR bodies (Tier 2 Standard & Tier 3 Enterprise), prioritize instant comprehension. Visuals (diagrams, images, trees) are **optional and context-dependent**: include them when they genuinely clarify changes (e.g. UI overhauls, complex architecture/state transitions). For straightforward fixes, refactors, or config changes, concise plain text is completely sufficient — **never fabricate artificial diagrams or trees where they add no value**.
+- Feature branch: `feature/<kebab-name>`
+- Bugfix branch: `fix/<kebab-name>`
+- Hotfix branch: `hotfix/<kebab-name>`
+- Core / Tier 3 branch: `core/<kebab-name>`
 
-### 1. Summary Visuals (Include only when helpful)
+Validate state with `node skills/engineering/git-flow/scripts/git-flow.mjs` or `git status`.
 
-- **UI / Frontend Changes:** Embed screenshots, side-by-side Before/After image tables, or recording links:
-  ```markdown
-  | Before                       | After                       |
-  | :--------------------------- | :-------------------------- |
-  | ![Before](image-url-or-path) | ![After](image-url-or-path) |
-  ```
-- **Architecture & Multi-Entity Workflows:** Mermaid diagrams (`sequenceDiagram`, `flowchart TD`, `stateDiagram-v2`):
-  ```mermaid
-  sequenceDiagram
-      participant Client
-      participant Gateway
-      participant Auth
-      Client->>Gateway: POST /auth/login
-      Gateway->>Auth: Verify Credentials
-      Auth-->>Gateway: Issue JWT Bearer
-      Gateway-->>Client: 200 OK (Token)
-  ```
-- **Runtime & Control Flow:** Call trees or execution traces:
-  ```text
-  submitOrder
-    validateInventory
-    chargePayment
-      dispatchWebhook
-    sendReceiptEmail
-  ```
-- **Component & Module Structure:** Hierarchy trees or shallow file trees:
-  ```text
-  src/
-  ├── auth/         # session & JWT verification
-  ├── orders/       # order intake & state machine
-  └── transport/    # HTTP & WebSocket adapters
-  ```
-- **Logic & State Transitions:** Pseudocode or unified diff sketches showing core behavior changes without noise.
+**Completion criterion:** Branch prefix adheres to convention and working tree state is clean or accounted for.
 
-### 2. Evidence Hierarchy
+### Step 2: Slice Atomic Commits
 
-- **S-Tier (Visual):** Screenshots, before/after images, or screen recordings for any visual/interactive surface.
-- **A-Tier (Execution):** Real terminal output, before/after test run logs (`auth.spec.ts: failing -> passing`).
-- **B-Tier (Metrics):** Benchmark numbers, throughput (RPS), memory profiles, or latency percentiles (p95/p99).
+Inspect `git status` and `git diff`. Never squash changes across distinct concerns or modules into a single blob commit.
 
-### 3. Risk Assessment
+1. **Single Scope**: If all changes belong to one feature or fix, stage and commit together.
+2. **Multiple Scopes**: Sliced commits by module/path (`git add <path>`).
+3. **Bulleted Descriptions Only**: When proposing atomic commit plans or writing commit bodies, never write dense paragraphs. Format details as concise, high-signal bullet points (`- ...`).
+4. **Commit Formatting**: Validate with `node skills/engineering/git-flow/scripts/format-commit.mjs --type <type> --scope <scope> --summary "<summary>"`.
 
-Always evaluate risk along two clear axes in `## Risk`:
+**Completion criterion:** Sliced commit plan is staged logically per path/scope, with each slice independently buildable and testable.
 
-- **Door:**
-  - **Two-way door:** Easily reversible, low blast radius, cheap to roll back.
-  - **One-way door:** Irreversible or high friction to undo (destructive DB migration, breaking API cutover, auth provider change). Demands rigorous pre-merge review.
-- **Blast Radius:** Explicitly name potential downstream impacts (e.g. mobile client breakages, cache invalidation storms, dependent microservices).
+### Step 3: Human Audit Protocol (<critical>)
 
-### 4. Reviewer Notes
-
-Use `## Notes` to call out specific areas for the reviewer to scrutinize, architectural tradeoffs accepted, deployment/migration order, or open questions. If no special notes are needed, write `- None`.
-
----
-
-## GitHub Issue Creation & Native Sub-Issues Protocol
-
-When creating issues or decomposing a parent Epic/Feature into sub-tasks:
-
-1. **Create and Link via `create-issue.mjs` (Recommended)**:
-
-   ```bash
-   node skills/engineering/git-flow/scripts/create-issue.mjs \
-     --type task \
-     --title "task(<scope>): <summary>" \
-     --parent <parent_number> \
-     --blocked-by <blocked_by_number> \
-     --execute
+1. **Proposal Only**: Inspect `git status` / `git diff`, propose the numbered atomic commit slicing plan with bulleted change details, and display the formatted Conventional Commit message (`format-commit.mjs` without `--execute`).
+2. **Proposal Schema**:
+   ```markdown
+   1. deb3cea - feat(ui): add reusable LoadingScreen component:
+      - Add standalone LoadingScreen.tsx supporting both full-screen and inline containers.
+   2. 7ff4bb0 - refactor(auth): migrate session management to Zustand useAuthStore:
+      - Add useAuthStore.ts centralizing session token, user profile, and logout flow.
+      - Update useUIStore.ts to sync .dark class to <html> upon store initialization.
+      - Eliminate prop-drilling across App.tsx, AppRoutes.tsx, LoginPage.tsx, RegisterPage.tsx, ProtectedRoute.tsx, SidebarUserProfile.tsx, and TopNav.tsx.
+   3. a372d91 - refactor(dashboard): eliminate prop-drilling in canvas and modals:
+      - Remove hasPrivatePin prop-drilling from Sidebar.tsx and NoteSidebarItem.tsx (delegate directly to NoteActionMenu.tsx via auth store).
+      - Connect NoteEditor.tsx and UnlockCard.tsx to useWorkspaceStore fallback, decoupling DocumentCanvas.tsx.
+      - Connect SearchModal.tsx directly to useUIStore and useWorkspaceStore, freeing WorkspaceLayoutContent from 7 intermediate props and unnecessary search re-renders.
+   4. e27bd99 - docs(architecture): update session design spec and standardize ADR frontmatters:
+      - Update Mermaid sequence diagram and invariants INV-AUTH-04, INV-AUTH-05 in docs/design/01-auth-session-and-pin-setup.md.
+      - Standardize YAML frontmatter across all 5 ADRs (0001 through 0005).
    ```
+3. **Explicit Human Confirmation Required**: NEVER execute `git commit` or pass `--execute` to `format-commit.mjs` until the user explicitly confirms approval (e.g., "confirm commit", "approve commit", "execute commit").
 
-   Automatically validates Conventional Commit title, verifies the single-noun body schema (`Context`, `Scope`, `Acceptance`), publishes the issue, and links it to the parent via the GitHub Native Sub-Issues API.
+**Completion criterion:** Explicit human confirmation received before any commit execution.
 
-2. **Manual Native Sub-Issues Linking (Under the Hood)**:
+### Step 4: Construct PR Body & Open PR
 
-   ```bash
-   # 1. Create child ticket
-   gh issue create --title "task(<scope>): <title>" --label "type:task" --body "..."
+1. If repo defines `.github/PULL_REQUEST_TEMPLATE.md`, match its fields.
+2. Otherwise, select template from `references/pr-tier*.md` based on Tier.
+3. Follow the **Visual-First Guidelines**:
+   - Include visuals (Mermaid diagrams, screenshots, Before/After image tables, shallow call trees) only when they genuinely clarify UI changes or complex architecture. For straightforward fixes, concise plain text is sufficient.
+   - Keep evidence concrete: before/after screenshots for UI, failing->passing test logs for logic.
+   - Name risk: two-way door vs one-way door, blast radius, and rollback plan if Tier 3.
+4. Open PR via `xd://github` (`op: pr_create`) or `node skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3>`.
 
-   # 2. Extract child integer database ID
-   CHILD_ID=$(gh api repos/{owner}/{repo}/issues/<child_number> --jq .id)
-
-   # 3. Link child to parent issue via REST API
-   gh api --method POST repos/{owner}/{repo}/issues/<parent_number>/sub_issues -F sub_issue_id=$CHILD_ID
-
-   # 4. Verify parent hierarchy
-   gh api repos/{owner}/{repo}/issues/<parent_number>/sub_issues --jq '.[] | "#\(.number): \(.title)"'
-   ```
+**Completion criterion:** PR opened with validated tier template, before/after evidence, and correct issue linking.
 
 ---
 
 ## Issue Linking & Closing Protocol
 
-1. **Pull Request Descriptions (Primary Linking Mechanism)**:
-   - Issue tracking belongs at the Pull Request level, NOT in individual atomic commits.
-   - Under `## Context`, declare `Resolves: #<id>` (to auto-close the issue on merge) or `Relates to: #<id>` (for non-closing reference / backlink).
-   - If the PR is standalone or does not relate to an existing issue, keep `## Context` and specify `- None`. Do NOT omit `## Context` (ensuring every PR shares the identical 6-part layout) and NEVER self-reference the PR itself (`Relates to: #<own-pr-id>`).
-2. **Atomic Commit Messages**:
-   - Commits focus strictly on technical rationale; issue reference footers (`Ref: #<id>`) are NOT mandatory on individual branch commits.
-   - NEVER use auto-closing keywords (`Fixes:`, `Closes:`, `Resolves:`) in commit messages to prevent premature issue closure.
-   - Footers are strictly reserved for `BREAKING CHANGE:` or optional standalone bugfix trailers (`Fixes: <hash>` per Linux kernel conventions).
+- **Pull Request Descriptions (Primary)**: Declare `Resolves: #<id>` (to auto-close on merge) or `Relates to: #<id>` (for non-closing reference) under `## Context` in the PR body. If standalone, write `- None`. Never self-reference the PR itself (`Relates to: #<own-pr-id>`).
+- **Atomic Commit Messages**: Focus strictly on technical rationale. Never use auto-closing keywords (`Fixes:`, `Closes:`, `Resolves:`) in commit messages to prevent premature issue closure. Footers are reserved for `BREAKING CHANGE:` or standalone bugfix trailers (`Fixes: <hash>`).
 
-## Human Audit & Verification Protocol (<critical>)
+---
 
-1. **Inspection & Staging Proposal Only**: When requested to commit or run `git-flow`, the agent MUST ONLY check `git status` / `git diff`, propose the atomic commit slicing plan, and display the formatted Conventional Commit message (`format-commit.mjs` without `--execute`).
-2. **Explicit Human Confirmation Required**: The agent MUST NEVER execute `git commit` or pass `--execute` to `format-commit.mjs` until the user explicitly responds with audit approval (e.g., "xác nhận commit", "đồng ý commit", "execute commit").
+## Sub-Issue Creation
+
+When decomposing Epics into tracer-bullet tasks or creating bug reports:
+
+- Use `references/issue-templates.md` for issue body specifications (`Task`, `Bug Report`, `Feature / Proposal`).
+- Run `node skills/engineering/git-flow/scripts/create-issue.mjs --type task --title "task(<scope>): <summary>" --parent <parent_number> --execute` to create and link directly to parent issues via the GitHub Native Sub-Issues API.
 
 ---
 
 ## Quick Reference Rules
 
 - `conventional-commits` - Format all messages as `<type>(<scope>): <description>`. Validate via `format-commit.mjs`.
-- `no-close-in-commits` - NEVER use Fixes/Closes/Resolves in commit messages. Reserve issue linking and auto-closing keywords strictly for Pull Request descriptions.
+- `bulleted-commit-desc` - All commit proposal details and commit body rationale MUST be concise bullet points (`- ...`), never dense paragraphs.
+- `no-close-in-commits` - NEVER use Fixes/Closes/Resolves in commit messages. Reserve auto-closing strictly for PR descriptions.
 - `clean-branching` - Use `feature/`, `fix/`, `hotfix/`, or `core/` branch naming prefixes.
 - `enterprise-pr` - Enforce clean titles and structured body template without emojis.
 - `no-force-push-main` - NEVER force-push to main or master branches.
-- `human-audit-required` - NEVER execute `git commit` or `--execute` without explicit user audit confirmation.
+- `human-audit-required` - NEVER execute `git commit` or `--execute` without explicit human confirmation.
 
 ## References
 
-- [references/git-flow-templates.md](references/git-flow-templates.md) - Conventional commit & PR tier selection matrix.
-- [references/pr-tier1-patch.md](references/pr-tier1-patch.md) - Tier 1 Patch PR template.
-- [references/pr-tier2-standard.md](references/pr-tier2-standard.md) - Tier 2 Standard PR template.
-- [references/pr-tier3-enterprise.md](references/pr-tier3-enterprise.md) - Tier 3 Kernel-Grade Enterprise PR template.
+- [`references/git-flow-templates.md`](references/git-flow-templates.md) - Conventional commit specifications, helper options, and slicing patterns.
+- [`references/pr-tier1-patch.md`](references/pr-tier1-patch.md) - Tier 1 Patch PR template.
+- [`references/pr-tier2-standard.md`](references/pr-tier2-standard.md) - Tier 2 Standard PR template.
+- [`references/pr-tier3-enterprise.md`](references/pr-tier3-enterprise.md) - Tier 3 Kernel-Grade Enterprise PR template.
+- [`references/issue-templates.md`](references/issue-templates.md) - Task, Bug Report, and Feature Proposal templates for GitHub Issues.
