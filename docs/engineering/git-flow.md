@@ -25,7 +25,7 @@ A single complex PR template wastes token footprint and time on trivial updates.
 **Does `git-flow` support force-pushing to main?**  
 No. `git-flow` strictly enforces a `no-force-push-main` safety guardrail to protect main/master branch histories.
 **Can the agent execute git commit automatically?**  
-No. `git-flow` enforces a strict **Human Audit & Verification Protocol**. The agent proposes atomic commit slices and displays formatted commit messages, but MUST NOT execute `git commit` or `--execute` without explicit user audit confirmation.
+No. `git-flow` enforces a strict **Human Audit & Verification Protocol**. The agent proposes atomic commit slices and displays formatted commit messages, but MUST NOT execute `git commit` or `--execute` without explicit user audit confirmation. All commit proposal details and descriptions MUST use concise bullet points (`- ...`) instead of long, dense paragraphs.
 
 **How does `git-flow` handle GitHub Native Sub-Issues?**  
 `create-issue.mjs` automatically queries the child issue's database ID and calls GitHub's Native Sub-Issues REST API (`POST repos/{owner}/{repo}/issues/{parent}/sub_issues`) when `--parent` is passed, linking child tickets into the parent hierarchy in a single command.
@@ -34,5 +34,5 @@ No. `git-flow` enforces a strict **Human Audit & Verification Protocol**. The ag
 
 - Minor fixes use Tier 1 lightweight templates without unnecessary fields.
 - Routine features use Tier 2 Conventional Commits and lean 6-section verification bodies (`Summary`, `Context`, `Type`, `Evidence`, `Risk`, `Notes`).
-- Core architectural PRs (Tier 3) reference an ADR (`docs/adr/`), maintain atomic commit histories, and include full verification evidence.
+- Core architectural PRs (Tier 3) reference an ADR (`docs/adr/`), maintain atomic commit histories with concise bulleted descriptions, and include full verification evidence.
 - Sub-issues are automatically attached to parent issues via `create-issue.mjs --parent <id>`.

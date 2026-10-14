@@ -30,5 +30,5 @@
 
 ## 4. Human Audit & Verification Protocol
 
-1. **Inspection & Proposal Only**: When committing, check `git status` / `git diff`, propose atomic commit slicing plan, display formatted Conventional Commit message.
+1. **Inspection & Proposal Only**: When committing, check `git status` / `git diff`, propose atomic commit slicing plan, and display formatted Conventional Commit messages. All commit descriptions or detail bodies MUST use concise bullet points (`- ...`) instead of long paragraphs.
 2. **Explicit Confirmation Required**: NEVER execute `git commit` until human confirms with explicit approval.
