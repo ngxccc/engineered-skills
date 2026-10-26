@@ -1,0 +1,5 @@
+interface:
+  display_name: "Audit Repo Architecture"
+  short_description: "Audit repo architecture, Conway fit, and boundary leaks"
+policy:
+  allow_implicit_invocation: false
