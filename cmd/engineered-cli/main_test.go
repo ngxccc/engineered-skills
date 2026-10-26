@@ -72,12 +72,12 @@ func TestCopyFileAndDir(t *testing.T) {
 	defer os.RemoveAll(dstDir)
 
 	testFile := filepath.Join(srcDir, "test.txt")
-	os.WriteFile(testFile, []byte("hello world"), 0644)
+	os.WriteFile(testFile, []byte("hello world"), 0o644)
 
 	subDir := filepath.Join(srcDir, "sub")
-	os.MkdirAll(subDir, 0755)
+	os.MkdirAll(subDir, 0o755)
 	subFile := filepath.Join(subDir, "sub.txt")
-	os.WriteFile(subFile, []byte("sub content"), 0644)
+	os.WriteFile(subFile, []byte("sub content"), 0o644)
 
 	if err := installer.CopyDir(srcDir, dstDir); err != nil {
 		t.Fatalf("copyDir failed: %v", err)
@@ -159,6 +159,7 @@ func TestCheckboxModelKeyHandling(t *testing.T) {
 		t.Errorf("Expected confirmed true after enter")
 	}
 }
+
 func TestDiscoverSkillsAndSourcePath(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "engineered-cli-skills-test-*")
 	if err != nil {
@@ -167,11 +168,11 @@ func TestDiscoverSkillsAndSourcePath(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	// Scaffold skills in engineering, productivity, in-progress, misc, and .claude/skills
-	os.MkdirAll(filepath.Join(tmpDir, ".claude", "skills", "ag-docs"), 0755)
-	os.MkdirAll(filepath.Join(tmpDir, "skills", "engineering", "diagnosing-bugs"), 0755)
-	os.MkdirAll(filepath.Join(tmpDir, "skills", "productivity", "teach"), 0755)
-	os.MkdirAll(filepath.Join(tmpDir, "skills", "in-progress", "writing-polish"), 0755)
-	os.MkdirAll(filepath.Join(tmpDir, "skills", "misc", "setup-pre-commit"), 0755)
+	os.MkdirAll(filepath.Join(tmpDir, ".claude", "skills", "ag-docs"), 0o755)
+	os.MkdirAll(filepath.Join(tmpDir, "skills", "engineering", "diagnosing-bugs"), 0o755)
+	os.MkdirAll(filepath.Join(tmpDir, "skills", "productivity", "teach"), 0o755)
+	os.MkdirAll(filepath.Join(tmpDir, "skills", "in-progress", "writing-polish"), 0o755)
+	os.MkdirAll(filepath.Join(tmpDir, "skills", "misc", "setup-pre-commit"), 0o755)
 
 	discovered := config.DiscoverSkills(tmpDir)
 	if len(discovered) != 5 {
@@ -202,6 +203,7 @@ func TestDiscoverSkillsAndSourcePath(t *testing.T) {
 		t.Errorf("Expected source path '%s', got '%s'", expectedMisc, sourcePathMisc)
 	}
 }
+
 func TestResolveDependencies(t *testing.T) {
 	selected := []string{"implement"}
 	resolved := config.ResolveDependencies(selected)
@@ -224,34 +226,43 @@ func TestResolveDependencies(t *testing.T) {
 }
 
 func TestParseSubcommand(t *testing.T) {
-	subcmd, isGlobal, kitPath, cmdArgs := parseSubcommand([]string{"enable", "dashboard-ui", "tdd"})
+	subcmd, isGlobal, targets, kitPath, cmdArgs := parseSubcommand([]string{"enable", "dashboard-ui", "tdd"})
 	if subcmd != "enable" {
 		t.Errorf("Expected subcmd 'enable', got '%s'", subcmd)
 	}
 	if isGlobal {
 		t.Errorf("Expected isGlobal false, got true")
 	}
+	if len(targets) != 0 {
+		t.Errorf("Expected targets empty, got %v", targets)
+	}
 	if len(cmdArgs) != 2 || cmdArgs[0] != "dashboard-ui" || cmdArgs[1] != "tdd" {
 		t.Errorf("Unexpected cmdArgs: %v", cmdArgs)
 	}
 
-	subcmd, isGlobal, kitPath, cmdArgs = parseSubcommand([]string{"--global", "enable", "git-flow"})
+	subcmd, isGlobal, targets, kitPath, cmdArgs = parseSubcommand([]string{"--global", "claude", "enable", "git-flow"})
 	if subcmd != "enable" || !isGlobal {
 		t.Errorf("Expected enable + global, got subcmd=%s, isGlobal=%v", subcmd, isGlobal)
+	}
+	if len(targets) != 1 || targets[0] != "claude" {
+		t.Errorf("Expected targets ['claude'], got %v", targets)
 	}
 	if len(cmdArgs) != 1 || cmdArgs[0] != "git-flow" {
 		t.Errorf("Unexpected cmdArgs: %v", cmdArgs)
 	}
 
-	subcmd, isGlobal, kitPath, cmdArgs = parseSubcommand([]string{"disable", "-g", "dashboard-ui"})
+	subcmd, isGlobal, targets, kitPath, cmdArgs = parseSubcommand([]string{"disable", "-g", "-t", "omp", "dashboard-ui"})
 	if subcmd != "disable" || !isGlobal {
 		t.Errorf("Expected disable + global, got subcmd=%s, isGlobal=%v", subcmd, isGlobal)
+	}
+	if len(targets) != 1 || targets[0] != "omp" {
+		t.Errorf("Expected targets ['omp'], got %v", targets)
 	}
 	if len(cmdArgs) != 1 || cmdArgs[0] != "dashboard-ui" {
 		t.Errorf("Unexpected cmdArgs: %v", cmdArgs)
 	}
 
-	subcmd, _, _, _ = parseSubcommand([]string{"status"})
+	subcmd, _, _, _, _ = parseSubcommand([]string{"status"})
 	if subcmd != "status" {
 		t.Errorf("Expected status subcmd, got %s", subcmd)
 	}
@@ -292,10 +303,10 @@ func TestEnableAndDisableSkills(t *testing.T) {
 	defer os.RemoveAll(tmpKit)
 
 	skillDir := filepath.Join(tmpKit, "skills", "engineering", "my-skill")
-	if err := os.MkdirAll(skillDir, 0755); err != nil {
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
 		t.Fatalf("Failed to create mock skill dir: %v", err)
 	}
-	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0644)
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0o644)
 
 	tmpProject, err := os.MkdirTemp("", "project-*")
 	if err != nil {
@@ -308,7 +319,7 @@ func TestEnableAndDisableSkills(t *testing.T) {
 	defer os.Chdir(origWd)
 
 	// Test Enable
-	enabled, err := installer.EnableSkills(tmpKit, []string{"my-skill"}, false)
+	enabled, err := installer.EnableSkills(tmpKit, []string{"my-skill"}, false, nil)
 	if err != nil {
 		t.Fatalf("EnableSkills failed: %v", err)
 	}
@@ -328,7 +339,7 @@ func TestEnableAndDisableSkills(t *testing.T) {
 	}
 
 	// Test Disable
-	disabled, err := installer.DisableSkills([]string{"my-skill"}, false)
+	disabled, err := installer.DisableSkills([]string{"my-skill"}, false, nil)
 	if err != nil {
 		t.Fatalf("DisableSkills failed: %v", err)
 	}
@@ -343,6 +354,67 @@ func TestEnableAndDisableSkills(t *testing.T) {
 	cfgAfter := config.LoadConfig()
 	if cfgAfter == nil || len(cfgAfter.Skills.Include) != 0 {
 		t.Fatalf("Expected config skills include to be empty, got %v", cfgAfter.Skills.Include)
+	}
+}
+
+func TestEnableGlobalSpecificHarness(t *testing.T) {
+	tmpKit, err := os.MkdirTemp("", "kit-repo-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp kit: %v", err)
+	}
+	defer os.RemoveAll(tmpKit)
+
+	skillDir := filepath.Join(tmpKit, "skills", "productivity", "grill-me")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatalf("Failed to create mock skill dir: %v", err)
+	}
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# Grill Me"), 0o644)
+
+	tmpHome, err := os.MkdirTemp("", "home-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp home: %v", err)
+	}
+	defer os.RemoveAll(tmpHome)
+
+	t.Setenv("HOME", tmpHome)
+
+	// Test enabling with no target specified in global mode should fail
+	_, err = installer.EnableSkills(tmpKit, []string{"grill-me"}, true, nil)
+	if err == nil {
+		t.Fatalf("Expected error when enabling global without target harness, got nil")
+	}
+
+	// Test enabling specifically for omp
+	enabled, err := installer.EnableSkills(tmpKit, []string{"grill-me"}, true, []string{"omp"})
+	if err != nil {
+		t.Fatalf("EnableSkills global omp failed: %v", err)
+	}
+	if len(enabled) == 0 {
+		t.Fatalf("Expected enabled skills, got 0")
+	}
+
+	// Check omp skills dir has symlink
+	ompPath := filepath.Join(tmpHome, ".omp", "agent", "skills", "grill-me")
+	if fi, err := os.Lstat(ompPath); err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected symlink at %s, got err=%v", ompPath, err)
+	}
+
+	// Check claude skills dir does NOT have symlink
+	claudePath := filepath.Join(tmpHome, ".claude", "skills", "grill-me")
+	if _, err := os.Lstat(claudePath); !os.IsNotExist(err) {
+		t.Fatalf("Expected NO symlink at %s, but file exists", claudePath)
+	}
+
+	// Disable from omp
+	disabled, err := installer.DisableSkills([]string{"grill-me"}, true, []string{"omp"})
+	if err != nil {
+		t.Fatalf("DisableSkills failed: %v", err)
+	}
+	if len(disabled) == 0 {
+		t.Fatalf("Expected disabled skills")
+	}
+	if _, err := os.Lstat(ompPath); !os.IsNotExist(err) {
+		t.Fatalf("Expected symlink to be removed at %s", ompPath)
 	}
 }
 

@@ -17,13 +17,69 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-var version = "1.0.0"
+var version = "dev"
 
-func parseSubcommand(args []string) (subcmd string, isGlobal bool, kitPath string, cmdArgs []string) {
+func parseSubcommand(args []string) (subcmd string, isGlobal bool, globalTargets []string, kitPath string, cmdArgs []string) {
+	isKnownTarget := func(s string) bool {
+		parts := strings.Split(s, ",")
+		for _, p := range parts {
+			raw := strings.ToLower(strings.TrimSpace(p))
+			raw = strings.TrimPrefix(raw, ".")
+			if raw != "claude" && raw != "omp" && raw != "agents" && raw != "all" {
+				return false
+			}
+		}
+		return len(parts) > 0
+	}
+
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if arg == "--global" || arg == "-g" {
 			isGlobal = true
+			if i+1 < len(args) && isKnownTarget(args[i+1]) {
+				for _, t := range strings.Split(args[i+1], ",") {
+					t = strings.TrimSpace(t)
+					if t != "" {
+						globalTargets = append(globalTargets, t)
+					}
+				}
+				i++
+			}
+		} else if strings.HasPrefix(arg, "--global=") || strings.HasPrefix(arg, "-g=") {
+			isGlobal = true
+			val := strings.TrimPrefix(arg, "--global=")
+			if strings.HasPrefix(arg, "-g=") {
+				val = strings.TrimPrefix(arg, "-g=")
+			}
+			for _, t := range strings.Split(val, ",") {
+				t = strings.TrimSpace(t)
+				if t != "" {
+					globalTargets = append(globalTargets, t)
+				}
+			}
+		} else if arg == "--target" || arg == "--targets" || arg == "-t" {
+			if i+1 < len(args) {
+				for _, t := range strings.Split(args[i+1], ",") {
+					t = strings.TrimSpace(t)
+					if t != "" {
+						globalTargets = append(globalTargets, t)
+					}
+				}
+				i++
+			}
+		} else if strings.HasPrefix(arg, "--target=") || strings.HasPrefix(arg, "--targets=") || strings.HasPrefix(arg, "-t=") {
+			val := strings.TrimPrefix(arg, "--target=")
+			if strings.HasPrefix(arg, "--targets=") {
+				val = strings.TrimPrefix(arg, "--targets=")
+			} else if strings.HasPrefix(arg, "-t=") {
+				val = strings.TrimPrefix(arg, "-t=")
+			}
+			for _, t := range strings.Split(val, ",") {
+				t = strings.TrimSpace(t)
+				if t != "" {
+					globalTargets = append(globalTargets, t)
+				}
+			}
 		} else if strings.HasPrefix(arg, "--kit-path=") {
 			kitPath = strings.TrimPrefix(arg, "--kit-path=")
 		} else if arg == "--kit-path" && i+1 < len(args) {
@@ -37,6 +93,17 @@ func parseSubcommand(args []string) (subcmd string, isGlobal bool, kitPath strin
 			cmdArgs = append(cmdArgs, arg)
 		}
 	}
+
+	if isGlobal && len(globalTargets) == 0 && len(cmdArgs) > 0 && isKnownTarget(cmdArgs[0]) {
+		for _, t := range strings.Split(cmdArgs[0], ",") {
+			t = strings.TrimSpace(t)
+			if t != "" {
+				globalTargets = append(globalTargets, t)
+			}
+		}
+		cmdArgs = cmdArgs[1:]
+	}
+
 	return
 }
 
@@ -44,26 +111,34 @@ func printUsage(w io.Writer) {
 	fmt.Fprintln(w, tui.CyanStyle.Render(tui.IconLogo+" ENGINEERED SKILLS")+" "+tui.BadgeStyle.Render("v"+version)+"  "+tui.GrayStyle.Render("Interactive Harness Customizer\n"))
 	fmt.Fprintln(w, "Usage:")
 	fmt.Fprintln(w, "  engineered-cli [flags]")
-	fmt.Fprintln(w, "  engineered-cli enable [--global|-g] <skill1> [skill2...]")
-	fmt.Fprintln(w, "  engineered-cli disable [--global|-g] <skill1> [skill2...]")
+	fmt.Fprintln(w, "  engineered-cli enable [--global[=<target>]] [-t <target>] <skill1> [skill2...]")
+	fmt.Fprintln(w, "  engineered-cli disable [--global[=<target>]] [-t <target>] <skill1> [skill2...]")
 	fmt.Fprintln(w, "  engineered-cli status | list")
 	fmt.Fprintln(w, "\nSubcommands:")
 	fmt.Fprintln(w, "  enable     Symlink skill(s) into project or global harness")
 	fmt.Fprintln(w, "  disable    Remove skill(s) from project or global harness")
 	fmt.Fprintln(w, "  status     Show active global and project skills")
+	fmt.Fprintln(w, "\nGlobal Targets (--target / -t / --global=<target>):")
+	fmt.Fprintln(w, "  claude     Claude Code (~/.claude/skills)")
+	fmt.Fprintln(w, "  omp        Oh My Pi (~/.omp/agent/skills)")
+	fmt.Fprintln(w, "  agents     Agent / Codex (~/.agents/skills)")
+	fmt.Fprintln(w, "  all        All global harnesses")
 	fmt.Fprintln(w, "\nPreset Profiles (--profile):")
 	fmt.Fprintln(w, "  core       ask-skills, git-flow, diagnosing-bugs, tdd")
 	fmt.Fprintln(w, "  frontend   core + dashboard-ui")
 	fmt.Fprintln(w, "  writing    writing-for-agents, writing-flashcards, writing-atomic-notes, writing-polish")
 	fmt.Fprintln(w, "  full       all available skills in repository")
 	fmt.Fprintln(w, "\nExamples:")
-	fmt.Fprintln(w, "  engineered-cli --global --profile core --yes   (One-time global setup)")
+	fmt.Fprintln(w, "  engineered-cli --global --target claude --profile core --yes  (Install core profile to Claude)")
+	fmt.Fprintln(w, "  engineered-cli enable --global claude grill-me               (Enable skill for Claude globally)")
+	fmt.Fprintln(w, "  engineered-cli enable --global omp grill-me                  (Enable skill for OMP globally)")
+	fmt.Fprintln(w, "  engineered-cli enable --global all grill-me                  (Enable skill for all globally)")
 	fmt.Fprintln(w, "  engineered-cli enable dashboard-ui            (Enable skill in current repo)")
 	fmt.Fprintln(w, "  engineered-cli disable dashboard-ui           (Disable skill in current repo)")
 	fmt.Fprintln(w, "  engineered-cli status                         (Check current active skills)")
 }
 
-func handleSubcommand(subcmd string, isGlobal bool, kitPathOpt string, cmdArgs []string, stdout, stderr io.Writer) (bool, error) {
+func handleSubcommand(subcmd string, isGlobal bool, globalTargets []string, kitPathOpt string, cmdArgs []string, stdout, stderr io.Writer) (bool, error) {
 	kitRepoPath := config.ResolveKitRepoPath(kitPathOpt, isGlobal)
 	switch subcmd {
 	case "help":
@@ -73,14 +148,39 @@ func handleSubcommand(subcmd string, isGlobal bool, kitPathOpt string, cmdArgs [
 	case "enable":
 		for _, a := range cmdArgs {
 			if a == "-h" || a == "--help" {
-				fmt.Fprintf(stdout, "%s\n\n", tui.CyanStyle.Render("Usage: engineered-cli enable [--global|-g] <skill1> [skill2...]"))
+				fmt.Fprintf(stdout, "%s\n\n", tui.CyanStyle.Render("Usage: engineered-cli enable [--global[=<target>]] [-t <target>] <skill1> [skill2...]"))
 				fmt.Fprintln(stdout, "Symlink one or more skills into your project or global user harness.")
+				fmt.Fprintln(stdout, "Global targets: claude, omp, agents, all")
 				fmt.Fprintf(stdout, "Dependencies are automatically resolved (e.g. 'implement' auto-enables 'tdd', 'code-review', 'git-flow').\n\n")
 				fmt.Fprintln(stdout, "Examples:")
 				fmt.Fprintln(stdout, "  engineered-cli enable dashboard-ui")
-				fmt.Fprintln(stdout, "  engineered-cli enable to-tickets wayfinder")
-				fmt.Fprintln(stdout, "  engineered-cli enable --global diagnosing-bugs")
+				fmt.Fprintln(stdout, "  engineered-cli enable --global claude grill-me")
+				fmt.Fprintln(stdout, "  engineered-cli enable --global omp grill-me")
+				fmt.Fprintln(stdout, "  engineered-cli enable --global all grill-me")
 				return true, nil
+			}
+		}
+		if len(cmdArgs) == 0 {
+			return true, fmt.Errorf("usage: engineered-cli enable [--global[=<target>]] [-t <target>] <skill1> [skill2...]")
+		}
+		if isGlobal && len(globalTargets) == 0 {
+			isTTY := isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd())
+			if isTTY {
+				items := []tui.CheckboxItem{
+					{Name: "claude", Description: "Claude Code harness (~/.claude/skills)", Selected: false},
+					{Name: "omp", Description: "Oh My Pi harness (~/.omp/agent/skills)", Selected: false},
+					{Name: "agents", Description: "Agent / Codex compatibility layer (~/.agents/skills)", Selected: false},
+				}
+				selected, quitting, err := tui.RunCheckbox("Select Global Target Harness(es)", items)
+				if err != nil {
+					return true, fmt.Errorf("TUI error: %w", err)
+				}
+				if quitting || len(selected) == 0 {
+					return true, fmt.Errorf("cancelled: no global target harness selected")
+				}
+				globalTargets = selected
+			} else {
+				return true, fmt.Errorf("--global requires specifying target harness: claude, omp, agents, or all (e.g. --global=claude, -t claude, or --global all)")
 			}
 		}
 		if len(cmdArgs) == 0 {
@@ -96,13 +196,14 @@ func handleSubcommand(subcmd string, isGlobal bool, kitPathOpt string, cmdArgs [
 				}
 			}
 		}
-		enabled, err := installer.EnableSkills(kitRepoPath, skillList, isGlobal)
+		enabled, err := installer.EnableSkills(kitRepoPath, skillList, isGlobal, globalTargets)
 		if err != nil {
 			return true, fmt.Errorf("error enabling skills: %w", err)
 		}
 		scopeDesc := "project (.claude/skills, .agents/skills, .omp/skills)"
 		if isGlobal {
-			scopeDesc = "global (~/.claude/skills, ~/.omp/agent/skills, ~/.agents/skills)"
+			normalized, _ := config.NormalizeGlobalTargets(globalTargets)
+			scopeDesc = fmt.Sprintf("global (%s)", strings.Join(normalized, ", "))
 		}
 		fmt.Fprintln(stdout, tui.GreenStyle.Render(fmt.Sprintf("%s Successfully enabled %d skill(s) in %s:", tui.IconCheck, len(enabled), scopeDesc)))
 		for _, s := range enabled {
@@ -113,16 +214,16 @@ func handleSubcommand(subcmd string, isGlobal bool, kitPathOpt string, cmdArgs [
 	case "disable":
 		for _, a := range cmdArgs {
 			if a == "-h" || a == "--help" {
-				fmt.Fprintf(stdout, "%s\n\n", tui.CyanStyle.Render("Usage: engineered-cli disable [--global|-g] <skill1> [skill2...]"))
+				fmt.Fprintf(stdout, "%s\n\n", tui.CyanStyle.Render("Usage: engineered-cli disable [--global[=<target>]] [-t <target>] <skill1> [skill2...]"))
 				fmt.Fprintf(stdout, "Unlink one or more skills from your project or global user harness.\n\n")
 				fmt.Fprintln(stdout, "Examples:")
 				fmt.Fprintln(stdout, "  engineered-cli disable dashboard-ui")
-				fmt.Fprintln(stdout, "  engineered-cli disable --global dashboard-ui")
+				fmt.Fprintln(stdout, "  engineered-cli disable --global claude dashboard-ui")
 				return true, nil
 			}
 		}
 		if len(cmdArgs) == 0 {
-			return true, fmt.Errorf("usage: engineered-cli disable [--global|-g] <skill1> [skill2...]")
+			return true, fmt.Errorf("usage: engineered-cli disable [--global[=<target>]] [-t <target>] <skill1> [skill2...]")
 		}
 		var skillList []string
 		for _, a := range cmdArgs {
@@ -134,13 +235,18 @@ func handleSubcommand(subcmd string, isGlobal bool, kitPathOpt string, cmdArgs [
 				}
 			}
 		}
-		disabled, err := installer.DisableSkills(skillList, isGlobal)
+		disabled, err := installer.DisableSkills(skillList, isGlobal, globalTargets)
 		if err != nil {
 			return true, fmt.Errorf("error disabling skills: %w", err)
 		}
 		scopeDesc := "project"
 		if isGlobal {
-			scopeDesc = "global"
+			if len(globalTargets) > 0 {
+				normalized, _ := config.NormalizeGlobalTargets(globalTargets)
+				scopeDesc = fmt.Sprintf("global (%s)", strings.Join(normalized, ", "))
+			} else {
+				scopeDesc = "global (all harnesses)"
+			}
 		}
 		fmt.Fprintln(stdout, tui.YellowStyle.Render(fmt.Sprintf("%s Disabled %d skill(s) in %s scope:", tui.IconWarn, len(disabled), scopeDesc)))
 		for _, s := range disabled {
@@ -160,7 +266,11 @@ func printStatus(kitRepoPath string, isGlobal bool, w io.Writer) {
 	fmt.Fprintf(w, "Kit Repository: %s\n\n", kitRepoPath)
 
 	globalCfg := config.LoadConfigWithScope(true)
-	fmt.Fprintln(w, tui.CyanStyle.Render("Global Skills (~/.claude, ~/.omp, ~/.agents):"))
+	targetsStr := "claude, omp, agents"
+	if globalCfg != nil && len(globalCfg.Targets) > 0 {
+		targetsStr = strings.Join(globalCfg.Targets, ", ")
+	}
+	fmt.Fprintln(w, tui.CyanStyle.Render(fmt.Sprintf("Global Skills (%s):", targetsStr)))
 	if globalCfg != nil && len(globalCfg.Skills.Include) > 0 {
 		for _, s := range globalCfg.Skills.Include {
 			fmt.Fprintf(w, "  • %s\n", s)
@@ -195,9 +305,9 @@ func main() {
 
 func run(args []string, stdout, stderr io.Writer) error {
 	if len(args) > 0 {
-		subcmd, isGlobal, kitPath, cmdArgs := parseSubcommand(args)
+		subcmd, isGlobal, globalTargets, kitPath, cmdArgs := parseSubcommand(args)
 		if subcmd != "" {
-			handled, err := handleSubcommand(subcmd, isGlobal, kitPath, cmdArgs, stdout, stderr)
+			handled, err := handleSubcommand(subcmd, isGlobal, globalTargets, kitPath, cmdArgs, stdout, stderr)
 			if handled {
 				return err
 			}
@@ -226,6 +336,8 @@ func run(args []string, stdout, stderr io.Writer) error {
 	fs.StringVar(profileOpt, "p", "", "Preset skill bundle: core, frontend, writing, full")
 	kitPathOpt := fs.String("kit-path", "", "Local kit repository path")
 	targetsOpt := fs.String("targets", "", "Comma-separated target layers")
+	targetOpt := fs.String("target", "", "Global target harness: claude, omp, agents, all")
+	fs.StringVar(targetOpt, "t", "", "Global target harness: claude, omp, agents, all")
 	skillsOpt := fs.String("skills", "", "Comma-separated skills")
 	symlinkScopeOpt := fs.String("symlink-scope", "bulk", "Symlink scope")
 
@@ -263,14 +375,44 @@ func run(args []string, stdout, stderr io.Writer) error {
 	}
 
 	selectedTargets := []string{}
-	if *targetsOpt != "" {
+	if *targetOpt != "" {
+		selectedTargets = strings.Split(*targetOpt, ",")
+	} else if *targetsOpt != "" {
 		selectedTargets = strings.Split(*targetsOpt, ",")
 	} else if existingCfg != nil && len(existingCfg.Targets) > 0 {
 		selectedTargets = existingCfg.Targets
-	} else {
+	} else if !*globalFlag {
 		for _, t := range config.DefaultTargetLayers {
 			selectedTargets = append(selectedTargets, t.Name)
 		}
+	}
+
+	isTTY := isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd())
+	if *globalFlag {
+		if len(selectedTargets) == 0 {
+			if isTTY && !*nonInteractive {
+				items := []tui.CheckboxItem{
+					{Name: "claude", Description: "Claude Code harness (~/.claude/skills)", Selected: false},
+					{Name: "omp", Description: "Oh My Pi harness (~/.omp/agent/skills)", Selected: false},
+					{Name: "agents", Description: "Agent / Codex compatibility layer (~/.agents/skills)", Selected: false},
+				}
+				selected, quitting, err := tui.RunCheckbox("Select Global Target Harness(es)", items)
+				if err != nil {
+					return fmt.Errorf("TUI error: %w", err)
+				}
+				if quitting || len(selected) == 0 {
+					return fmt.Errorf("cancelled: no global target harness selected")
+				}
+				selectedTargets = selected
+			} else {
+				return fmt.Errorf("--global requires specifying target harness: claude, omp, agents, or all (e.g. -t claude, --target=omp, or --targets=all)")
+			}
+		}
+		normalized, err := config.NormalizeGlobalTargets(selectedTargets)
+		if err != nil {
+			return err
+		}
+		selectedTargets = normalized
 	}
 
 	selectedSkills := []string{}
@@ -298,7 +440,6 @@ func run(args []string, stdout, stderr io.Writer) error {
 			}
 		}
 	}
-	isTTY := isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd())
 
 	// Interactive Mode
 	if !*nonInteractive && isTTY && *skillsOpt == "" && *profileOpt == "" {
@@ -486,7 +627,7 @@ func run(args []string, stdout, stderr io.Writer) error {
 	fmt.Fprintln(stdout, tui.CyanStyle.Render("\n--- Configuration Summary ---"))
 	scopeStr := "Project"
 	if finalCfg.IsGlobal {
-		scopeStr = "Global (~/.claude, ~/.omp, ~/.agents)"
+		scopeStr = fmt.Sprintf("Global (%s)", strings.Join(finalCfg.Targets, ", "))
 	}
 	fmt.Fprintf(stdout, "Scope: %s\n", scopeStr)
 	fmt.Fprintf(stdout, "Mode: %s\n", strings.ToUpper(finalCfg.InstallMode))

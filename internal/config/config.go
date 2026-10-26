@@ -2,12 +2,14 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-const ConfigPath = ".claude/engineered-config.json"
+const ConfigPath = ".engineered-config.json"
+
 // SkillDependencies maps parent skills to their required child skills.
 var SkillDependencies = map[string][]string{
 	"implement":                     {"tdd", "code-review", "git-flow"},
@@ -89,6 +91,61 @@ var DefaultTargetLayers = []TargetLayer{
 	{Name: ".agents", Description: "Agent skills compatibility layer", Selected: true},
 	{Name: ".omp", Description: "Oh My Pi harness layer & plugins", Selected: true},
 }
+
+// ValidGlobalTargets lists the supported target harnesses for global mode.
+var ValidGlobalTargets = []string{"claude", "omp", "agents", "all"}
+
+// GlobalTargetLayers provides info for each target harness.
+var GlobalTargetLayers = []TargetLayer{
+	{Name: "claude", Description: "Claude Code (~/.claude/skills)", Selected: false},
+	{Name: "omp", Description: "Oh My Pi (~/.omp/agent/skills)", Selected: false},
+	{Name: "agents", Description: "Agent / Codex compatibility layer (~/.agents/skills)", Selected: false},
+}
+
+// NormalizeGlobalTargets validates and returns normalized global targets.
+func NormalizeGlobalTargets(targets []string) ([]string, error) {
+	if len(targets) == 0 {
+		return nil, fmt.Errorf("no target specified. Available targets: claude, omp, agents, all")
+	}
+	var normalized []string
+	seen := make(map[string]bool)
+	for _, t := range targets {
+		raw := strings.ToLower(strings.TrimSpace(t))
+		raw = strings.TrimPrefix(raw, ".")
+		if raw == "all" {
+			return []string{"claude", "omp", "agents"}, nil
+		}
+		if raw == "claude" || raw == "omp" || raw == "agents" {
+			if !seen[raw] {
+				seen[raw] = true
+				normalized = append(normalized, raw)
+			}
+		} else {
+			return nil, fmt.Errorf("invalid target '%s'. Available targets: claude, omp, agents, all", t)
+		}
+	}
+	if len(normalized) == 0 {
+		return nil, fmt.Errorf("no valid targets specified. Available targets: claude, omp, agents, all")
+	}
+	return normalized, nil
+}
+
+// GlobalTargetDirs returns absolute skill directories for specified normalized targets.
+func GlobalTargetDirs(home string, targets []string) []string {
+	var dirs []string
+	for _, t := range targets {
+		switch t {
+		case "claude":
+			dirs = append(dirs, filepath.Join(home, ".claude", "skills"))
+		case "omp":
+			dirs = append(dirs, filepath.Join(home, ".omp", "agent", "skills"))
+		case "agents":
+			dirs = append(dirs, filepath.Join(home, ".agents", "skills"))
+		}
+	}
+	return dirs
+}
+
 func TargetExists(name string) bool {
 	_, err := os.Lstat(name)
 	return err == nil
@@ -132,7 +189,7 @@ func GetConfigPath(isGlobal bool) string {
 	if isGlobal {
 		home, err := os.UserHomeDir()
 		if err == nil {
-			return filepath.Join(home, ".claude", "engineered-config.json")
+			return filepath.Join(home, ".config", "engineered", "config.json")
 		}
 	}
 	return ConfigPath
@@ -158,7 +215,7 @@ func LoadConfig() *Config {
 func SaveConfigWithScope(cfg *Config, isGlobal bool) error {
 	path := GetConfigPath(isGlobal)
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
 	data, err := json.MarshalIndent(cfg, "", "  ")
@@ -166,7 +223,7 @@ func SaveConfigWithScope(cfg *Config, isGlobal bool) error {
 		return err
 	}
 	data = append(data, '\n')
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0o644)
 }
 
 func SaveConfig(cfg *Config) error {

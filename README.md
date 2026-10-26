@@ -17,13 +17,17 @@ We use a **Hybrid 2-Tier** model to balance instant availability with clean cont
 
 #### Tier 1: Install Global Core Skills (One-time Setup)
 
-```bash
+````bash
 # Copy CLI binary to local bin:
 cp ~/workspace/40-tools/engineered-skills/bin/engineered-cli ~/.local/bin/
 
-# Link Core profile globally across Claude Code, Oh My Pi, and Agents:
-engineered-cli --global --profile core --yes
-```
+# Link Core profile globally across all harnesses (claude, omp, agents, all):
+engineered-cli --global --target all --profile core --yes
+
+# Or enable specific skills globally for a chosen harness:
+engineered-cli enable --global claude grill-me
+engineered-cli enable --global omp grill-me
+engineered-cli enable --global all grill-me
 
 #### Tier 2: Manage Project Skills (Fast Toggles)
 
@@ -45,7 +49,7 @@ engineered-cli --profile frontend --link --yes
 
 # Or open interactive TUI:
 engineered-cli
-```
+````
 
 Available Profiles:
 
@@ -129,7 +133,7 @@ General workflow tools, not code-specific.
 
 **User-invoked**
 
-- **[grill-me](./skills/productivity/grill-me/SKILL.md)** — Get relentlessly interviewed about a plan or design until every branch of the design tree is resolved.
+- **[grill-me](./skills/productivity/grill-me/SKILL.md)** — Relentlessly stress-test and sharpen a plan, decision, or wild idea through interview until every branch of the design tree is resolved.
 - **[handoff](./skills/productivity/handoff/SKILL.md)** — Compact the current conversation into a handoff document so another agent can continue the work.
 - **[teach](./skills/productivity/teach/SKILL.md)** — Teach the user a new skill or concept over multiple sessions, using the current directory as a stateful teaching workspace.
 - **[to-questionnaire](./skills/productivity/to-questionnaire/SKILL.md)** — Turn a decision you can't answer alone into a Markdown questionnaire for the one person who can — filled in async, or together over a meeting. It grills you about the send (who it's for, what you need back), not the subject.
@@ -138,6 +142,6 @@ General workflow tools, not code-specific.
 **Model-invoked**
 
 - **[docs](./skills/productivity/docs/SKILL.md)** — Manage codebase documentation, ADRs (Simple & Formal), RFCs, System Design Specs, and SSOT Workflows with automated validation.
-- **[grilling](./skills/productivity/grilling/SKILL.md)** — Interview the user relentlessly about a plan, decision, or idea until every branch of the design tree is resolved. The reusable interview primitive behind `grill-me`, `grill-with-docs`, `triage`, `wayfinder` and `improve-codebase-architecture`.
+- **[grilling](./skills/productivity/grilling/SKILL.md)** — Stress-test a plan, decision, or idea relentlessly by interview until every branch of the design tree is resolved. The reusable interview primitive behind `grill-me`, `grill-with-docs`, `triage`, `wayfinder` and `improve-codebase-architecture`.
 - **[dashboard-ui](./skills/productivity/dashboard-ui/SKILL.md)** — In-app UI and design system for dashboards, data tables, forms, modals, and settings screens.
 - **[writing-for-agents](./skills/productivity/writing-for-agents/SKILL.md)** — Writing documents for agents: skills, AGENTS.md/CLAUDE.md, and any doc an agent reaches by a pointer.
