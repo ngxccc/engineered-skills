@@ -36,20 +36,24 @@ Validate state with `node skills/engineering/git-flow/scripts/git-flow.mjs` or `
 
 ### Step 2: Slice Atomic Commits
 
-Inspect `git status` and `git diff`. Never squash changes across distinct concerns or modules into a single blob commit.
+Collect file changes in a **single combined snapshot**: run `git status -s && git diff` in one command. Never query `git diff` file-by-file across multiple serialized turns.
+
+Never squash changes across distinct concerns or modules into a single blob commit.
 
 1. **Single Scope**: If all changes belong to one feature or fix, stage and commit together.
-2. **Multiple Scopes**: Sliced commits by module/path (`git add <path>`).
+2. **Multiple Scopes**: Slice commits by module/path (`git add <path>`).
 3. **Bulleted Descriptions Only**: When proposing atomic commit plans or writing commit bodies, never write dense paragraphs. Format details as concise, high-signal bullet points (`- ...`).
-4. **Commit Formatting**: Validate with `node skills/engineering/git-flow/scripts/format-commit.mjs --type <type> --scope <scope> --summary "<summary>"`.
+4. **Lean Turnaround**: Do NOT execute dry-run formatting scripts as tool calls just to generate message text. Draft the formatted commit proposal directly in your markdown response during Step 3.
 
 **Completion criterion:** Sliced commit plan is staged logically per path/scope, with each slice independently buildable and testable.
 
 ### Step 3: Human Audit Protocol (<critical>)
 
-1. **Proposal Only**: Inspect `git status` / `git diff`, propose the numbered atomic commit slicing plan with bulleted change details, and display the formatted Conventional Commit message (`format-commit.mjs` without `--execute`).
+1. **Proposal in Chat**: Inspect the single-shot `git status -s && git diff` output, propose the numbered atomic commit slicing plan with bulleted change details directly in your response markdown, and ask for explicit human confirmation.
 2. **Proposal Schema**:
    ```markdown
+   ### Proposed Atomic Commit Plan
+
    1. deb3cea - feat(ui): add reusable LoadingScreen component:
       - Add standalone LoadingScreen.tsx supporting both full-screen and inline containers.
    2. 7ff4bb0 - refactor(auth): migrate session management to Zustand useAuthStore:
@@ -64,9 +68,10 @@ Inspect `git status` and `git diff`. Never squash changes across distinct concer
       - Update Mermaid sequence diagram and invariants INV-AUTH-04, INV-AUTH-05 in docs/design/01-auth-session-and-pin-setup.md.
       - Standardize YAML frontmatter across all 5 ADRs (0001 through 0005).
    ```
-3. **Explicit Human Confirmation Required**: NEVER execute `git commit` or pass `--execute` to `format-commit.mjs` until the user explicitly confirms approval (e.g., "confirm commit", "approve commit", "execute commit").
+3. **Explicit Human Confirmation Required**: NEVER execute `git commit` or pass `--execute` to `format-commit.mjs` until the user explicitly confirms approval (e.g., "confirm commit", "approve commit", "execute commit", "LGTM").
+4. **Single-Step Execution**: Once confirmation is received, stage the files and execute the commit in a single step using `node skills/engineering/git-flow/scripts/format-commit.mjs --type <type> --scope <scope> --summary "<summary>" --body "<body>" --execute`. The script validates all SemVer and length rules and executes the commit atomically.
 
-**Completion criterion:** Explicit human confirmation received before any commit execution.
+**Completion criterion:** Explicit human confirmation received before any commit execution, with validation and commit occurring in a single confirmed execution step.
 
 ### Step 4: Construct PR Body & Open PR
 
