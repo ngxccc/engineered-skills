@@ -1,6 +1,6 @@
 ## What it does
 
-`grill-me` takes a **loose idea** and interviews you until you can commit to it. You do not need a worked-out plan to start — producing one is what the [session](https://www.aihero.dev/ai-coding-dictionary/session) is for. It asks in **rounds**: each round is the whole **frontier** — every question whose prerequisites you have already settled — so you are never asked something that hinges on an answer it hasn't heard yet.
+`grill-me` takes a **loose idea** and interviews you until you can commit to it. You do not need a worked-out plan to start — producing one is what the [session](https://www.aihero.dev/ai-coding-dictionary/session) is for. It will not flatter unviable ideas: if a premise is physically or logically impossible, it attacks the fatal flaw in Round 1 rather than constructing an elaborate plan on sand. It asks in **rounds**: each round is the whole **frontier** — every question whose prerequisites you have already settled — so you are never asked something that hinges on an answer it hasn't heard yet.
 
 It is **[stateless](https://www.aihero.dev/ai-coding-dictionary/stateless)**. It writes no files and leaves no workspace behind. The only thing it leaves is a sharper version of the idea, in your own head.
 
@@ -42,6 +42,7 @@ Talking your way through an ungrillable question is where sessions balloon. The 
 - Questions arrive in a few rounds rather than one long drip, and later rounds clearly build on what you said earlier.
 - You end up somewhere you didn't expect, because a question surfaced a decision you had been making implicitly.
 - At the end you could defend each choice to someone who wasn't there.
+- If your premise is impossible, contradictory, or fundamentally flawed, the first round calls out the fatal flaw directly rather than nodding along.
 
 ## Common questions
 
@@ -60,6 +61,9 @@ When grilling, ask one question at a time.
 
 **What if I genuinely don't know the answer?**
 Say so. "I don't know" is a real answer, and a question you can't answer is usually a sign to prototype rather than to guess.
+
+**What if my idea is wild, crazy, or fundamentally unviable?**
+`grill-me` will not flatter you into a false sense of certainty. If the premise is physically impossible, logically contradictory, or fundamentally unviable, Round 1 attacks that root premise directly and recommends killing, pivoting, or reframing it before expanding any downstream branches.
 
 **Do I start a fresh session before writing the spec?**
 No. The value of the session is the [context](https://www.aihero.dev/ai-coding-dictionary/context) you just built. Hand the same conversation straight to [to-spec](https://aihero.dev/skills-to-spec).

@@ -5,6 +5,8 @@ description: Grill the user relentlessly about a plan, decision, or idea. Use wh
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 
+**Challenge unviable premises first.** Do not flatter the user or build elaborate design trees on broken foundations. If an idea or premise is physically impossible, logically contradictory, or fundamentally unviable, attack the root premise on Round 1. State the fatal flaw directly, explain why it cannot work as conceived, and recommend killing, pivoting, or reframing the premise before expanding child branches.
+
 Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled — the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
 
 Each question should be formatted like so:
@@ -16,6 +18,8 @@ Each question should be formatted like so:
 ```
 
 Each round the user answers reshapes the tree — settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
+
+Your recommended answer (`➡️`) must actively stress-test the user's thinking: poke at failure modes, hidden costs, security holes, and unstated assumptions. If an option is an anti-pattern or high risk, recommend against it plainly rather than smoothing over tradeoffs to please the user.
 
 Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it — don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report — ask the rest of the frontier now. The _decisions_ are the user's — put each to them and wait.
 

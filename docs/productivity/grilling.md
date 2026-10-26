@@ -20,11 +20,13 @@ Typing `/grilling` directly gets you the plain interview and nothing else. Where
 
 ## The round, the frontier, and who decides
 
-Three ideas carry the whole skill.
+Four ideas carry the whole skill.
+
+The **premise gate** checks that the ground is solid before building upward. If an idea or premise is physically impossible, logically contradictory, or fundamentally unviable, grilling does not politely construct a design tree on sand — it attacks the root flaw in Round 1 and recommends killing, pivoting, or reframing the premise before expanding child branches.
 
 The **design tree** is the model of the subject: decisions with decisions hanging off them. The **frontier** is the set of decisions whose prerequisites are all settled — the only questions that can honestly be asked yet. A **round** is one frontier, asked in full and answered in full.
 
-Inside a round every question arrives in a fixed shape: numbered and titled behind a `❓`, then the body, then the agent's recommended answer alone on a `➡️` line. That is what makes a round answerable by number — "1 yes, 2 the second option, 3 no, here's why" — instead of by quoting questions back. The format has one known rough edge: the recommendation sometimes argues _against_ the question as it was worded, so agreeing with the recommendation means answering "no" to the question. When that happens, answer the recommendation and say so.
+Inside a round every question arrives in a fixed shape: numbered and titled behind a `❓`, then the body, then the agent's recommended answer alone on a `➡️` line. That is what makes a round answerable by number — "1 yes, 2 the second option, 3 no, here's why" — instead of by quoting questions back. The recommendation must actively stress-test the user's thinking: calling out failure modes, hidden costs, security holes, and anti-patterns directly rather than flattering unviable ideas. The format has one known rough edge: the recommendation sometimes argues _against_ the question as it was worded, so agreeing with the recommendation means answering "no" to the question. When that happens, answer the recommendation and say so.
 
 The other half of the design is the split between facts and decisions. Facts are the skill's own job: when a frontier question needs something the [environment](https://www.aihero.dev/ai-coding-dictionary/environment) can settle, it dispatches a [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) to go and find out rather than asking you. It does not block on that — only the questions downstream of a running exploration wait. Decisions are yours, and it must wait for them. An agent running `grilling` that answers its own decisions has broken the skill, not interpreted it liberally. The session ends when the frontier is empty, and it will not act on what you agreed until you confirm you have reached a shared understanding.
 
@@ -81,6 +83,8 @@ A real and unfixed rough edge, reported across [harnesses](https://www.aihero.de
 - Research running in the background does not stall the round; only the questions that depend on it wait.
 - It stops at the end and asks you to confirm the understanding is shared, instead of starting work.
 - Question count stays high while round count stays low.
+- If a premise is impossible or contradictory, Round 1 attacks that flaw directly instead of sycophantically building a plan around it.
+- Recommendations actively poke at failure modes and argue against unviable choices.
 
 ## Where it fits
 
