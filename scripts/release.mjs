@@ -100,10 +100,19 @@ async function selectMenu(title, options, defaultIndex = 0) {
 			const label = isSelected
 				? `${c.cyan}${c.bold}${opt.label}${c.reset}`
 				: opt.label;
-			const hint = opt.hint ? ` ${c.gray}(${opt.hint})${c.reset}` : "";
+			let hint = "";
+			if (opt.hint) {
+				if (opt.isSuggested) {
+					hint = ` ${c.yellow}${c.bold}(${opt.hint})${c.reset}`;
+				} else if (isSelected) {
+					hint = ` ${c.cyan}(${opt.hint})${c.reset}`;
+				} else {
+					hint = ` \x1b[38;5;250m(${opt.hint})${c.reset}`;
+				}
+			}
 			output += `  ${pointer} ${label}${hint}\n`;
 		}
-		output += `${c.gray}  (Use ↑/↓ or j/k to navigate, Enter to select)${c.reset}\n`;
+		output += `  ${c.dim}${c.cyan}(Use ↑/↓ or j/k to navigate, Enter to select)${c.reset}\n`;
 		linesRendered = options.length + 2;
 		process.stdout.write(output);
 	};
@@ -245,17 +254,21 @@ async function main() {
 	console.log(
 		`\n${c.cyan}${c.bold}✦ ENGINEERED SKILLS - RELEASE TAG HELPER${c.reset}`,
 	);
-	console.log(`${c.gray}────────────────────────────────────────${c.reset}`);
 	console.log(
-		`Latest Tag:    ${latestTag ? `${c.bold}${latestTag}${c.reset}` : `${c.dim}(none - repository unversioned)${c.reset}`}`,
+		`${c.dim}${c.cyan}────────────────────────────────────────${c.reset}`,
 	);
 	console.log(
-		`New Commits:   ${c.bold}${commitLines.length}${c.reset} total (${c.green}${featCount} feat${c.reset}, ${c.blue}${fixCount} fix${c.reset}, ${c.red}${breakingCount} breaking${c.reset}, ${c.gray}${otherCount} other${c.reset})`,
+		`Latest Tag:    ${latestTag ? `${c.bold}${latestTag}${c.reset}` : `${c.yellow}(none - repository unversioned)${c.reset}`}`,
 	);
 	console.log(
-		`Suggested Tag: ${c.green}${c.bold}${recommendedVer}${c.reset} ${c.gray}[${recommendedReason}]${c.reset}`,
+		`New Commits:   ${c.bold}${commitLines.length}${c.reset} total (${c.green}${featCount} feat${c.reset}, ${c.blue}${fixCount} fix${c.reset}, ${c.red}${breakingCount} breaking${c.reset}, \x1b[38;5;250m${otherCount} other${c.reset})`,
 	);
-	console.log(`${c.gray}────────────────────────────────────────${c.reset}\n`);
+	console.log(
+		`Suggested Tag: ${c.green}${c.bold}${recommendedVer}${c.reset} ${c.yellow}${c.bold}[${recommendedReason}]${c.reset}`,
+	);
+	console.log(
+		`${c.dim}${c.cyan}────────────────────────────────────────${c.reset}\n`,
+	);
 
 	let chosenVersion = recommendedVer;
 
@@ -276,6 +289,7 @@ async function main() {
 			{
 				label: recommendedVer,
 				hint: `Suggested - ${recommendedReason}`,
+				isSuggested: true,
 				value: recommendedVer,
 			},
 			{ label: patchVer, hint: "Patch", value: patchVer },
