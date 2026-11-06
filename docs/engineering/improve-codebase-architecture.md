@@ -6,18 +6,21 @@ It never changes the code. The whole run produces one HTML file in your OS temp 
 
 Two filters keep the report from becoming generic cleanup advice. Every candidate has to pass the **deletion test** — would removing this module concentrate complexity behind a smaller interface, or just spread it across callers? Only the "concentrates" cases earn a card. And unless you point it at a specific area, it reads recent commit history first and biases the scan toward paths that are actively changing, on the grounds that a deepening in code nobody touches is a refactor you will never cash in.
 
+The third filter covers the repo itself. Some friction is one level up from any module: the same module copied into two apps, one lockfile per app, installs repeated for every app in CI, one dependency declared at three different versions, dead config for a process nobody runs. The skill checks that layer before it scans modules, and it measures rather than asserts — counts the lockfiles, diffs the duplicates to see which diverged on purpose, greps the workflow files for install steps. It also keeps three decisions apart that are usually lumped together: whether the code belongs in one repo, whether that repo uses workspaces, and whether it needs a task runner. They are recommended in that order, because a task runner without workspaces is configuration that buys nothing.
+
 ## When to reach for it
 
 You invoke this by typing `/improve-codebase-architecture` — the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) will not reach for it on its own.
 
 It sits outside the build loop — it is not a step in the main loop but something you run periodically to queue up more work to improve the codebase. The four situations it gets used in:
 
-| Situation          | How it is used                                                                                                                                          |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Routine upkeep     | Run it every few days, or whenever a spare moment appears, to stop structure rotting between features.                                                  |
-| Before a big build | Point it at the [spec](https://www.aihero.dev/ai-coding-dictionary/spec): "how can we make this change easy?" This is the most effective prompt for it. |
-| Brownfield audit   | Run it on a large, unstructured or [vibe-coded](https://www.aihero.dev/ai-coding-dictionary/vibe-coding) repo to find out what shape it is actually in. |
-| Legacy test work   | Use it to find the missing seams first, before writing tests against untestable code.                                                                   |
+| Situation          | How it is used                                                                                                                                           |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Routine upkeep     | Run it every few days, or whenever a spare moment appears, to stop structure rotting between features.                                                   |
+| Before a big build | Point it at the [spec](https://www.aihero.dev/ai-coding-dictionary/spec): "how can we make this change easy?" This is the most effective prompt for it.  |
+| Brownfield audit   | Run it on a large, unstructured or [vibe-coded](https://www.aihero.dev/ai-coding-dictionary/vibe-coding) repo to find out what shape it is actually in.  |
+| Legacy test work   | Use it to find the missing seams first, before writing tests against untestable code.                                                                    |
+| Repo shape doubts  | Name the question — "should these be one repo, and what should be shared?" It measures duplication, lockfiles and installs before recommending anything. |
 
 Where it is confusable with siblings:
 
@@ -63,6 +66,10 @@ The report loads Tailwind and Mermaid from CDNs, so it needs network access when
 
 One candidate per session. Working through several in one conversation fills the [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) with the report, the grilling, the domain-model edits and the code changes all at once. The report only lives in a temp file, so carry the candidate itself rather than the file: pick one, grill it, take the decision into `/to-spec`, and turn the rest into [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) you can pick up independently later. Put the chosen improvement into a spec rather than going straight to implementation. This is a recurring question with no documented workflow in the skill itself.
 
+**It told me to merge my three apps into one repo and share packages. Is that architecture work, or scope creep?**
+
+Boundaries between apps are architecture — the seam between two deployables is as load-bearing as the seam inside a module. But the recommendation has to arrive with numbers, not with "monorepos are better": how many lockfiles exist, which duplicated files are byte-identical versus diverged on purpose, how many installs run per CI job, which dependencies differ between apps. Byte-identical means accidental duplication and is safe to share; diverged means either drift or a real design difference, and the difference decides. Two heuristics to push back with. Merging is about coupling and release cadence — if the apps deploy independently with independent consumers, the answer is no. Turborepo or Nx is about CI time and only pays once workspaces exist and the same expensive task runs across several apps; on three small apps it is mostly ceremony.
+
 **How should I prompt it?**
 
 With the next thing you are building in mind. Where a big build is coming up, point it at the spec and ask "how can we make this change easy?" An unprompted run scans for hot spots on its own, which is fine for routine upkeep, but naming a direction is what makes the report actionable.
@@ -95,6 +102,7 @@ There is no good answer shipped with the skill. The recurring request is for a `
 - It stops after the report and asks which candidate you want, rather than continuing on its own.
 - Each card explains the payoff as locality or leverage, and says which tests get simpler — not just "this is cleaner."
 - Rejecting a candidate for a durable reason gets you an offer to record an ADR, so the next run does not re-suggest it.
+- Repo-shape findings arrive with counts — lockfiles, install steps, byte-identical versus diverged duplicates — not with "monorepos are better."
 
 ## Where it fits
 

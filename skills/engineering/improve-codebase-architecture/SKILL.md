@@ -18,6 +18,18 @@ This command is _informed_ by the project's domain model and built on a shared d
 
 ### 1. Explore
 
+**Start with topology, then modules.** Before scanning modules, check whether the friction comes
+from the shape of the repo rather than the shape of a module: the same module copied into two
+apps, several lockfiles, installs repeated per app in CI, the same dependency at different
+versions, configuration nobody runs, or a shared package that swallowed per-app divergence.
+Measure it rather than assert it — count lockfiles, `diff` the duplicates and read whether they
+diverged on purpose, grep the workflows for install steps. See
+[REPO-TOPOLOGY.md](references/REPO-TOPOLOGY.md) for the monorepo/workspaces/Turborepo
+distinction (three separate decisions, in that order), the four questions that decide monorepo
+vs polyrepo, the share-vs-keep-apart test, the move mechanics, and the version-model decision.
+A topology finding is a candidate like any other — report it in the same report, with a
+directory-tree before/after instead of a module diagram.
+
 **Scope before you scan — YAGNI.** Deepening a module pays off by making future changes to it easier, so put extra weight on the parts of the codebase that have recently changed. Decide _where_ to look before you look:
 
 - If the user named a direction — a module, a subsystem, a pain point — take it, and skip the inference below.
@@ -50,6 +62,9 @@ For each candidate, render a card with:
 - **Before / After diagram** — side-by-side, custom-drawn, illustrating the shallowness and the deepening
 - **Recommendation strength** — one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge
 
+For a topology candidate, swap **Files** for the affected layout, and draw the before/after as a
+directory tree with each install, lockfile, or duplicate marked, rather than a module diagram.
+
 End the report with a **Top recommendation** section: which candidate you'd tackle first and why.
 
 **Use GLOSSARY.md vocabulary for the domain, and the `/codebase-design` vocabulary for the architecture.** If `GLOSSARY.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
@@ -69,4 +84,5 @@ Side effects happen inline as decisions crystallize — run the `/domain-modelin
 - **Naming a deepened module after a concept not in `GLOSSARY.md`?** Add the term to `GLOSSARY.md`. Create the file lazily if it doesn't exist.
 - **Sharpening a fuzzy term during the conversation?** Update `GLOSSARY.md` right there.
 - **User rejects the candidate with a load-bearing reason?** Offer an ADR, framed as: _"Want me to record this as an ADR so future architecture reviews don't re-suggest it?"_ Only offer when the reason would actually be needed by a future explorer to avoid re-suggesting the same thing — skip ephemeral reasons ("not worth it right now") and self-evident ones.
+- **A topology decision lands** (monorepo vs polyrepo, workspaces, one version vs per-app)? Offer an ADR. These are the decisions a future review will otherwise reopen from scratch, and the measurements that justified them are not visible in the code afterwards.
 - **Want to explore alternative interfaces for the deepened module?** Run the `/codebase-design` skill and use its design-it-twice parallel sub-agent pattern.
