@@ -87,7 +87,7 @@ type TargetLayer struct {
 }
 
 var DefaultTargetLayers = []TargetLayer{
-	{Name: ".claude", Description: "Claude Code harness layer (SSOT)", Selected: true},
+	{Name: ".claude", Description: "Claude Code harness layer", Selected: true},
 	{Name: ".agents", Description: "Agent skills compatibility layer", Selected: true},
 	{Name: ".omp", Description: "Oh My Pi harness layer & plugins", Selected: true},
 }
@@ -144,6 +144,75 @@ func GlobalTargetDirs(home string, targets []string) []string {
 		}
 	}
 	return dirs
+}
+
+// TargetSkillsDir returns the skill directory path for a given target name and scope.
+func TargetSkillsDir(target string, isGlobal bool) (string, error) {
+	norm, err := NormalizeGlobalTargets([]string{target})
+	if err != nil || len(norm) == 0 {
+		return "", fmt.Errorf("invalid target: %s", target)
+	}
+	t := norm[0]
+	if isGlobal {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		switch t {
+		case "claude":
+			return filepath.Join(home, ".claude", "skills"), nil
+		case "omp":
+			return filepath.Join(home, ".omp", "agent", "skills"), nil
+		case "agents":
+			return filepath.Join(home, ".agents", "skills"), nil
+		}
+	}
+	switch t {
+	case "claude":
+		return filepath.Join(".claude", "skills"), nil
+	case "omp":
+		return filepath.Join(".omp", "skills"), nil
+	case "agents":
+		return filepath.Join(".agents", "skills"), nil
+	}
+	return "", fmt.Errorf("unsupported target: %s", target)
+}
+
+// ResolveTargetDirs returns the skill directories and normalized names for specified targets and scope.
+func ResolveTargetDirs(targets []string, isGlobal bool) ([]string, []string, error) {
+	normalized, err := NormalizeGlobalTargets(targets)
+	if err != nil {
+		return nil, nil, err
+	}
+	var dirs []string
+	if isGlobal {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to get user home dir: %w", err)
+		}
+		dirs = GlobalTargetDirs(home, normalized)
+	} else {
+		for _, t := range normalized {
+			dir, _ := TargetSkillsDir(t, false)
+			dirs = append(dirs, dir)
+		}
+	}
+	return dirs, normalized, nil
+}
+
+// DetectProjectTargets checks current directory for existing harness folders.
+// If any exist (.claude, .omp, .agents), it returns them. If none exist, returns [".claude"].
+func DetectProjectTargets() []string {
+	var detected []string
+	for _, t := range []string{".claude", ".omp", ".agents"} {
+		if fi, err := os.Stat(t); err == nil && fi.IsDir() {
+			detected = append(detected, t)
+		}
+	}
+	if len(detected) == 0 {
+		return []string{".claude"}
+	}
+	return detected
 }
 
 func TargetExists(name string) bool {

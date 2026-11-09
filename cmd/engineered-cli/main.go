@@ -118,11 +118,11 @@ func printUsage(w io.Writer) {
 	fmt.Fprintln(w, "  enable     Symlink skill(s) into project or global harness")
 	fmt.Fprintln(w, "  disable    Remove skill(s) from project or global harness")
 	fmt.Fprintln(w, "  status     Show active global and project skills")
-	fmt.Fprintln(w, "\nGlobal Targets (--target / -t / --global=<target>):")
-	fmt.Fprintln(w, "  claude     Claude Code (~/.claude/skills)")
-	fmt.Fprintln(w, "  omp        Oh My Pi (~/.omp/agent/skills)")
-	fmt.Fprintln(w, "  agents     Agent / Codex (~/.agents/skills)")
-	fmt.Fprintln(w, "  all        All global harnesses")
+	fmt.Fprintln(w, "\nTarget Harnesses (--target / -t / --global=<target>):")
+	fmt.Fprintln(w, "  claude     Claude Code (~/.claude/skills or .claude/skills)")
+	fmt.Fprintln(w, "  omp        Oh My Pi (~/.omp/agent/skills or .omp/skills)")
+	fmt.Fprintln(w, "  agents     Agent / Codex (~/.agents/skills or .agents/skills)")
+	fmt.Fprintln(w, "  all        All harnesses")
 	fmt.Fprintln(w, "\nPreset Profiles (--profile):")
 	fmt.Fprintln(w, "  core       ask-skills, git-flow, diagnosing-bugs, tdd")
 	fmt.Fprintln(w, "  frontend   core + dashboard-ui")
@@ -200,10 +200,18 @@ func handleSubcommand(subcmd string, isGlobal bool, globalTargets []string, kitP
 		if err != nil {
 			return true, fmt.Errorf("error enabling skills: %w", err)
 		}
-		scopeDesc := "project (.claude/skills, .agents/skills, .omp/skills)"
+		scopeDesc := "project"
 		if isGlobal {
 			normalized, _ := config.NormalizeGlobalTargets(globalTargets)
 			scopeDesc = fmt.Sprintf("global (%s)", strings.Join(normalized, ", "))
+		} else if len(globalTargets) > 0 {
+			normalized, _ := config.NormalizeGlobalTargets(globalTargets)
+			scopeDesc = fmt.Sprintf("project (%s)", strings.Join(normalized, ", "))
+		} else {
+			cfg := config.LoadConfigWithScope(false)
+			if cfg != nil && len(cfg.Targets) > 0 {
+				scopeDesc = fmt.Sprintf("project (%s)", strings.Join(cfg.Targets, ", "))
+			}
 		}
 		fmt.Fprintln(stdout, tui.GreenStyle.Render(fmt.Sprintf("%s Successfully enabled %d skill(s) in %s:", tui.IconCheck, len(enabled), scopeDesc)))
 		for _, s := range enabled {
@@ -247,6 +255,14 @@ func handleSubcommand(subcmd string, isGlobal bool, globalTargets []string, kitP
 			} else {
 				scopeDesc = "global (all harnesses)"
 			}
+		} else if len(globalTargets) > 0 {
+			normalized, _ := config.NormalizeGlobalTargets(globalTargets)
+			scopeDesc = fmt.Sprintf("project (%s)", strings.Join(normalized, ", "))
+		} else {
+			cfg := config.LoadConfigWithScope(false)
+			if cfg != nil && len(cfg.Targets) > 0 {
+				scopeDesc = fmt.Sprintf("project (%s)", strings.Join(cfg.Targets, ", "))
+			}
 		}
 		fmt.Fprintln(stdout, tui.YellowStyle.Render(fmt.Sprintf("%s Disabled %d skill(s) in %s scope:", tui.IconWarn, len(disabled), scopeDesc)))
 		for _, s := range disabled {
@@ -280,7 +296,11 @@ func printStatus(kitRepoPath string, isGlobal bool, w io.Writer) {
 	}
 
 	projectCfg := config.LoadConfigWithScope(false)
-	fmt.Fprintln(w, tui.CyanStyle.Render("\nProject Skills (.claude, .agents, .omp):"))
+	targetLabel := ".claude, .agents, .omp"
+	if projectCfg != nil && len(projectCfg.Targets) > 0 {
+		targetLabel = strings.Join(projectCfg.Targets, ", ")
+	}
+	fmt.Fprintln(w, tui.CyanStyle.Render(fmt.Sprintf("\nProject Skills (%s):", targetLabel)))
 	if projectCfg != nil && len(projectCfg.Skills.Include) > 0 {
 		for _, s := range projectCfg.Skills.Include {
 			fmt.Fprintf(w, "  • %s\n", s)

@@ -477,3 +477,335 @@ func TestRunDryRun(t *testing.T) {
 		t.Errorf("Expected DRY RUN in stdout, got: %s", stdout.String())
 	}
 }
+
+func TestEnableProjectOnlyOmp(t *testing.T) {
+	tmpKit, err := os.MkdirTemp("", "kit-repo-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp kit: %v", err)
+	}
+	defer os.RemoveAll(tmpKit)
+
+	skillDir := filepath.Join(tmpKit, "skills", "engineering", "my-skill")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatalf("Failed to create mock skill dir: %v", err)
+	}
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0o644)
+
+	tmpProject, err := os.MkdirTemp("", "project-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp project: %v", err)
+	}
+	defer os.RemoveAll(tmpProject)
+
+	origWd, _ := os.Getwd()
+	os.Chdir(tmpProject)
+	defer os.Chdir(origWd)
+
+	// Enable only for omp
+	enabled, err := installer.EnableSkills(tmpKit, []string{"my-skill"}, false, []string{"omp"})
+	if err != nil {
+		t.Fatalf("EnableSkills failed: %v", err)
+	}
+	if len(enabled) != 1 || enabled[0] != "my-skill" {
+		t.Fatalf("Unexpected enabled list: %v", enabled)
+	}
+
+	// .omp/skills/my-skill must exist and be a symlink
+	ompPath := filepath.Join(".omp", "skills", "my-skill")
+	fi, err := os.Lstat(ompPath)
+	if err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected symlink at %s, got err=%v", ompPath, err)
+	}
+
+	// .claude and .agents must NOT exist
+	if _, err := os.Lstat(".claude"); !os.IsNotExist(err) {
+		t.Fatalf("Expected .claude to NOT exist, but found it!")
+	}
+	if _, err := os.Lstat(".agents"); !os.IsNotExist(err) {
+		t.Fatalf("Expected .agents to NOT exist, but found it!")
+	}
+
+	// Config check
+	cfg := config.LoadConfig()
+	if cfg == nil || len(cfg.Targets) != 1 || cfg.Targets[0] != ".omp" {
+		t.Fatalf("Expected config with target .omp, got %v", cfg)
+	}
+
+	// Disable
+	disabled, err := installer.DisableSkills([]string{"my-skill"}, false, []string{"omp"})
+	if err != nil {
+		t.Fatalf("DisableSkills failed: %v", err)
+	}
+	if len(disabled) != 1 || disabled[0] != "my-skill" {
+		t.Fatalf("Unexpected disabled list: %v", disabled)
+	}
+	if _, err := os.Lstat(ompPath); !os.IsNotExist(err) {
+		t.Fatalf("Expected symlink %s to be removed", ompPath)
+	}
+	if _, err := os.Lstat(".claude"); !os.IsNotExist(err) {
+		t.Fatalf("Expected .claude to NOT exist after disable")
+	}
+}
+
+func TestApplySymlinkModeOnlyOmp(t *testing.T) {
+	tmpKit, err := os.MkdirTemp("", "kit-repo-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp kit: %v", err)
+	}
+	defer os.RemoveAll(tmpKit)
+
+	skillDir := filepath.Join(tmpKit, "skills", "engineering", "my-skill")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatalf("Failed to create mock skill dir: %v", err)
+	}
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0o644)
+
+	tmpProject, err := os.MkdirTemp("", "project-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp project: %v", err)
+	}
+	defer os.RemoveAll(tmpProject)
+
+	origWd, _ := os.Getwd()
+	os.Chdir(tmpProject)
+	defer os.Chdir(origWd)
+
+	cfg := &config.Config{
+		Version:     "1.0.0",
+		InstallMode: "symlink",
+		KitRepoPath: tmpKit,
+		Targets:     []string{".omp"},
+		Skills: config.SkillsConfig{
+			Mode:    "select",
+			Include: []string{"my-skill"},
+		},
+	}
+
+	installer.ApplySymlinkMode(cfg)
+
+	ompSkillPath := filepath.Join(".omp", "skills", "my-skill")
+	fi, err := os.Lstat(ompSkillPath)
+	if err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected symlink at %s, got err=%v", ompSkillPath, err)
+	}
+
+	if _, err := os.Lstat(".claude"); !os.IsNotExist(err) {
+		t.Fatalf("Expected .claude to NOT exist when only .omp selected")
+	}
+}
+
+func TestApplyCopyModeOnlyOmp(t *testing.T) {
+	tmpKit, err := os.MkdirTemp("", "kit-repo-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp kit: %v", err)
+	}
+	defer os.RemoveAll(tmpKit)
+
+	skillDir := filepath.Join(tmpKit, "skills", "engineering", "my-skill")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatalf("Failed to create mock skill dir: %v", err)
+	}
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0o644)
+
+	tmpProject, err := os.MkdirTemp("", "project-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp project: %v", err)
+	}
+	defer os.RemoveAll(tmpProject)
+
+	origWd, _ := os.Getwd()
+	os.Chdir(tmpProject)
+	defer os.Chdir(origWd)
+
+	cfg := &config.Config{
+		Version:     "1.0.0",
+		InstallMode: "copy",
+		KitRepoPath: tmpKit,
+		Targets:     []string{".omp"},
+		Skills: config.SkillsConfig{
+			Mode:    "select",
+			Include: []string{"my-skill"},
+		},
+	}
+
+	installer.ApplyCopyMode(cfg)
+
+	ompSkillPath := filepath.Join(".omp", "skills", "my-skill")
+	fi, err := os.Lstat(ompSkillPath)
+	if err != nil {
+		t.Fatalf("Expected %s to exist: %v", ompSkillPath, err)
+	}
+	if fi.Mode()&os.ModeSymlink != 0 {
+		t.Fatalf("Expected %s to be a real directory, not symlink", ompSkillPath)
+	}
+
+	content, err := os.ReadFile(filepath.Join(ompSkillPath, "SKILL.md"))
+	if err != nil || string(content) != "# My Skill" {
+		t.Fatalf("Unexpected content in copied skill: %v", err)
+	}
+
+	if _, err := os.Lstat(".claude"); !os.IsNotExist(err) {
+		t.Fatalf("Expected .claude to NOT exist in copy mode when only .omp selected")
+	}
+}
+
+func TestApplySymlinkModeMultiTargetDecoupled(t *testing.T) {
+	tmpKit, err := os.MkdirTemp("", "kit-repo-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp kit: %v", err)
+	}
+	defer os.RemoveAll(tmpKit)
+
+	skillDir := filepath.Join(tmpKit, "skills", "engineering", "my-skill")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatalf("Failed to create mock skill dir: %v", err)
+	}
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0o644)
+
+	tmpProject, err := os.MkdirTemp("", "project-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp project: %v", err)
+	}
+	defer os.RemoveAll(tmpProject)
+
+	origWd, _ := os.Getwd()
+	os.Chdir(tmpProject)
+	defer os.Chdir(origWd)
+
+	cfg := &config.Config{
+		Version:     "1.0.0",
+		InstallMode: "symlink",
+		KitRepoPath: tmpKit,
+		Targets:     []string{".claude", ".omp"},
+		Skills: config.SkillsConfig{
+			Mode:    "select",
+			Include: []string{"my-skill"},
+		},
+	}
+
+	installer.ApplySymlinkMode(cfg)
+
+	claudePath := filepath.Join(".claude", "skills", "my-skill")
+	ompPath := filepath.Join(".omp", "skills", "my-skill")
+
+	// Both must be symlinks pointing to kit repo
+	if fi, err := os.Lstat(claudePath); err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected symlink at %s", claudePath)
+	}
+	if fi, err := os.Lstat(ompPath); err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected symlink at %s", ompPath)
+	}
+
+	// Deleting .claude must NOT break .omp
+	if err := os.RemoveAll(".claude"); err != nil {
+		t.Fatalf("Failed to remove .claude: %v", err)
+	}
+
+	content, err := os.ReadFile(filepath.Join(ompPath, "SKILL.md"))
+	if err != nil || string(content) != "# My Skill" {
+		t.Fatalf("Expected .omp/skills/my-skill to still be readable after .claude deletion: %v", err)
+	}
+}
+
+func TestRunEnableProjectTargetFlag(t *testing.T) {
+	tmpKit, err := os.MkdirTemp("", "kit-repo-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp kit: %v", err)
+	}
+	defer os.RemoveAll(tmpKit)
+
+	skillDir := filepath.Join(tmpKit, "skills", "engineering", "my-skill")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatalf("Failed to create mock skill dir: %v", err)
+	}
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0o644)
+
+	tmpProject, err := os.MkdirTemp("", "project-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp project: %v", err)
+	}
+	defer os.RemoveAll(tmpProject)
+
+	origWd, _ := os.Getwd()
+	os.Chdir(tmpProject)
+	defer os.Chdir(origWd)
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	err = run([]string{"--kit-path", tmpKit, "enable", "-t", "omp", "my-skill"}, stdout, stderr)
+	if err != nil {
+		t.Fatalf("run enable -t omp failed: %v", err)
+	}
+
+	ompPath := filepath.Join(".omp", "skills", "my-skill")
+	if fi, err := os.Lstat(ompPath); err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected symlink at %s, got err=%v", ompPath, err)
+	}
+
+	if _, err := os.Lstat(".claude"); !os.IsNotExist(err) {
+		t.Fatalf("Expected .claude to NOT exist when running enable -t omp")
+	}
+}
+
+func TestMigrateLegacyDirectorySymlink(t *testing.T) {
+	tmpKit, err := os.MkdirTemp("", "kit-repo-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp kit: %v", err)
+	}
+	defer os.RemoveAll(tmpKit)
+
+	skillDir := filepath.Join(tmpKit, "skills", "engineering", "my-skill")
+	if err := os.MkdirAll(skillDir, 0o755); err != nil {
+		t.Fatalf("Failed to create mock skill dir: %v", err)
+	}
+	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("# My Skill"), 0o644)
+
+	tmpProject, err := os.MkdirTemp("", "project-*")
+	if err != nil {
+		t.Fatalf("Failed to create temp project: %v", err)
+	}
+	defer os.RemoveAll(tmpProject)
+
+	origWd, _ := os.Getwd()
+	os.Chdir(tmpProject)
+	defer os.Chdir(origWd)
+
+	// Simulate legacy project state: .omp/skills was a symlink to non-existent or existing .claude/skills
+	_ = os.MkdirAll(".omp", 0o755)
+	_ = os.Symlink(filepath.Join(".claude", "skills"), filepath.Join(".omp", "skills"))
+
+	// Verify it's initially a symlink
+	fi, err := os.Lstat(filepath.Join(".omp", "skills"))
+	if err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected legacy .omp/skills to be a symlink")
+	}
+
+	cfg := &config.Config{
+		Version:     "1.0.0",
+		InstallMode: "symlink",
+		KitRepoPath: tmpKit,
+		Targets:     []string{".omp"},
+		Skills: config.SkillsConfig{
+			Mode:    "select",
+			Include: []string{"my-skill"},
+		},
+	}
+
+	installer.ApplySymlinkMode(cfg)
+
+	// .omp/skills must now be a real directory, NOT a symlink
+	fiAfter, err := os.Lstat(filepath.Join(".omp", "skills"))
+	if err != nil {
+		t.Fatalf("Expected .omp/skills to exist after ApplySymlinkMode: %v", err)
+	}
+	if fiAfter.Mode()&os.ModeSymlink != 0 {
+		t.Fatalf("Expected legacy symlink .omp/skills to be replaced by a real directory")
+	}
+
+	// Skill inside .omp/skills must be a symlink to kit repo
+	skillSymlink := filepath.Join(".omp", "skills", "my-skill")
+	skillFi, err := os.Lstat(skillSymlink)
+	if err != nil || skillFi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("Expected symlink at %s", skillSymlink)
+	}
+}

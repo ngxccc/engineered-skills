@@ -18,111 +18,38 @@ func formatSkillList(skills []string) string {
 	return strings.Join(skills, ", ")
 }
 
-func isTargetSelected(cfg *config.Config, name string) bool {
-	for _, t := range cfg.Targets {
-		if t == name {
-			return true
-		}
-	}
-	for _, t := range cfg.SymlinkTargets {
-		if t == name {
-			return true
-		}
-	}
-	return false
-}
-
 func ApplySymlinkMode(cfg *config.Config) {
-	if cfg.IsGlobal {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Println(tui.RedStyle.Render(fmt.Sprintf("%s Failed to get user home directory: %v", tui.IconError, err)))
-			return
-		}
-		targetsList := cfg.Targets
-		if len(targetsList) == 0 && len(cfg.SymlinkTargets) > 0 {
-			targetsList = cfg.SymlinkTargets
-		}
-		if len(targetsList) == 0 {
+	targetsList := cfg.Targets
+	if len(targetsList) == 0 && len(cfg.SymlinkTargets) > 0 {
+		targetsList = cfg.SymlinkTargets
+	}
+	if len(targetsList) == 0 {
+		if cfg.IsGlobal {
 			fmt.Println(tui.RedStyle.Render(fmt.Sprintf("%s --global requires specifying target harness: claude, omp, agents, or all", tui.IconError)))
 			return
 		}
-		normalizedTargets, err := config.NormalizeGlobalTargets(targetsList)
-		if err != nil {
-			fmt.Println(tui.RedStyle.Render(fmt.Sprintf("%s Invalid global targets: %v", tui.IconError, err)))
-			return
-		}
-		targetDirs := config.GlobalTargetDirs(home, normalizedTargets)
+		targetsList = config.DetectProjectTargets()
+	}
 
-		for _, dir := range targetDirs {
-			_ = os.MkdirAll(dir, 0o755)
-		}
-		var linkedSkills []string
-		for _, skill := range cfg.Skills.Include {
-			relSource := config.SkillSourcePath(cfg.KitRepoPath, skill)
-			srcPath := filepath.Join(cfg.KitRepoPath, relSource)
-			if _, err := os.Stat(srcPath); os.IsNotExist(err) {
-				fmt.Println(tui.YellowStyle.Render(fmt.Sprintf("%s Skill source not found in kit repo: %s", tui.IconWarn, skill)))
-				continue
-			}
-
-			for _, dir := range targetDirs {
-				destPath := filepath.Join(dir, skill)
-				if fi, err := os.Lstat(destPath); err == nil {
-					if fi.Mode()&os.ModeSymlink != 0 {
-						_ = os.Remove(destPath)
-					} else {
-						_ = os.RemoveAll(destPath)
-					}
-				}
-				if err := os.Symlink(srcPath, destPath); err != nil {
-					fmt.Println(tui.RedStyle.Render(fmt.Sprintf("%s Error creating global symlink for %s in %s: %v", tui.IconError, skill, dir, err)))
-				}
-			}
-			linkedSkills = append(linkedSkills, skill)
-		}
-		fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Globally linked %d skill(s) across %s: %s", tui.IconCheck, len(linkedSkills), strings.Join(normalizedTargets, ", "), formatSkillList(linkedSkills))))
+	targetDirs, normalizedTargets, err := config.ResolveTargetDirs(targetsList, cfg.IsGlobal)
+	if err != nil {
+		fmt.Println(tui.RedStyle.Render(fmt.Sprintf("%s Invalid targets: %v", tui.IconError, err)))
 		return
 	}
 
-	for _, target := range cfg.Targets {
-		srcPath := filepath.Join(cfg.KitRepoPath, target)
-		destPath, _ := filepath.Abs(target)
-
-		if _, err := os.Stat(srcPath); os.IsNotExist(err) {
-			fmt.Println(tui.YellowStyle.Render(fmt.Sprintf("%s Source path does not exist in kit repo: %s", tui.IconWarn, srcPath)))
-			continue
+	for _, dir := range targetDirs {
+		if fi, err := os.Lstat(dir); err == nil && fi.Mode()&os.ModeSymlink != 0 {
+			_ = os.Remove(dir)
 		}
-
-		if fi, err := os.Lstat(destPath); err == nil {
-			if fi.Mode()&os.ModeSymlink == 0 {
-				entries, _ := os.ReadDir(destPath)
-				hasOtherFiles := false
-				for _, e := range entries {
-					if e.Name() != "engineered-config.json" && e.Name() != ".engineered-config.json" {
-						hasOtherFiles = true
-						break
-					}
-				}
-				if len(entries) > 0 && hasOtherFiles && cfg.Options.RefuseOverwriteNonSymlinkDir {
-					fmt.Println(tui.YellowStyle.Render(fmt.Sprintf("%s Refusing to overwrite existing real directory: %s", tui.IconWarn, destPath)))
-					continue
-				}
-			}
-			os.RemoveAll(destPath)
-		}
-
-		destParent := filepath.Dir(destPath)
-		os.MkdirAll(destParent, 0o755)
-
-		if err := os.Symlink(srcPath, destPath); err != nil {
-			fmt.Println(tui.RedStyle.Render(fmt.Sprintf("%s Error creating symlink %s: %v", tui.IconError, destPath, err)))
-		} else {
-			fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Symlinked %s -> %s", tui.IconCheck, target, srcPath)))
-		}
+		_ = os.MkdirAll(dir, 0o755)
 	}
+
 	if len(cfg.Skills.Include) > 0 {
-		fmt.Println(tui.CyanStyle.Render("\nSymlinking Selected Skills & Curated Extras..."))
+		prefix := "Symlinking Selected Skills & Curated Extras..."
+		if cfg.IsGlobal {
+			prefix = fmt.Sprintf("Globally Symlinking Selected Skills across %s...", strings.Join(normalizedTargets, ", "))
+		}
+		fmt.Println(tui.CyanStyle.Render("\n" + prefix))
 		var newSkills []string
 		var overwrittenSkills []string
 		var skippedSkills []string
@@ -131,63 +58,53 @@ func ApplySymlinkMode(cfg *config.Config) {
 		for _, skill := range cfg.Skills.Include {
 			relSource := config.SkillSourcePath(cfg.KitRepoPath, skill)
 			srcPath := filepath.Join(cfg.KitRepoPath, relSource)
-			destPath, _ := filepath.Abs(filepath.Join(".claude", "skills", skill))
-
 			if _, err := os.Stat(srcPath); os.IsNotExist(err) {
 				errorMsgs = append(errorMsgs, fmt.Sprintf("Skill source not found: %s", skill))
 				continue
 			}
 
-			existedBefore := false
-			isRealDir := false
-			if fi, err := os.Lstat(destPath); err == nil {
-				existedBefore = true
-				if fi.Mode()&os.ModeSymlink == 0 {
-					isRealDir = true
+			skillExisted := false
+			skillOverwritten := false
+			skillSkipped := false
+
+			for _, dir := range targetDirs {
+				destPath, _ := filepath.Abs(filepath.Join(dir, skill))
+				existedBefore := false
+				isRealDir := false
+				if fi, err := os.Lstat(destPath); err == nil {
+					existedBefore = true
+					if fi.Mode()&os.ModeSymlink == 0 {
+						isRealDir = true
+					}
+				}
+
+				if existedBefore && isRealDir && cfg.Options.RefuseOverwriteNonSymlinkDir {
+					skillSkipped = true
+					continue
+				}
+
+				if existedBefore {
+					_ = os.RemoveAll(destPath)
+					skillExisted = true
+				}
+
+				_ = os.MkdirAll(filepath.Dir(destPath), 0o755)
+				if err := os.Symlink(srcPath, destPath); err != nil {
+					errorMsgs = append(errorMsgs, fmt.Sprintf("Error creating symlink for %s in %s: %v", skill, dir, err))
+				} else if existedBefore {
+					skillOverwritten = true
 				}
 			}
 
-			if existedBefore && isRealDir && cfg.Options.RefuseOverwriteNonSymlinkDir {
+			if skillSkipped {
 				skippedSkills = append(skippedSkills, skill)
-				continue
-			}
-
-			if existedBefore {
-				os.RemoveAll(destPath)
-			}
-
-			os.MkdirAll(filepath.Dir(destPath), 0o755)
-			if err := os.Symlink(srcPath, destPath); err != nil {
-				errorMsgs = append(errorMsgs, fmt.Sprintf("Error creating symlink for %s: %v", skill, err))
-			} else if existedBefore {
+			} else if skillOverwritten || skillExisted {
 				overwrittenSkills = append(overwrittenSkills, skill)
 			} else {
 				newSkills = append(newSkills, skill)
 			}
 		}
 
-		// Symlink .agents/skills -> .claude/skills ONLY if .agents target was selected by user
-		if isTargetSelected(cfg, ".agents") {
-			claudeSkillsPath, _ := filepath.Abs(filepath.Join(".claude", "skills"))
-			agentsSkillsPath, _ := filepath.Abs(filepath.Join(".agents", "skills"))
-			if _, err := os.Stat(claudeSkillsPath); err == nil {
-				os.MkdirAll(filepath.Dir(agentsSkillsPath), 0o755)
-				os.RemoveAll(agentsSkillsPath)
-				_ = os.Symlink(claudeSkillsPath, agentsSkillsPath)
-				fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Symlinked .agents/skills -> .claude/skills", tui.IconCheck)))
-			}
-		}
-		// Symlink .omp/skills -> .claude/skills ONLY if .omp target was selected by user
-		if isTargetSelected(cfg, ".omp") {
-			claudeSkillsPath, _ := filepath.Abs(filepath.Join(".claude", "skills"))
-			ompSkillsPath, _ := filepath.Abs(filepath.Join(".omp", "skills"))
-			if _, err := os.Stat(claudeSkillsPath); err == nil {
-				os.MkdirAll(filepath.Dir(ompSkillsPath), 0o755)
-				os.RemoveAll(ompSkillsPath)
-				_ = os.Symlink(claudeSkillsPath, ompSkillsPath)
-				fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Symlinked .omp/skills -> .claude/skills", tui.IconCheck)))
-			}
-		}
 		if len(newSkills) > 0 {
 			fmt.Println(tui.GreenStyle.Render(fmt.Sprintf("%s Linked %d new skill(s): %s", tui.IconCheck, len(newSkills), formatSkillList(newSkills))))
 		}
@@ -197,11 +114,14 @@ func ApplySymlinkMode(cfg *config.Config) {
 		if len(skippedSkills) > 0 {
 			fmt.Println(tui.YellowStyle.Render(fmt.Sprintf("%s Skipped %d skill(s) (existing real directory): %s", tui.IconWarn, len(skippedSkills), formatSkillList(skippedSkills))))
 		}
+		for _, msg := range errorMsgs {
+			fmt.Println(tui.RedStyle.Render(fmt.Sprintf("%s %s", tui.IconError, msg)))
+		}
 	}
 }
 
 // EnableSkills links specified skills and updates the config.
-func EnableSkills(kitRepoPath string, skills []string, isGlobal bool, globalTargets []string) ([]string, error) {
+func EnableSkills(kitRepoPath string, skills []string, isGlobal bool, targets []string) ([]string, error) {
 	if len(skills) == 0 {
 		return nil, fmt.Errorf("no skills provided")
 	}
@@ -216,29 +136,29 @@ func EnableSkills(kitRepoPath string, skills []string, isGlobal bool, globalTarg
 
 	resolved := config.ResolveDependencies(skills)
 
-	var targetDirs []string
-	var normalizedTargets []string
-	if isGlobal {
-		if len(globalTargets) == 0 {
-			return nil, fmt.Errorf("--global requires specifying target harness: claude, omp, agents, or all")
-		}
-		var err error
-		normalizedTargets, err = config.NormalizeGlobalTargets(globalTargets)
-		if err != nil {
-			return nil, err
-		}
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil, fmt.Errorf("failed to get user home dir: %w", err)
-		}
-		targetDirs = config.GlobalTargetDirs(home, normalizedTargets)
+	var targetsToUse []string
+	if len(targets) > 0 {
+		targetsToUse = targets
+	} else if isGlobal {
+		return nil, fmt.Errorf("--global requires specifying target harness: claude, omp, agents, or all")
 	} else {
-		targetDirs = []string{
-			filepath.Join(".claude", "skills"),
+		existingCfg := config.LoadConfigWithScope(false)
+		if existingCfg != nil && len(existingCfg.Targets) > 0 {
+			targetsToUse = existingCfg.Targets
+		} else {
+			targetsToUse = config.DetectProjectTargets()
 		}
 	}
 
+	targetDirs, normalizedTargets, err := config.ResolveTargetDirs(targetsToUse, isGlobal)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, dir := range targetDirs {
+		if fi, err := os.Lstat(dir); err == nil && fi.Mode()&os.ModeSymlink != 0 {
+			_ = os.Remove(dir)
+		}
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return nil, fmt.Errorf("failed to create directory %s: %w", dir, err)
 		}
@@ -263,55 +183,55 @@ func EnableSkills(kitRepoPath string, skills []string, isGlobal bool, globalTarg
 		}
 	}
 
-	if !isGlobal {
-		claudeSkillsPath, _ := filepath.Abs(filepath.Join(".claude", "skills"))
-		agentsSkillsPath, _ := filepath.Abs(filepath.Join(".agents", "skills"))
-		ompSkillsPath, _ := filepath.Abs(filepath.Join(".omp", "skills"))
-
-		_ = os.MkdirAll(filepath.Dir(agentsSkillsPath), 0o755)
-		_ = os.Remove(agentsSkillsPath)
-		_ = os.Symlink(claudeSkillsPath, agentsSkillsPath)
-
-		_ = os.MkdirAll(filepath.Dir(ompSkillsPath), 0o755)
-		_ = os.Remove(ompSkillsPath)
-		_ = os.Symlink(claudeSkillsPath, ompSkillsPath)
-	}
-
 	cfg := config.LoadConfigWithScope(isGlobal)
 	if cfg == nil {
-		targets := []string{".claude", ".agents", ".omp"}
+		var cfgTargets []string
 		if isGlobal {
-			targets = normalizedTargets
+			cfgTargets = normalizedTargets
+		} else {
+			for _, t := range normalizedTargets {
+				cfgTargets = append(cfgTargets, "."+t)
+			}
 		}
 		cfg = &config.Config{
-			Version:     "1.0.0",
-			UpdatedAt:   time.Now().Format(time.RFC3339),
-			InstallMode: "symlink",
-			KitRepoPath: kitRepoPath,
-			IsGlobal:    isGlobal,
-			Targets:     targets,
+			Version:        "1.0.0",
+			UpdatedAt:      time.Now().Format(time.RFC3339),
+			InstallMode:    "symlink",
+			SymlinkScope:   "bulk",
+			KitRepoPath:    kitRepoPath,
+			IsGlobal:       isGlobal,
+			Targets:        cfgTargets,
+			SymlinkTargets: cfgTargets,
 			Skills: config.SkillsConfig{
 				Mode:    "select",
 				Include: []string{},
+				Exclude: []string{},
 			},
 			Options: config.OptionsConfig{
 				PreserveUserContent:          true,
 				RefuseOverwriteNonSymlinkDir: true,
 			},
 		}
-	}
-	cfg.UpdatedAt = time.Now().Format(time.RFC3339)
-	if isGlobal {
+	} else {
 		targetMap := make(map[string]bool)
 		for _, t := range cfg.Targets {
-			targetMap[t] = true
+			raw := strings.TrimPrefix(strings.ToLower(strings.TrimSpace(t)), ".")
+			targetMap[raw] = true
 		}
 		for _, t := range normalizedTargets {
 			if !targetMap[t] {
-				cfg.Targets = append(cfg.Targets, t)
+				targetName := t
+				if !isGlobal {
+					targetName = "." + t
+				}
+				cfg.Targets = append(cfg.Targets, targetName)
+				cfg.SymlinkTargets = append(cfg.SymlinkTargets, targetName)
+				targetMap[t] = true
 			}
 		}
 	}
+	cfg.UpdatedAt = time.Now().Format(time.RFC3339)
+
 	existingMap := make(map[string]bool)
 	for _, s := range cfg.Skills.Include {
 		existingMap[s] = true
@@ -331,31 +251,30 @@ func EnableSkills(kitRepoPath string, skills []string, isGlobal bool, globalTarg
 }
 
 // DisableSkills unlinks specified skills and updates the config.
-func DisableSkills(skills []string, isGlobal bool, globalTargets []string) ([]string, error) {
+func DisableSkills(skills []string, isGlobal bool, targets []string) ([]string, error) {
 	if len(skills) == 0 {
 		return nil, fmt.Errorf("no skills provided")
 	}
 
-	var targetDirs []string
-	if isGlobal {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil, fmt.Errorf("failed to get user home dir: %w", err)
-		}
-		if len(globalTargets) > 0 {
-			normalizedTargets, err := config.NormalizeGlobalTargets(globalTargets)
-			if err != nil {
-				return nil, err
-			}
-			targetDirs = config.GlobalTargetDirs(home, normalizedTargets)
-		} else {
-			targetDirs = config.GlobalTargetDirs(home, []string{"claude", "omp", "agents"})
-		}
+	var targetsToUse []string
+	if len(targets) > 0 {
+		targetsToUse = targets
+	} else if isGlobal {
+		targetsToUse = []string{"claude", "omp", "agents"}
 	} else {
-		targetDirs = []string{
-			filepath.Join(".claude", "skills"),
+		existingCfg := config.LoadConfigWithScope(false)
+		if existingCfg != nil && len(existingCfg.Targets) > 0 {
+			targetsToUse = existingCfg.Targets
+		} else {
+			targetsToUse = config.DetectProjectTargets()
 		}
 	}
+
+	targetDirs, _, err := config.ResolveTargetDirs(targetsToUse, isGlobal)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, skill := range skills {
 		for _, dir := range targetDirs {
 			destPath := filepath.Join(dir, skill)
