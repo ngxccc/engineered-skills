@@ -14,7 +14,6 @@ Invoke `/teach` when mastering complex software engineering concepts, deep archi
 | What you want                                                | What to reach for                                |
 | ------------------------------------------------------------ | ------------------------------------------------ |
 | Learn a technical topic, framework, or architectural pattern | `/teach`                                         |
-| Get a single message re-pitched in plain English             | [wait-what](https://aihero.dev/skills-wait-what) |
 | Sharpen existing plans or assumptions via interview          | [grill-me](https://aihero.dev/skills-grill-me)   |
 | Delegate reading legwork to a background agent               | [research](https://aihero.dev/skills-research)   |
 
