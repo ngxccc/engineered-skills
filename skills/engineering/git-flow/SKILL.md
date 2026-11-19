@@ -1,11 +1,11 @@
 ---
 name: git-flow
-description: Shape branches (single or stacked PR chains), slice atomic commits, create pull requests via the 3-Tier PR Matrix, or create sub-issues. Use when the user wants to branch, commit, push, split work into stacked PRs, create a PR, format commit messages, or manage GitHub issues.
+description: Shape branches, slice atomic commits, split multi-layer work into sequential PRs against main, create pull requests via the 3-Tier PR Matrix, or create sub-issues. Use when the user wants to branch, commit, push, split large work into small PRs, create a PR, format commit messages, or manage GitHub issues.
 ---
 
 # Git Flow (`git-flow`)
 
-Shape clean git branches (including **bottom-up stacked PRs** for multi-layer work), slice atomic commits with bulleted details, create audit-ready Pull Requests matched to risk via the 3-Tier PR Matrix, and create linked GitHub sub-issues.
+Shape clean git branches from `main`, split oversized multi-layer work into **sequential atomic PRs against `main`**, slice atomic commits with bulleted details, create audit-ready Pull Requests matched to risk via the 3-Tier PR Matrix, and create linked GitHub sub-issues.
 
 ## PR Tier Matrix
 
@@ -21,21 +21,21 @@ Match ceremony to risk before opening a branch or PR:
 
 ## Step-by-Step Workflow
 
-### Step 1: Shape Branch or PR Stack
+### Step 1: Health Check & Branch Sizing
 
-Verify clean working tree and ensure branch naming reflects scope:
+Branch directly from an up-to-date `main` (`<type>/<kebab-name>`):
 
 - Feature branch: `feature/<kebab-name>`
 - Bugfix / Hotfix branch: `fix/<kebab-name>`, `hotfix/<kebab-name>`
 - Core / Tier 3 branch: `core/<kebab-name>`
 - Maintenance / Docs branch: `chore/<kebab-name>`, `docs/<kebab-name>`
 
-**Stacking Gate (AI-era PR Sizing):**
-Keep each PR focused on one trust boundary or dependency layer (~<=15–20 hand-written files). When work spans multiple layers (schema/contracts → backend API → client UI) or decomposes a large bundle, follow [`references/stacked-prs.md`](references/stacked-prs.md) to branch and PR bottom-up (`--base <lower-branch>`) instead of opening a 50+ file PR.
+**Sequential Sizing Gate:**
+Keep each PR focused on one trust boundary or dependency layer (~<=15–20 hand-written files). When work spans multiple layers (schema/contracts → backend API → client UI) or decomposes a large bundle, follow [`references/sequential-prs.md`](references/sequential-prs.md) to land each layer sequentially into `main` (merge PR 1 to `main`, pull `main`, start PR 2) rather than creating a 50+ file PR or maintaining stacked non-`main` branches.
 
 Validate state with `node skills/engineering/git-flow/scripts/git-flow.mjs` or `git status`.
 
-**Completion criterion:** Branch prefix (or stack plan) matches scope/tier and working tree state is accounted for.
+**Completion criterion:** Branch prefix matches scope/tier, PR scope fits one cohesive layer, and working tree state is accounted for.
 
 ### Step 2: Slice Atomic Commits
 
@@ -65,25 +65,24 @@ Never squash changes across distinct concerns or modules into a single blob comm
 
 **Completion criterion:** Explicit human confirmation received before any commit execution, with validation and commit occurring in a single confirmed execution step.
 
-### Step 4: Construct PR Body & Open PR (Single or Stacked)
+### Step 4: Construct PR Body & Open PR (`base: main`)
 
 1. If repo defines `.github/PULL_REQUEST_TEMPLATE.md`, match its fields; otherwise select from `references/pr-tier*.md` based on Tier.
-2. For stacked PRs, pass `--base <parent-branch>` (plus `--draft` if lower layers are still under review) and include the stack lineage map in `## Context` per [`references/stacked-prs.md`](references/stacked-prs.md).
+2. When a PR is part of a multi-PR rollout, include the sequence map under `## Context` per [`references/sequential-prs.md`](references/sequential-prs.md).
 3. Keep evidence concrete (test commands run, before/after visuals when helpful) and state blast radius + rollback plan for Tier 3.
-4. Open PR via `xd://github` (`op: pr_create`) or:
+4. Open PR against `main` via `xd://github` (`op: pr_create`) or:
    ```bash
-   node skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3> --base <base-branch> --title "<title>" --body-file <path> --execute
+   node skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3> --base main --title "<title>" --body-file <path> --execute
    ```
-5. After a lower PR in a stack merges, retarget (`gh pr edit <n> --base main`), rebase `--onto`, re-test, and push with `--force-with-lease` per [`references/stacked-prs.md`](references/stacked-prs.md).
 
-**Completion criterion:** PR opened against the right base branch with validated tier template, evidence, and accurate issue/stack linking.
+**Completion criterion:** PR opened against `main` with validated tier template, evidence, and accurate issue/sequence linking.
 
 ---
 
 ## Issue Linking & Closing Protocol
 
 - **Pull Request Descriptions (Primary)**: Declare `Resolves: #<id>` (to auto-close on merge) or `Part of: #<id>` / `Relates to: #<id>` under `## Context` in the PR body. If standalone, write `- None`.
-- **Atomic Commit Messages**: Focus strictly on technical rationale. Reserve auto-closing keywords strictly for PR descriptions; footers are for `BREAKING CHANGE:` or standalone bugfix trailers (`Fixes: <hash>`).
+- **Atomic Commit Messages**: Focus strictly on technical rationale. Reserve auto-closing keywords strictly for PR descriptions so intermediate sequential PRs do not close parent issues early.
 
 ---
 
@@ -92,25 +91,25 @@ Never squash changes across distinct concerns or modules into a single blob comm
 When decomposing Epics into tracer-bullet tasks or creating bug reports:
 
 - Use [`references/issue-templates.md`](references/issue-templates.md) for issue body specifications (`Task`, `Bug Report`, `Feature / Proposal`).
-- Run `node skills/engineering/git-flow/scripts/create-issue.mjs --type task --title "task(<scope>): <summary>" --parent <parent_number> --execute` to link directly to parent issues via GitHub Native Sub-Issues API.
+- Run `node skills/engineering/git-flow/scripts/create-issue.mjs --type task --title "task(<scope>): <summary>" --parent <parent_number> --execute` to create and link directly to parent issues via GitHub Native Sub-Issues API.
 
 ---
 
 ## Quick Reference Rules
 
 - `conventional-commits` - Format all messages as `<type>(<scope>): <description>`. Validate via `format-commit.mjs`.
-- `stacked-prs` - Split multi-layer or >15-20 file changes into bottom-up stacked PRs (`--base <lower-branch>`); retarget and rebase as lower PRs merge.
+- `sequential-prs` - Keep PRs small (~<=15–20 hand-written files) and land multi-layer changes sequentially into `main` (merge PR 1 -> pull `main` -> open PR 2).
 - `bulleted-commit-desc` - Commit proposal details and commit body rationale MUST be concise bullet points (`- ...`).
 - `no-close-in-commits` - Reserve Fixes/Closes/Resolves strictly for PR descriptions.
 - `clean-branching` - Use `feature/`, `fix/`, `hotfix/`, `core/`, `chore/`, or `docs/` branch prefixes.
 - `enterprise-pr` - Enforce clean titles and structured body templates without emojis.
-- `no-force-push-main` - NEVER force-push to `main` or `master`; use `--force-with-lease` only on stacked/feature branches after rebase.
+- `no-force-push-main` - NEVER force-push to `main` or `master`.
 - `human-audit-required` - NEVER execute `git commit` or `--execute` without explicit human confirmation.
 
 ## References
 
-- [`references/stacked-prs.md`](references/stacked-prs.md) - Stacked branch naming, `--base` PR creation, stack lineage, and bottom-up rebase/retarget steps.
-- [`references/git-flow-templates.md`](references/git-flow-templates.md) - Conventional commit specifications, helper options, and slicing patterns.
+- [`references/sequential-prs.md`](references/sequential-prs.md) - Single-workspace sequential PR workflow against `main` and issue/sequence linking.
+- [`references/git-flow-templates.md`](references/git-flow-templates.md) - Conventional commit specifications and slicing patterns.
 - [`references/pr-tier1-patch.md`](references/pr-tier1-patch.md) - Tier 1 Patch PR template.
 - [`references/pr-tier2-standard.md`](references/pr-tier2-standard.md) - Tier 2 Standard PR template.
 - [`references/pr-tier3-enterprise.md`](references/pr-tier3-enterprise.md) - Tier 3 Kernel-Grade Enterprise PR template.
