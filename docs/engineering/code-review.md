@@ -1,21 +1,21 @@
 ## What it does
 
-`code-review` reviews the diff between `HEAD` and a fixed point you name — a commit, a branch, a tag, `main`, `HEAD~5` — along two axes. **Standards** asks whether the code follows how this repo writes code. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) so neither sees the other's reasoning.
+`code-review` reviews the diff between `HEAD` and a fixed point you name — a commit, a branch, a tag, `main`, `HEAD~5` — along two axes after excluding generated/snapshot noise (`openapi.json`, `api-schema.d.ts`, `snapshot.json`, lockfiles). **Standards** inspects changed layers bottom-up (Data/Migrations → Boundaries/DTOs/Guards → Controllers → Services → Tests) against repo standards, the layered risk checklist, and Fowler smells. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) so neither sees the other's reasoning, followed by a targeted spot-check on any changed generated contracts.
 
-The two axes are never merged and never re-ranked. The report ends with a worst issue *per axis* and refuses to name a single winner across them, because a change can pass one axis and fail the other: code that follows every convention while implementing the wrong thing passes Standards and fails Spec; code that does exactly what the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) asked while breaking the repo's conventions does the reverse. A blended verdict lets the passing axis hide the failing one.
+The two axes are never merged and never re-ranked. The report ends with a worst issue _per axis_ and refuses to name a single winner across them, because a change can pass one axis and fail the other: code that follows every convention while implementing the wrong thing passes Standards and fails Spec; code that does exactly what the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) asked while breaking the repo's conventions does the reverse. A blended verdict lets the passing axis hide the failing one.
 
 ## When to reach for it
 
 Type `/code-review`, or the agent reaches for it automatically when you ask to review a branch, a PR, work in progress, or anything "since X".
 
-| Your situation | Reach for |
-| --- | --- |
-| A diff exists and you want to know if it is built right *and* is the right thing | `code-review` |
-| You want bugs hunted in the diff — null paths, races, off-by-one | Claude Code's own built-in review, not this one (see the name clash below) |
-| Nothing is written yet and you want it written test-first | [tdd](https://aihero.dev/skills-tdd) |
-| A whole spec needs building, review included | [implement](https://aihero.dev/skills-implement), which calls this skill itself |
-| The whole codebase has drifted, not one diff | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) |
-| Something is broken and you do not know why | [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs) |
+| Your situation                                                                   | Reach for                                                                                |
+| -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| A diff exists and you want to know if it is built right _and_ is the right thing | `code-review`                                                                            |
+| You want bugs hunted in the diff — null paths, races, off-by-one                 | Claude Code's own built-in review, not this one (see the name clash below)               |
+| Nothing is written yet and you want it written test-first                        | [tdd](https://aihero.dev/skills-tdd)                                                     |
+| A whole spec needs building, review included                                     | [implement](https://aihero.dev/skills-implement), which calls this skill itself          |
+| The whole codebase has drifted, not one diff                                     | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) |
+| Something is broken and you do not know why                                      | [diagnosing-bugs](https://aihero.dev/skills-diagnosing-bugs)                             |
 
 You must supply the fixed point. If you do not, the skill asks for one rather than guessing; it then checks the ref resolves and the diff is non-empty before spawning anything, so a typo'd branch name fails in front of you instead of inside two sub-agents.
 
@@ -34,16 +34,16 @@ Step 1 depends on `docs/agents/issue-tracker.md`, which [setup-skills](https://a
 
 ## The two axes
 
-| | Standards | Spec |
-| --- | --- | --- |
-| Question | Is it built right? | Is it the right thing? |
-| Reads | The repo's documented standards, plus the smell baseline | The originating issue or spec |
-| Reports | Documented breaches (can be hard), and smells (always judgement calls) | Missing or partial requirements, scope creep, requirements implemented wrongly |
-| Every finding cites | The standards file and the rule, or the named smell plus the hunk | The line of the spec |
+|                     | Standards                                                              | Spec                                                                           |
+| ------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Question            | Is it built right?                                                     | Is it the right thing?                                                         |
+| Reads               | The repo's documented standards, plus the smell baseline               | The originating issue or spec                                                  |
+| Reports             | Documented breaches (can be hard), and smells (always judgement calls) | Missing or partial requirements, scope creep, requirements implemented wrongly |
+| Every finding cites | The standards file and the rule, or the named smell plus the hunk      | The line of the spec                                                           |
 
 A generic review skill that does not know your standards is the thing this design is trying to avoid — it flags what is deliberate in your codebase and misses the invariants your codebase actually depends on. So the repo's own documentation is the [primary source](https://www.aihero.dev/ai-coding-dictionary/primary-source) on the Standards axis, and **the repo always overrides**.
 
-The **smell baseline** is the floor underneath it: twelve Fowler code smells from _Refactoring_ ch.3 — Mysterious Name, Duplicated Code, Feature Envy, Data Clumps, Primitive Obsession, Repeated Switches, Shotgun Surgery, Divergent Change, Speculative Generality, Message Chains, Middle Man, Refused Bequest. Each is a labelled heuristic ("possible Feature Envy"), never a hard violation, and each is stated as *what it is* → *how to fix*, so a finding arrives with a move attached rather than a complaint. Anything your linter already enforces is skipped by both axes.
+The **smell baseline** is the floor underneath it: twelve Fowler code smells from _Refactoring_ ch.3 — Mysterious Name, Duplicated Code, Feature Envy, Data Clumps, Primitive Obsession, Repeated Switches, Shotgun Surgery, Divergent Change, Speculative Generality, Message Chains, Middle Man, Refused Bequest. Each is a labelled heuristic ("possible Feature Envy"), never a hard violation, and each is stated as _what it is_ → _how to fix_, so a finding arrives with a move attached rather than a complaint. Anything your linter already enforces is skipped by both axes.
 
 ## Common questions
 
@@ -78,8 +78,10 @@ No. It diffs `<fixed-point>...HEAD`, three-dot, which is measured from the merge
 ## It's working if
 
 - It refuses to start on a bad ref or an empty diff, before any sub-agent is spawned.
-- The report arrives as two separate blocks under `## Standards` and `## Spec`, not one merged list.
-- Every Standards finding names either a rule in one of your repo's files or one of the twelve smells, with the hunk quoted; every Spec finding quotes a line of the spec.
+- Generated files (`openapi.json`, `api-schema.d.ts`, snapshots, lockfiles) are excluded from the primary sub-agent diff and spot-checked separately.
+- Both sub-agents inspect layers bottom-up, verify each candidate defect in surrounding file context, and avoid spawning recursive `/code-review` calls.
+- The report arrives as separate `## Standards`, `## Spec`, and (when generated files changed) `## Generated Contract & Blast Radius` blocks, not one merged list.
+- Every Standards finding names a repo rule, layered checklist item, or one of the twelve smells; every Spec finding quotes a line of the spec.
 - The closing summary gives a worst issue per axis and declines to pick an overall winner.
 - With no spec available, the Spec block says so instead of listing requirements it inferred from the code.
 

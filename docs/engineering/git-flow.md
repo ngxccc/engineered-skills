@@ -1,6 +1,6 @@
 ## What it does
 
-`git-flow` manages git branch creation, Conventional Commits formatting, feature branching strategies, enterprise Pull Requests (PRs) via an **Adaptive 3-Tier PR Matrix**, and standardized GitHub Issue creation with Native Sub-Issues linking (`create-issue.mjs`). It matches ceremony to change risk:
+`git-flow` manages git branch creation (single branches and **bottom-up stacked PR chains**), Conventional Commits formatting, enterprise Pull Requests (PRs) via an **Adaptive 3-Tier PR Matrix**, and standardized GitHub Issue creation with Native Sub-Issues linking (`create-issue.mjs`). It matches ceremony to change risk:
 
 - **Tier 1 (Patch)**: 2-section summary and verification for typos, docs, and trivial updates.
 - **Tier 2 (Standard - Default)**: Lean 6-section PR body (`Summary`, `Context`, `Type`, `Evidence`, `Risk`, `Notes`) with Before/After verification for routine features and bug fixes.
@@ -15,6 +15,7 @@
 | Minor fix, typo, or docs update                           | Create Tier 1 Patch PR (`references/pr-tier1-patch.md`)             |
 | Standard feature, bugfix, or refactor                     | Create Tier 2 Standard PR (`references/pr-tier2-standard.md`)       |
 | Core architecture change, security patch, breaking change | Create Tier 3 Kernel-Grade PR (`references/pr-tier3-enterprise.md`) |
+| Multi-layer / >15–20 file change or `needs-split` bundle  | Split into a bottom-up PR stack (`references/stacked-prs.md`)       |
 | Create task, bug report, or sub-issue                     | Run `create-issue.mjs` (`references/issue-templates.md`)            |
 
 ## Common questions
@@ -34,4 +35,5 @@ No. `git-flow` enforces a strict **Human Audit & Verification Protocol**. Diff g
 - Minor fixes use Tier 1 lightweight templates without unnecessary fields.
 - Routine features use Tier 2 Conventional Commits and lean 6-section verification bodies (`Summary`, `Context`, `Type`, `Evidence`, `Risk`, `Notes`).
 - Core architectural PRs (Tier 3) reference an ADR (`docs/adr/`), maintain atomic commit histories with concise bulleted descriptions, and include full verification evidence.
+- Multi-layer or large changes ship as bottom-up stacked PRs (`--base <lower-branch>`) with explicit stack lineage in `## Context`.
 - Sub-issues are automatically attached to parent issues via `create-issue.mjs --parent <id>`.

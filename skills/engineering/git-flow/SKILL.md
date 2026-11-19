@@ -1,11 +1,11 @@
 ---
 name: git-flow
-description: Shape branches, slice atomic commits, create pull requests via the 3-Tier PR Matrix, or create sub-issues. Use when the user wants to branch, commit, push, create a PR, format commit messages, or manage GitHub issues.
+description: Shape branches (single or stacked PR chains), slice atomic commits, create pull requests via the 3-Tier PR Matrix, or create sub-issues. Use when the user wants to branch, commit, push, split work into stacked PRs, create a PR, format commit messages, or manage GitHub issues.
 ---
 
 # Git Flow (`git-flow`)
 
-Shape clean git branches, slice atomic commits with bulleted details, create audit-ready Pull Requests matched to risk via the 3-Tier PR Matrix, and create linked GitHub sub-issues.
+Shape clean git branches (including **bottom-up stacked PRs** for multi-layer work), slice atomic commits with bulleted details, create audit-ready Pull Requests matched to risk via the 3-Tier PR Matrix, and create linked GitHub sub-issues.
 
 ## PR Tier Matrix
 
@@ -21,18 +21,21 @@ Match ceremony to risk before opening a branch or PR:
 
 ## Step-by-Step Workflow
 
-### Step 1: Health Check & Clean Branching
+### Step 1: Shape Branch or PR Stack
 
 Verify clean working tree and ensure branch naming reflects scope:
 
 - Feature branch: `feature/<kebab-name>`
-- Bugfix branch: `fix/<kebab-name>`
-- Hotfix branch: `hotfix/<kebab-name>`
+- Bugfix / Hotfix branch: `fix/<kebab-name>`, `hotfix/<kebab-name>`
 - Core / Tier 3 branch: `core/<kebab-name>`
+- Maintenance / Docs branch: `chore/<kebab-name>`, `docs/<kebab-name>`
+
+**Stacking Gate (AI-era PR Sizing):**
+Keep each PR focused on one trust boundary or dependency layer (~<=15–20 hand-written files). When work spans multiple layers (schema/contracts → backend API → client UI) or decomposes a large bundle, follow [`references/stacked-prs.md`](references/stacked-prs.md) to branch and PR bottom-up (`--base <lower-branch>`) instead of opening a 50+ file PR.
 
 Validate state with `node skills/engineering/git-flow/scripts/git-flow.mjs` or `git status`.
 
-**Completion criterion:** Branch prefix adheres to convention and working tree state is clean or accounted for.
+**Completion criterion:** Branch prefix (or stack plan) matches scope/tier and working tree state is accounted for.
 
 ### Step 2: Slice Atomic Commits
 
@@ -41,9 +44,9 @@ Collect file changes in a **single combined snapshot**: run `git status -s && gi
 Never squash changes across distinct concerns or modules into a single blob commit.
 
 1. **Single Scope**: If all changes belong to one feature or fix, stage and commit together.
-2. **Multiple Scopes**: Slice commits by module/path (`git add <path>`).
-3. **Bulleted Descriptions Only**: When proposing atomic commit plans or writing commit bodies, never write dense paragraphs. Format details as concise, high-signal bullet points (`- ...`).
-4. **Lean Turnaround**: Do NOT execute dry-run formatting scripts as tool calls just to generate message text. Draft the formatted commit proposal directly in your markdown response during Step 3.
+2. **Multiple Scopes**: Slice commits by module/path (`git add <path>`). Commit specs, contracts, and migrations before domain implementation and generated schema syncs.
+3. **Bulleted Descriptions Only**: When proposing atomic commit plans or writing commit bodies, format details as concise, high-signal bullet points (`- ...`) rather than dense paragraphs.
+4. **Lean Turnaround**: Draft the formatted commit proposal directly in your markdown response during Step 3 instead of running dry-run scripts just to preview text.
 
 **Completion criterion:** Sliced commit plan is staged logically per path/scope, with each slice independently buildable and testable.
 
@@ -54,43 +57,33 @@ Never squash changes across distinct concerns or modules into a single blob comm
    ```markdown
    ### Proposed Atomic Commit Plan
 
-   1. deb3cea - feat(ui): add reusable LoadingScreen component:
-      - Add standalone LoadingScreen.tsx supporting both full-screen and inline containers.
-   2. 7ff4bb0 - refactor(auth): migrate session management to Zustand useAuthStore:
-      - Add useAuthStore.ts centralizing session token, user profile, and logout flow.
-      - Update useUIStore.ts to sync .dark class to <html> upon store initialization.
-      - Eliminate prop-drilling across App.tsx, AppRoutes.tsx, LoginPage.tsx, RegisterPage.tsx, ProtectedRoute.tsx, SidebarUserProfile.tsx, and TopNav.tsx.
-   3. a372d91 - refactor(dashboard): eliminate prop-drilling in canvas and modals:
-      - Remove hasPrivatePin prop-drilling from Sidebar.tsx and NoteSidebarItem.tsx (delegate directly to NoteActionMenu.tsx via auth store).
-      - Connect NoteEditor.tsx and UnlockCard.tsx to useWorkspaceStore fallback, decoupling DocumentCanvas.tsx.
-      - Connect SearchModal.tsx directly to useUIStore and useWorkspaceStore, freeing WorkspaceLayoutContent from 7 intermediate props and unnecessary search re-renders.
-   4. e27bd99 - docs(architecture): update session design spec and standardize ADR frontmatters:
-      - Update Mermaid sequence diagram and invariants INV-AUTH-04, INV-AUTH-05 in docs/design/01-auth-session-and-pin-setup.md.
-      - Standardize YAML frontmatter across all 5 ADRs (0001 through 0005).
+   1. <type>(<scope>): <imperative summary <= 72 chars>
+      - <concise bullet describing change & why>
    ```
 3. **Explicit Human Confirmation Required**: NEVER execute `git commit` or pass `--execute` to `format-commit.mjs` until the user explicitly confirms approval (e.g., "confirm commit", "approve commit", "execute commit", "LGTM").
-4. **Single-Step Execution**: Once confirmation is received, stage the files and execute the commit in a single step using `node skills/engineering/git-flow/scripts/format-commit.mjs --type <type> --scope <scope> --summary "<summary>" --body "<body>" --execute`. The script validates all SemVer and length rules and executes the commit atomically.
+4. **Single-Step Execution**: Once confirmation is received, stage the files and execute the commit in a single step using `node skills/engineering/git-flow/scripts/format-commit.mjs --type <type> --scope <scope> --summary "<summary>" --body "<body>" --execute`.
 
 **Completion criterion:** Explicit human confirmation received before any commit execution, with validation and commit occurring in a single confirmed execution step.
 
-### Step 4: Construct PR Body & Open PR
+### Step 4: Construct PR Body & Open PR (Single or Stacked)
 
-1. If repo defines `.github/PULL_REQUEST_TEMPLATE.md`, match its fields.
-2. Otherwise, select template from `references/pr-tier*.md` based on Tier.
-3. Follow the **Visual-First Guidelines**:
-   - Include visuals (Mermaid diagrams, screenshots, Before/After image tables, shallow call trees) only when they genuinely clarify UI changes or complex architecture. For straightforward fixes, concise plain text is sufficient.
-   - Keep evidence concrete: before/after screenshots for UI, failing->passing test logs for logic.
-   - Name risk: two-way door vs one-way door, blast radius, and rollback plan if Tier 3.
-4. Open PR via `xd://github` (`op: pr_create`) or `node skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3>`.
+1. If repo defines `.github/PULL_REQUEST_TEMPLATE.md`, match its fields; otherwise select from `references/pr-tier*.md` based on Tier.
+2. For stacked PRs, pass `--base <parent-branch>` (plus `--draft` if lower layers are still under review) and include the stack lineage map in `## Context` per [`references/stacked-prs.md`](references/stacked-prs.md).
+3. Keep evidence concrete (test commands run, before/after visuals when helpful) and state blast radius + rollback plan for Tier 3.
+4. Open PR via `xd://github` (`op: pr_create`) or:
+   ```bash
+   node skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3> --base <base-branch> --title "<title>" --body-file <path> --execute
+   ```
+5. After a lower PR in a stack merges, retarget (`gh pr edit <n> --base main`), rebase `--onto`, re-test, and push with `--force-with-lease` per [`references/stacked-prs.md`](references/stacked-prs.md).
 
-**Completion criterion:** PR opened with validated tier template, before/after evidence, and correct issue linking.
+**Completion criterion:** PR opened against the right base branch with validated tier template, evidence, and accurate issue/stack linking.
 
 ---
 
 ## Issue Linking & Closing Protocol
 
-- **Pull Request Descriptions (Primary)**: Declare `Resolves: #<id>` (to auto-close on merge) or `Relates to: #<id>` (for non-closing reference) under `## Context` in the PR body. If standalone, write `- None`. Never self-reference the PR itself (`Relates to: #<own-pr-id>`).
-- **Atomic Commit Messages**: Focus strictly on technical rationale. Never use auto-closing keywords (`Fixes:`, `Closes:`, `Resolves:`) in commit messages to prevent premature issue closure. Footers are reserved for `BREAKING CHANGE:` or standalone bugfix trailers (`Fixes: <hash>`).
+- **Pull Request Descriptions (Primary)**: Declare `Resolves: #<id>` (to auto-close on merge) or `Part of: #<id>` / `Relates to: #<id>` under `## Context` in the PR body. If standalone, write `- None`.
+- **Atomic Commit Messages**: Focus strictly on technical rationale. Reserve auto-closing keywords strictly for PR descriptions; footers are for `BREAKING CHANGE:` or standalone bugfix trailers (`Fixes: <hash>`).
 
 ---
 
@@ -98,23 +91,25 @@ Never squash changes across distinct concerns or modules into a single blob comm
 
 When decomposing Epics into tracer-bullet tasks or creating bug reports:
 
-- Use `references/issue-templates.md` for issue body specifications (`Task`, `Bug Report`, `Feature / Proposal`).
-- Run `node skills/engineering/git-flow/scripts/create-issue.mjs --type task --title "task(<scope>): <summary>" --parent <parent_number> --execute` to create and link directly to parent issues via the GitHub Native Sub-Issues API.
+- Use [`references/issue-templates.md`](references/issue-templates.md) for issue body specifications (`Task`, `Bug Report`, `Feature / Proposal`).
+- Run `node skills/engineering/git-flow/scripts/create-issue.mjs --type task --title "task(<scope>): <summary>" --parent <parent_number> --execute` to link directly to parent issues via GitHub Native Sub-Issues API.
 
 ---
 
 ## Quick Reference Rules
 
 - `conventional-commits` - Format all messages as `<type>(<scope>): <description>`. Validate via `format-commit.mjs`.
-- `bulleted-commit-desc` - All commit proposal details and commit body rationale MUST be concise bullet points (`- ...`), never dense paragraphs.
-- `no-close-in-commits` - NEVER use Fixes/Closes/Resolves in commit messages. Reserve auto-closing strictly for PR descriptions.
-- `clean-branching` - Use `feature/`, `fix/`, `hotfix/`, or `core/` branch naming prefixes.
-- `enterprise-pr` - Enforce clean titles and structured body template without emojis.
-- `no-force-push-main` - NEVER force-push to main or master branches.
+- `stacked-prs` - Split multi-layer or >15-20 file changes into bottom-up stacked PRs (`--base <lower-branch>`); retarget and rebase as lower PRs merge.
+- `bulleted-commit-desc` - Commit proposal details and commit body rationale MUST be concise bullet points (`- ...`).
+- `no-close-in-commits` - Reserve Fixes/Closes/Resolves strictly for PR descriptions.
+- `clean-branching` - Use `feature/`, `fix/`, `hotfix/`, `core/`, `chore/`, or `docs/` branch prefixes.
+- `enterprise-pr` - Enforce clean titles and structured body templates without emojis.
+- `no-force-push-main` - NEVER force-push to `main` or `master`; use `--force-with-lease` only on stacked/feature branches after rebase.
 - `human-audit-required` - NEVER execute `git commit` or `--execute` without explicit human confirmation.
 
 ## References
 
+- [`references/stacked-prs.md`](references/stacked-prs.md) - Stacked branch naming, `--base` PR creation, stack lineage, and bottom-up rebase/retarget steps.
 - [`references/git-flow-templates.md`](references/git-flow-templates.md) - Conventional commit specifications, helper options, and slicing patterns.
 - [`references/pr-tier1-patch.md`](references/pr-tier1-patch.md) - Tier 1 Patch PR template.
 - [`references/pr-tier2-standard.md`](references/pr-tier2-standard.md) - Tier 2 Standard PR template.
