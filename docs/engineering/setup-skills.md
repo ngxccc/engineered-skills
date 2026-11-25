@@ -22,6 +22,7 @@ It writes into the repo you run it in:
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | `issue-tracker.md` (tracker + triage label vocabulary)                                                                                                                                                                                      | `docs/standards/`                                                     |
 | `domain-docs.md`                                                                                                                                                                                                                            | `docs/standards/`                                                     |
+| `code-review.md` (repo-specific diff excludes, tool skips, layer symbol map, contract spot-check)                                                                                                                                           | `docs/standards/`                                                     |
 | Seven pillar standards (`code-comment-taxonomy.md`, `api-design-and-error-handling.md`, `database-and-migrations.md`, `concurrency-and-locking.md`, `testing-and-fixtures.md`, `security-and-cryptography.md`, `git-flow-and-pr-matrix.md`) | `docs/standards/`                                                     |
 | An `## Engineering Standards` block                                                                                                                                                                                                         | `AGENTS.md`, or `CLAUDE.md` when that is the file that already exists |
 | Issue forms (`task.yml`, `sub_issue.yml`, `bug_report.yml`, `feature_request.yml`, `config.yml`)                                                                                                                                            | `.github/ISSUE_TEMPLATE/`, only on GitHub when missing                |
@@ -87,7 +88,7 @@ One long-standing complaint says yes, in these words: _"having a skill to set up
 
 ## It's working if
 
-- `docs/standards/issue-tracker.md`, `docs/standards/domain-docs.md`, and the seven pillar files exist.
+- `docs/standards/issue-tracker.md`, `docs/standards/domain-docs.md`, `docs/standards/code-review.md`, and the seven pillar files exist (`scripts/verify-setup.mjs` passes).
 - An `## Engineering Standards` section appears in `AGENTS.md` (or the instruction file your harness actually reads), with a one-line pointer to each standard.
 - Every configured triage label exists in the tracker.
 - On GitHub, `.github/ISSUE_TEMPLATE/` has the issue forms, and `GLOSSARY.md` exists if you chose single-context.

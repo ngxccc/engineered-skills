@@ -68,6 +68,7 @@ Interview the user with terse single-line prompts for each pillar. Default: reco
 5. **Testing & fixtures** — 3-tier hierarchy, factories & mothers, SUT isolation, OpenAPI types? (recommended: yes)
 6. **Security & cryptography** — scrypt, timing-safe compare, single-use tokens, anti-enumeration? (recommended: yes)
 7. **Git flow & PRs** — branch prefixes, conventional commits (≤72), 3-tier PR matrix, human audit? (recommended: yes)
+8. **Code review overrides** — repo-specific diff excludes, tool-enforced skips, layer symbol map, generated contract spot-check (`docs/standards/code-review.md`)? (recommended: yes)
 
 On approval, scaffold `docs/standards/*.md` using the corresponding high-density seed templates in `references/standards/`.
 
@@ -95,12 +96,14 @@ MUST read the corresponding standard file under `docs/standards/` before modifyi
 - **Tests, factories, and fixtures** → `docs/standards/testing-and-fixtures.md`
 - **Auth, hashing, and sanitization** → `docs/standards/security-and-cryptography.md`
 - **Branches, commits, and PRs** → `docs/standards/git-flow-and-pr-matrix.md`
+- **Reviewing a branch, diff, or PR** → `docs/standards/code-review.md`
 ```
 
 Scaffold all standard files into `docs/standards/` using the seed templates in `references/`:
 
 - [references/issue-trackers.md](./references/issue-trackers.md) → `docs/standards/issue-tracker.md`
 - [references/domain.md](./references/domain.md) → `docs/standards/domain-docs.md`
+- [references/standards/code-review.md](./references/standards/code-review.md) → `docs/standards/code-review.md`
 - [references/standards/code-comment-taxonomy.md](./references/standards/code-comment-taxonomy.md) → `docs/standards/code-comment-taxonomy.md`
 - [references/standards/api-design-and-error-handling.md](./references/standards/api-design-and-error-handling.md) → `docs/standards/api-design-and-error-handling.md`
 - [references/standards/database-and-migrations.md](./references/standards/database-and-migrations.md) → `docs/standards/database-and-migrations.md`
@@ -113,6 +116,14 @@ Scaffold all standard files into `docs/standards/` using the seed templates in `
 
 Format requirement: high density — decision tables, code snippets, sharp context pointers. No narrative fluff, no redundant parentheses, zero tutorial prose.
 
-### 5. Done
+### 5. Verify & Done
+
+Run the verification script from this skill's directory against the repo root to ensure no required standard file or `AGENTS.md` pointer was skipped:
+
+```bash
+node <skill-dir>/scripts/verify-setup.mjs .
+```
+
+Fix any reported missing files or pointers before finishing.
 
 Tell the user the setup is complete. Mention they can edit `docs/standards/*.md` directly later — re-running this skill is only necessary if they want to reconfigure trackers or restart from scratch.
