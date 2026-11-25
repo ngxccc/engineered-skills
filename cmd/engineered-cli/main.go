@@ -85,7 +85,7 @@ func parseSubcommand(args []string) (subcmd string, isGlobal bool, globalTargets
 		} else if arg == "--kit-path" && i+1 < len(args) {
 			kitPath = args[i+1]
 			i++
-		} else if arg == "enable" || arg == "disable" || arg == "list" || arg == "status" || arg == "help" {
+		} else if arg == "enable" || arg == "disable" || arg == "list" || arg == "status" || arg == "sync" || arg == "help" {
 			subcmd = arg
 		} else if !strings.HasPrefix(arg, "-") {
 			cmdArgs = append(cmdArgs, arg)
@@ -113,10 +113,12 @@ func printUsage(w io.Writer) {
 	fmt.Fprintln(w, "  engineered-cli [flags]")
 	fmt.Fprintln(w, "  engineered-cli enable [--global[=<target>]] [-t <target>] <skill1> [skill2...]")
 	fmt.Fprintln(w, "  engineered-cli disable [--global[=<target>]] [-t <target>] <skill1> [skill2...]")
+	fmt.Fprintln(w, "  engineered-cli sync [--global] [-t <target>] [--kit-path <path>]")
 	fmt.Fprintln(w, "  engineered-cli status | list")
 	fmt.Fprintln(w, "\nSubcommands:")
 	fmt.Fprintln(w, "  enable     Symlink skill(s) into project or global harness")
 	fmt.Fprintln(w, "  disable    Remove skill(s) from project or global harness")
+	fmt.Fprintln(w, "  sync       Re-sync configured skills (copy or symlink) from kit repository")
 	fmt.Fprintln(w, "  status     Show active global and project skills")
 	fmt.Fprintln(w, "\nTarget Harnesses (--target / -t / --global=<target>):")
 	fmt.Fprintln(w, "  claude     Claude Code (~/.claude/skills or .claude/skills)")
@@ -273,8 +275,112 @@ func handleSubcommand(subcmd string, isGlobal bool, globalTargets []string, kitP
 	case "list", "status":
 		printStatus(kitRepoPath, isGlobal, stdout)
 		return true, nil
+
+	case "sync":
+		for _, a := range cmdArgs {
+			if a == "-h" || a == "--help" {
+				fmt.Fprintf(stdout, "%s\n\n", tui.CyanStyle.Render("Usage: engineered-cli sync [--global] [-t <target>] [--kit-path <path>]"))
+				fmt.Fprintln(stdout, "Re-sync configured skills from the kit repository using the saved installMode (copy or symlink).")
+				fmt.Fprintln(stdout, "Also resolves any newly added skill dependencies automatically.")
+				return true, nil
+			}
+		}
+		return true, runSync(isGlobal, globalTargets, kitPathOpt, kitRepoPath, stdout)
 	}
 	return false, nil
+}
+
+func runSync(isGlobal bool, globalTargets []string, kitPathOpt, resolvedKitPath string, stdout io.Writer) error {
+	cfg := config.LoadConfigWithScope(isGlobal)
+	if cfg == nil {
+		if !isGlobal {
+			return fmt.Errorf("no %s found in current directory (run engineered-cli first)", config.ConfigPath)
+		}
+		return syncGlobalWithoutConfig(globalTargets, resolvedKitPath, stdout)
+	}
+
+	if kitPathOpt != "" {
+		cfg.KitRepoPath = kitPathOpt
+	} else if cfg.KitRepoPath == "" {
+		cfg.KitRepoPath = resolvedKitPath
+	}
+
+	if len(globalTargets) > 0 {
+		cfg.Targets = globalTargets
+		if cfg.InstallMode == "symlink" {
+			cfg.SymlinkTargets = globalTargets
+		}
+	}
+
+	cfg.Skills.Include = config.ResolveDependencies(cfg.Skills.Include)
+	cfg.UpdatedAt = time.Now().Format(time.RFC3339)
+
+	if cfg.InstallMode == "symlink" {
+		installer.ApplySymlinkMode(cfg)
+	} else {
+		installer.ApplyCopyMode(cfg)
+	}
+
+	if err := config.SaveConfig(cfg); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+	fmt.Fprintln(stdout, tui.GreenStyle.Render(fmt.Sprintf("%s Synced %d skill(s) (%s mode).", tui.IconCheck, len(cfg.Skills.Include), cfg.InstallMode)))
+	return nil
+}
+
+func syncGlobalWithoutConfig(globalTargets []string, kitRepoPath string, stdout io.Writer) error {
+	targets := globalTargets
+	if len(targets) == 0 {
+		targets = []string{"all"}
+	}
+	targetDirs, normalized, err := config.ResolveTargetDirs(targets, true)
+	if err != nil {
+		return err
+	}
+
+	known := make(map[string]bool)
+	for _, s := range config.DiscoverSkills(kitRepoPath) {
+		known[s.Name] = true
+	}
+
+	total := 0
+	for i, dir := range targetDirs {
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			continue
+		}
+		for _, entry := range entries {
+			name := entry.Name()
+			if !known[name] {
+				continue
+			}
+			srcPath := filepath.Join(kitRepoPath, config.SkillSourcePath(kitRepoPath, name))
+			destPath := filepath.Join(dir, name)
+			info, err := os.Lstat(destPath)
+			if err != nil {
+				continue
+			}
+			if info.Mode()&os.ModeSymlink != 0 {
+				_ = os.Remove(destPath)
+				if err := os.Symlink(srcPath, destPath); err != nil {
+					return err
+				}
+			} else if info.IsDir() {
+				_ = os.RemoveAll(destPath)
+				if err := installer.CopyDir(srcPath, destPath); err != nil {
+					return err
+				}
+			}
+			total++
+			fmt.Fprintf(stdout, "  • %s (%s)\n", name, normalized[i])
+		}
+	}
+	if total == 0 {
+		fmt.Fprintln(stdout, tui.YellowStyle.Render("No matching global skills found to sync."))
+		return nil
+	}
+	fmt.Fprintln(stdout, tui.GreenStyle.Render(fmt.Sprintf("%s Synced %d global skill installation(s).", tui.IconCheck, total)))
+	return nil
 }
 
 func printStatus(kitRepoPath string, isGlobal bool, w io.Writer) {
@@ -350,6 +456,7 @@ func run(args []string, stdout, stderr io.Writer) error {
 	fs.BoolVar(nonInteractive, "y", false, "Accept defaults without prompting")
 	symlinkModeFlag := fs.Bool("link", false, "Use Dev Symlink Mode")
 	fs.BoolVar(symlinkModeFlag, "symlink", false, "Use Dev Symlink Mode")
+	copyModeFlag := fs.Bool("copy", false, "Use Copy Mode (physical directories instead of symlinks)")
 	globalFlag := fs.Bool("global", false, "Install to global user harness directories (~/.claude, ~/.omp, ~/.agents)")
 	fs.BoolVar(globalFlag, "g", false, "Install to global user harness directories")
 	profileOpt := fs.String("profile", "", "Preset skill bundle: core, frontend, writing, full")
@@ -377,10 +484,14 @@ func run(args []string, stdout, stderr io.Writer) error {
 	existingCfg := config.LoadConfigWithScope(*globalFlag)
 
 	installMode := "copy"
-	if *symlinkModeFlag || *globalFlag {
+	if *copyModeFlag {
+		installMode = "copy"
+	} else if *symlinkModeFlag {
 		installMode = "symlink"
 	} else if existingCfg != nil && existingCfg.InstallMode != "" {
 		installMode = existingCfg.InstallMode
+	} else if *globalFlag {
+		installMode = "symlink"
 	}
 
 	kitRepoPath := config.ResolveKitRepoPath(*kitPathOpt, *globalFlag)

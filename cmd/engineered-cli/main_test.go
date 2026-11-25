@@ -262,6 +262,14 @@ func TestParseSubcommand(t *testing.T) {
 		t.Errorf("Unexpected cmdArgs: %v", cmdArgs)
 	}
 
+	subcmd, isGlobal, targets, kitPath, cmdArgs = parseSubcommand([]string{"sync", "--global", "-t", "agents", "--kit-path", "/tmp/kit"})
+	if subcmd != "sync" || !isGlobal {
+		t.Errorf("Expected sync + global, got subcmd=%s, isGlobal=%v", subcmd, isGlobal)
+	}
+	if len(targets) != 1 || targets[0] != "agents" || kitPath != "/tmp/kit" || len(cmdArgs) != 0 {
+		t.Errorf("Unexpected sync parse: targets=%v kitPath=%s cmdArgs=%v", targets, kitPath, cmdArgs)
+	}
+
 	subcmd, isGlobal, targets, kitPath, cmdArgs = parseSubcommand([]string{"disable", "-g", "-t", "omp", "dashboard-ui"})
 	if subcmd != "disable" || !isGlobal {
 		t.Errorf("Expected disable + global, got subcmd=%s, isGlobal=%v", subcmd, isGlobal)
