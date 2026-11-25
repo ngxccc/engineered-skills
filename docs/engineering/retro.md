@@ -26,7 +26,14 @@ Each candidate belongs to one category, and the category decides where the fix g
 
 The leading idea is that standards belong to the **reviewer**, not the implementer. The implementing agent carries the most context pressure: it explores, writes code, and debugs failures. The reviewing agent receives a diff and nothing else. So a new rule goes where there is room to apply it, in review, and never in [AGENTS.md](https://www.aihero.dev/ai-coding-dictionary/agents-md), which loads into every session's [context window](https://www.aihero.dev/ai-coding-dictionary/context-window) whether it's relevant or not.
 
-Before any rule gets written, the violation is classified. A **mechanical** one (a banned API, an import shape, a file-location rule) gets a deterministic check, because a check can fail and a sentence in a standards file can't. Only genuine judgement calls, the kind no linter could ever enforce, become prose. A repo with no guardrail at all (no pre-commit hook, no CI job running lint, typecheck, and tests) is reported as a finding in its own right.
+Before any rule gets written, the violation is classified and escalated along a **4-level enforcement ladder**:
+
+1. **Architecture** — single owner (SSOT), hide internals so wrong imports fail, delete legacy/parallel paths an agent would copy.
+2. **Types, Lint, or CI check** — make invalid states unrepresentable, or fail lint with an error naming the right file, type, or helper.
+3. **Behavior test** — fail when behavior breaks, pass when only internals change.
+4. **Docs or standards last** — reserve prose (`docs/standards/` or `CODING_STANDARDS.md`, never `AGENTS.md`) for genuine judgement calls that no check can enforce.
+
+Every newly proposed check must be **proven to fail on a real past mistake** from the session, and recurring rules are tracked in a `Rule → Enforcer` table (dropped once architecture or types make the mistake impossible). A repo with no guardrail at all (no pre-commit hook, no CI job running lint, typecheck, and tests) is reported as a finding in its own right.
 
 ## Common questions
 

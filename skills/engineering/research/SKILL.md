@@ -8,6 +8,7 @@ Spin up a **background agent** to do the research, so you keep working while it 
 
 Its job:
 
-1. Investigate the question against **primary sources** — official docs, source code, specs, first-party APIs — not a secondary write-up of them. Follow every claim back to the source that owns it.
-2. Write the findings to a single Markdown file, citing each claim's source.
-3. Save it where the repo already keeps such notes; match the existing convention, and if there is none, put it somewhere sensible and say where.
+1. **External / technical questions**: investigate against **primary sources** — official docs, source code, specs, first-party APIs — not a secondary write-up of them. Follow every claim back to the source that owns it.
+2. **Repo decision & history questions ("why was X built this way?")**: answer from the **record, not by guessing from current code** — read the commits (`git log -S`, `git log -p`) and PR/issue discussions that introduced the target and each later change. Cite what the authors wrote, explicitly mark any inference as an inference, and state what the record does not answer.
+3. Write the findings to a single Markdown file, citing each claim's source (URL, commit SHA, PR/issue number, or `file:line`).
+4. Save it where the repo already keeps such notes; match the existing convention, and if there is none, put it somewhere sensible and say where.

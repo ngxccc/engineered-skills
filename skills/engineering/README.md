@@ -16,7 +16,8 @@ Reachable only when you type them (Claude Code: `disable-model-invocation: true`
 - **[implement](./implement/SKILL.md)** — Build the work described by a spec or set of tickets, driving `/tdd` at pre-agreed seams and closing out with `/code-review` before committing.
 - **[wayfinder](./wayfinder/SKILL.md)** — Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets on the issue tracker, resolved one at a time until the way to the destination is clear.
 - **[implement-spec](./implement-spec/SKILL.md)** — Implement a whole spec and its tickets on a single integration branch, running implementer subagents across the task graph in parallel.
-- **[retro](./retro/SKILL.md)** — Conduct a retrospective on a coding session, suggesting improvements to the agent's environment (checks, standards, pointers) for future runs.
+- **[retro](./retro/SKILL.md)** — Conduct a retrospective on a coding session, improving the agent's environment (architecture, types/lint, tests, standards) for future runs.
+- **[create-verification-skill](./create-verification-skill/SKILL.md)** — Generate a project-local verification skill (`verify-<app>`) and user-POV feature map, proved end-to-end before handoff.
 
 ## Model-invoked
 
@@ -33,3 +34,4 @@ Model- or user-reachable (rich trigger phrasing so the model can reach for them)
 - **[wizard](./wizard/SKILL.md)** — Generate an interactive bash wizard that walks a human through steps only they can perform: provisioning infrastructure, setting up credentials or CI secrets, walking an unfamiliar third-party dashboard, or running a one-off migration or cutover.
 - **[git-flow](./git-flow/SKILL.md)** — Git branching, Conventional Commits formatting, and 3-Tier visual PR creation workflows.
 - **[security-audit](./security-audit/SKILL.md)** — Defensive, source-first security guidance and 6-phase vulnerability review for codebases, APIs, services, CLI tools, libraries, and daemons.
+- **[blast-radius](./blast-radius/SKILL.md)** — Find what a change could break beyond the diff and prove the key safety invariant by running real code.

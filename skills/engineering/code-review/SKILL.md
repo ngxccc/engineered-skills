@@ -105,9 +105,11 @@ If the spec is missing, skip the Spec sub-agent and note this in the final repor
 
 **Completion criterion:** Parallel axis reports received (or Spec skipped with reason).
 
-### 5. Generated Contract Spot-Check & Aggregate
+### 5. Generated Contract Spot-Check, Blast Radius & Aggregate
 
 If generated OpenAPI/type files (`openapi.json`, `api-schema.d.ts`) changed, inspect the generated TypeScript types using the Generated Contract Spot-Check in [references/layered-risk-checklist.md](references/layered-risk-checklist.md) rather than reading raw OpenAPI JSON.
+
+If the diff modifies shared interfaces, schemas, DTOs, exported contracts, or cross-layer invariants, invoke `/blast-radius` to identify the key safety invariant and prove it by running code rather than relying on grep alone.
 
 Present the reports separately under `## Standards`, `## Spec`, and `## Generated Contract & Blast Radius` (when applicable). Do **not** merge or rerank findings across axes.
 

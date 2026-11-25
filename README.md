@@ -113,7 +113,8 @@ Skills used daily for code work.
 - **[implement](./skills/engineering/implement/SKILL.md)** — Build the work described by a spec or set of tickets, driving `/tdd` at pre-agreed seams and closing out with `/code-review` before committing.
 - **[wayfinder](./skills/engineering/wayfinder/SKILL.md)** — Plan a huge chunk of work, more than one agent session can hold, as a shared map of decision tickets on the issue tracker — resolve them one at a time until the way to the destination is clear.
 - **[implement-spec](./skills/engineering/implement-spec/SKILL.md)** — Implement an entire spec on an integration branch, running subagents across the task graph in parallel.
-- **[retro](./skills/engineering/retro/SKILL.md)** — Conduct a retrospective on a coding session, improving the agent's environment (checks, standards, pointers) for future runs.
+- **[retro](./skills/engineering/retro/SKILL.md)** — Conduct a retrospective on a coding session, improving the agent's environment (architecture, types/lint, tests, standards) for future runs.
+- **[create-verification-skill](./skills/engineering/create-verification-skill/SKILL.md)** — Generate a project-local verification skill (`verify-<app>`) and user-POV feature map, proved end-to-end before handoff.
 
 **Model-invoked**
 
@@ -127,6 +128,7 @@ Skills used daily for code work.
 - **[wizard](./skills/engineering/wizard/SKILL.md)** — Generate an interactive bash wizard that walks a human through steps only they can perform: provisioning infrastructure, setting up credentials or CI secrets, walking an unfamiliar third-party dashboard, or running a one-off migration or cutover.
 - **[git-flow](./skills/engineering/git-flow/SKILL.md)** — Git branching, Conventional Commits formatting, and 3-Tier visual PR creation workflows.
 - **[security-audit](./skills/engineering/security-audit/SKILL.md)** — Defensive, source-first security guidance and 6-phase vulnerability review for codebases, APIs, services, CLI tools, libraries, and daemons.
+- **[blast-radius](./skills/engineering/blast-radius/SKILL.md)** — Find what a change could break beyond the diff and prove the key safety invariant by running real code.
 
 ### Productivity
 

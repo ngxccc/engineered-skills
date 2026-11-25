@@ -27,7 +27,7 @@ The route most work travels. You have an idea and want it built.
      - **`/implement-spec`** for the whole spec in one run. It reads the tickets as a **task graph**, runs implementer subagents across the ready **frontier** in parallel in isolated worktrees, and lands everything on one **integration branch**. Reach for it when you'd rather orchestrate the build than drive each ticket yourself.
    - **No** → **`/implement`** right here, in the same context window.
 
-   Either way, code gets built by driving **`/tdd`** (one red-green slice at a time) and closes out with **`/code-review`**, a two-axis review (Standards + Spec) of the diff. `/implement` runs both per ticket; `/implement-spec`'s implementers each drive `/tdd`, and it runs one `/code-review` over the integration branch. Reach for **`/tdd`** on its own when you just want to build a concrete behaviour test-first without a full spec, and **`/code-review`** on its own whenever you want to review a branch or PR against a fixed point.
+   Either way, code gets built by driving **`/tdd`** (one red-green slice at a time) and closes out with **`/code-review`**, a two-axis review (Standards + Spec) of the diff that calls **`/blast-radius`** when shared interfaces or contracts change. `/implement` runs both per ticket; `/implement-spec`'s implementers each drive `/tdd`, and it runs one `/code-review` over the integration branch. Reach for **`/tdd`** on its own when you just want to build a concrete behaviour test-first without a full spec, **`/code-review`** on its own whenever you want to review a branch or PR against a fixed point, and **`/blast-radius`** when you want to prove a risky change is safe by running code.
 
    When the work goes up as a pull request, **`/git-flow`** shapes the branch, atomic commits, and PR body: visual-first summaries (diagrams, diffs, images), before/after evidence, and a merge danger assessment.
 
@@ -91,6 +91,7 @@ Off the main flow entirely.
 - **`/docs`** — analyze codebase, manage ADRs (Simple & Formal), RFCs, System Design Specs, Formal Specs (Invariants & Edge Cases), and SSOT Workflows with automated validation scripts.
 - **`/git-flow`** — git branching, Conventional Commits, and 3-Tier PR creation workflows.
 - **`/security-audit`** — defensive, source-first security guidance and 6-phase vulnerability audit for codebases, APIs, services, CLI tools, libraries, and daemons (runs in guidance mode by default; full 6-phase audit only when explicitly requested).
+- **`/create-verification-skill`** — generate a project-local `verify-<app>` skill and user-POV feature map to prove real app behavior end-to-end.
 - **`/dashboard-ui`** — in-app UI and design system for dashboards, data tables, forms, modals, and settings screens with full tokens, responsive layouts, and anti-slop rules.
 
 ## Precondition

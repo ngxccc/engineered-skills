@@ -22,7 +22,20 @@ The user has asked for a **retrospective**. You are suggesting improvements to t
 - **No-ops**: look for instructions in steering files that don't modify the agent's behavior. _Use when_ the steering files are large and unwieldy.
 - **Information access**: look for opportunities to increase the agent's access to information. Teeing dev server logs, readonly access to third-party services. _Use when_ a crucial piece of information was not available to the agent.
 
-4. Present these candidates to the user, in order of severity.
+4. **For every repeat mistake class, enforce at the highest level that works:**
+
+   Assume every future contributor is an agent that sees only the files it opened and copies the nearest example. Escalate in strict order — only drop to a lower level when higher levels cannot express the constraint:
+
+   1. **Architecture**: give each piece of state one owner (SSOT), hide internals so wrong imports fail, and delete legacy/parallel paths an agent would copy.
+   2. **Types, Lint, or CI check**: make invalid states unrepresentable in types, or add a lint/CI check whose error message names the exact file, type, or helper to use instead.
+   3. **Behavior test**: add or tighten a test that fails when the behavior breaks and still passes when only internals change.
+   4. **Docs or standards last** (`docs/standards/` or `CODING_STANDARDS.md`, never `AGENTS.md`): reserve prose rules for genuine judgement calls that no check can enforce.
+
+5. **Prove each new check & keep the rule-to-enforcer table:**
+   - Before finalizing any accepted check, prove it fails on a real past mistake from the session (or a minimal reproduction of it) and passes on the fixed state.
+   - Maintain a `Rule → Enforcer` table in `AGENTS.md` or `docs/standards/` pairing each recurring rule with what enforces it; drop any prose rule once architecture or types make the mistake impossible.
+
+6. Present these candidates to the user, in order of severity, naming the mistake evidence, the chosen enforcement level, and why any higher level could not be used.
 
 ## Reference
 

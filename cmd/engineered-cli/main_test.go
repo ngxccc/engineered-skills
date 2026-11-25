@@ -209,10 +209,11 @@ func TestResolveDependencies(t *testing.T) {
 	resolved := config.ResolveDependencies(selected)
 
 	expectedMap := map[string]bool{
-		"implement":   true,
-		"tdd":         true,
-		"code-review": true,
-		"git-flow":    true,
+		"implement":    true,
+		"tdd":          true,
+		"code-review":  true,
+		"blast-radius": true,
+		"git-flow":     true,
 	}
 
 	if len(resolved) != len(expectedMap) {
@@ -222,6 +223,11 @@ func TestResolveDependencies(t *testing.T) {
 		if !expectedMap[s] {
 			t.Errorf("Unexpected skill '%s' in resolved dependencies", s)
 		}
+	}
+
+	crResolved := config.ResolveDependencies([]string{"code-review"})
+	if len(crResolved) != 2 || crResolved[0] != "code-review" || crResolved[1] != "blast-radius" {
+		t.Errorf("Expected [code-review blast-radius] for 'code-review', got %v", crResolved)
 	}
 }
 

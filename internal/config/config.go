@@ -13,6 +13,7 @@ const ConfigPath = ".engineered-config.json"
 // SkillDependencies maps parent skills to their required child skills.
 var SkillDependencies = map[string][]string{
 	"implement":                     {"tdd", "code-review", "git-flow"},
+	"code-review":                   {"blast-radius"},
 	"grill-with-docs":               {"grilling", "domain-modeling", "docs"},
 	"improve-codebase-architecture": {"codebase-design", "grilling"},
 	"wayfinder":                     {"grilling", "to-spec", "to-tickets"},
