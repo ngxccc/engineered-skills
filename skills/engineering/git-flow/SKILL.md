@@ -69,11 +69,12 @@ Never squash changes across distinct concerns or modules into a single blob comm
 
 1. If repo defines `.github/PULL_REQUEST_TEMPLATE.md`, match its fields; otherwise select from `references/pr-tier*.md` based on Tier.
 2. When a PR is part of a multi-PR rollout, include the sequence map under `## Context` per [`references/sequential-prs.md`](references/sequential-prs.md).
-3. Keep evidence concrete (test commands run, before/after visuals when helpful) and state blast radius + rollback plan for Tier 3.
-4. Open PR against `main` via `xd://github` (`op: pr_create`) or:
+3. Keep evidence concrete (test commands run, before/after visuals when helpful) and state blast radius + rollback plan for Tier 3. For UI changes, store desktop & mobile screenshots outside the git tree (artifact/scratch dir) and upload them with `--attach "<path>#<alt>"` (`gh >= 2.99.0`, up to 50 files; matching `![alt](<path>)` references rewrite to `user-attachments/assets`).
+4. Open PR against `main` via `gh pr create --base main --attach ...` or:
    ```bash
-   node skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3> --base main --title "<title>" --body-file <path> --execute
+   node skills/engineering/git-flow/scripts/create-pr.mjs --tier <1|2|3> --base main --title "<title>" --body-file <path> [--attach "<path>#<alt>"] --execute
    ```
+   (append screenshots to an existing PR with `gh pr edit <number> --attach "<path>#<alt>"`).
 
 **Completion criterion:** PR opened against `main` with validated tier template, evidence, and accurate issue/sequence linking.
 

@@ -10,15 +10,15 @@ You invoke this by typing `/implement` — the agent won't reach for it on its o
 
 Where the work currently lives decides whether this is the right skill:
 
-| The work is… | Reach for |
-| --- | --- |
-| A ticket on the tracker | `/implement #42`, one ticket per [session](https://www.aihero.dev/ai-coding-dictionary/session), [clearing](https://www.aihero.dev/ai-coding-dictionary/clearing) context between tickets |
-| A spec, not yet split up, and the build spans sessions | [to-tickets](https://aihero.dev/skills-to-tickets) first, then `/implement` per ticket |
-| A spec, and the build is small | `/implement` directly against the spec |
-| Only in the conversation you just had, and it's still small | `/implement` right there, in the same window |
-| Not written down anywhere yet | [grill-with-docs](https://aihero.dev/skills-grill-with-docs), or [grill-me](https://aihero.dev/skills-grill-me) if there's no codebase |
-| One concrete behaviour you want test-first, with no spec | [tdd](https://aihero.dev/skills-tdd) directly |
-| Already built, and you want it checked | [code-review](https://aihero.dev/skills-code-review) directly |
+| The work is…                                                | Reach for                                                                                                                                                                                 |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A ticket on the tracker                                     | `/implement #42`, one ticket per [session](https://www.aihero.dev/ai-coding-dictionary/session), [clearing](https://www.aihero.dev/ai-coding-dictionary/clearing) context between tickets |
+| A spec, not yet split up, and the build spans sessions      | [to-tickets](https://aihero.dev/skills-to-tickets) first, then `/implement` per ticket                                                                                                    |
+| A spec, and the build is small                              | `/implement` directly against the spec                                                                                                                                                    |
+| Only in the conversation you just had, and it's still small | `/implement` right there, in the same window                                                                                                                                              |
+| Not written down anywhere yet                               | [grill-with-docs](https://aihero.dev/skills-grill-with-docs), or [grill-me](https://aihero.dev/skills-grill-me) if there's no codebase                                                    |
+| One concrete behaviour you want test-first, with no spec    | [tdd](https://aihero.dev/skills-tdd) directly                                                                                                                                             |
+| Already built, and you want it checked                      | [code-review](https://aihero.dev/skills-code-review) directly                                                                                                                             |
 
 The same-session case is worth naming because the skill's own first line doesn't cover it. `SKILL.md` says "the spec or tickets", which nudges the [model](https://www.aihero.dev/ai-coding-dictionary/model) to go hunting for a file that doesn't exist. If the plan lives only in the thread, say so when you invoke it.
 
@@ -72,7 +72,7 @@ Probably the ticket is too big rather than the skill being misused. A run does c
 
 **`/implement #2` in a fresh session worked on something completely unrelated.**
 
-`#2` is resolved against whatever numbered list the agent can see, which in a fresh session may be a todo file, a checklist, or another work list rather than the configured tracker. The resolution is confident rather than fail-closed, so the mistake is not obvious until it has started. Pass the full reference, the issue URL or `owner/repo#2`, and ask it to confirm the title back before it begins.
+`#2` used to be resolved against whatever numbered list the agent could see, which in a fresh session might be a todo file or a checklist rather than the configured tracker. The skill now fetches a passed ticket reference from the issue tracker and states its title before starting, and asks when the reference is ambiguous — so the mistake surfaces before any code is written. Pass the full reference or the issue URL when the number alone could mean more than one thing.
 
 ## It's working if
 

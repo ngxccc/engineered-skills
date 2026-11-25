@@ -17,6 +17,7 @@ var SkillDependencies = map[string][]string{
 	"improve-codebase-architecture": {"codebase-design", "grilling"},
 	"wayfinder":                     {"grilling", "to-spec", "to-tickets"},
 	"grill-me":                      {"grilling"},
+	"chief-of-staff":                {"retro", "to-spec", "to-tickets", "implement-spec"},
 }
 
 // Profiles defines preset skill bundles.

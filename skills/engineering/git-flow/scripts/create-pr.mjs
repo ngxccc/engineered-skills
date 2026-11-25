@@ -44,6 +44,7 @@ function parseArgs() {
 		base: "main",
 		labels: [],
 		assignees: [],
+		attachments: [],
 		execute: false,
 		printBody: false,
 		validateOnly: false,
@@ -65,6 +66,8 @@ function parseArgs() {
 		else if (arg === "--label" && args[i + 1]) params.labels.push(args[++i]);
 		else if (arg === "--assignee" && args[i + 1])
 			params.assignees.push(args[++i]);
+		else if (arg === "--attach" && args[i + 1])
+			params.attachments.push(args[++i]);
 		else if (arg === "--execute") params.execute = true;
 		else if (arg === "--print-body") params.printBody = true;
 		else if (arg === "--validate-only") params.validateOnly = true;
@@ -171,11 +174,10 @@ function validateBody(body, tier) {
 		if (!hasHeading("Evidence"))
 			errors.push("Missing required section: '## Evidence'");
 	} else {
-		// Tier 2 and Tier 3 required canonical 6 sections: Summary, Context, Type, Evidence, Risk, Notes
+		// Tier 2 and Tier 3 required canonical sections: Summary, Context, Evidence, Risk, Notes
 		const requiredSections = [
 			"Summary",
 			"Context",
-			"Type",
 			"Evidence",
 			"Risk",
 			"Notes",
@@ -254,9 +256,26 @@ function validateBody(body, tier) {
 	};
 }
 
+function validateAttachments(attachments) {
+	if (attachments.length > 50) {
+		console.error("Error: gh supports at most 50 --attach files per command.");
+		process.exit(1);
+	}
+
+	for (const entry of attachments) {
+		const sepIndex = entry.indexOf("#");
+		const filePath = sepIndex === -1 ? entry : entry.slice(0, sepIndex);
+		if (!filePath || !existsSync(filePath)) {
+			console.error(`Error: Attachment file not found: "${filePath}"`);
+			process.exit(1);
+		}
+	}
+}
+
 function main() {
 	const params = parseArgs();
 	const title = validateTitle(params);
+	validateAttachments(params.attachments);
 
 	if (params.tier === 3 && !params.adr && !params.rfc) {
 		console.warn(
@@ -275,6 +294,8 @@ function main() {
 		console.log(`- Labels: ${params.labels.join(", ")}`);
 	if (params.assignees.length)
 		console.log(`- Assignees: ${params.assignees.join(", ")}`);
+	if (params.attachments.length)
+		console.log(`- Attachments: ${params.attachments.length} file(s)`);
 
 	// Validate PR body if body content is present
 	if (prBody) {
@@ -325,6 +346,7 @@ function main() {
 			if (params.draft) ghArgs.push("--draft");
 			for (const l of params.labels) ghArgs.push("--label", l);
 			for (const a of params.assignees) ghArgs.push("--assignee", a);
+			for (const file of params.attachments) ghArgs.push("--attach", file);
 
 			console.log("Executing: gh pr create with sanitized arguments");
 			const output = execFileSync("gh", ghArgs, { encoding: "utf8" });

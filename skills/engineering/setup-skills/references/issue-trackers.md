@@ -6,14 +6,28 @@ Issues and specifications for this repository are managed via **GitHub Issues**.
 
 ### CLI Command Conventions
 
-| Operation        | Command                                       | Notes                                          |
-| :--------------- | :-------------------------------------------- | :--------------------------------------------- |
-| **Create Issue** | `gh issue create --title "..." --body "..."`  | Use heredocs for structured markdown bodies.   |
-| **View Issue**   | `gh issue view <number> --comments`           | Reads issue description, labels, and comments. |
-| **List Issues**  | `gh issue list --state open --label "<name>"` | Filter open tickets by status, type, or area.  |
-| **Comment**      | `gh issue comment <number> --body "..."`      | Post updates or link PRs.                      |
-| **Apply Labels** | `gh issue edit <number> --add-label "<name>"` | Update status or metadata labels.              |
-| **Close Issue**  | `gh issue close <number> --comment "..."`     | Close ticket with resolution summary.          |
+| Operation        | Command                                                                 | Notes                                                                                           |
+| :--------------- | :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------- |
+| **Create Issue** | `gh issue create --title "..." --body "..."`                            | Use heredocs for structured markdown bodies.                                                    |
+| **View Issue**   | `gh issue view <number> --json number,title,body,labels,comments`       | Reads body, labels, and comments; `--comments` off a TTY prints comments only.                  |
+| **List Issues**  | `gh issue list --state open --json number,title,body,labels,comments`   | Filter open tickets by status, type, or area.                                                   |
+| **Comment**      | `gh issue comment <number> --body "..."`                                | Post updates or link PRs.                                                                       |
+| **Apply Labels** | `gh issue edit <number> --add-label "<name>"`                           | Update status or metadata labels.                                                               |
+| **Close Issue**  | `gh issue comment <number> --body "..."` then `gh issue close <number>` | Post the resolution separately; on an already-closed issue `close --comment` drops the comment. |
+
+Infer the repo from `git remote -v`; `gh` does this automatically inside a clone. File issues only into the user's own repo, never into the upstream repo these skills come from. In a fork, `gh` can default to the upstream parent, so check `gh repo view --json nameWithOwner` and confirm it before the first `gh issue create` of a session.
+
+### Pull Requests as a Triage Surface
+
+**PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_
+
+When `yes`, PRs run through the same labels and states as issues:
+
+- **Read a PR**: `gh pr view <number>`, then `gh pr view <number> --comments` (off a TTY, `--comments` prints only the comments, not the body), and `gh pr diff <number>`.
+- **List external PRs for triage**: `gh api --paginate 'repos/{owner}/{repo}/pulls?state=open' --jq '.[] | select(.author_association | IN("OWNER","MEMBER","COLLABORATOR") | not) | {number, title, author: .user.login, author_association, labels: [.labels[].name]}'`.
+- **Comment / label / close**: `gh pr comment`, `gh pr edit --add-label`/`--remove-label`, `gh pr close`.
+
+GitHub shares one number space across issues and PRs, so a bare `#42` may be either: resolve with `gh pr view 42` and fall back to `gh issue view 42`.
 
 ### Repository Label Taxonomy
 
@@ -67,19 +81,25 @@ Scoped to domain modules and infrastructure components:
 
 - **Map Ticket**: Single GitHub issue labeled `wayfinder:map` holding decisions, notes, and fog tracker.
 - **Child Tickets**: Linked sub-issues labeled `wayfinder:<type>` (`research`/`prototype`/`grilling`/`task`).
-- **Dependency Blocking**: Uses GitHub native issue dependencies (`repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by`). A ticket is unblocked when all blocker issues are closed.
+- **Dependency Blocking**: Uses GitHub native issue dependencies. On `gh` 2.94+, `gh issue create --blocked-by <n>,<n>` or `gh issue edit <child> --add-blocked-by <blocker>`; older `gh`, `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (the blocker's numeric database id, not `#number` or `node_id`). A ticket is unblocked when all blocker issues are closed.
+- **Count open blockers**: `gh api repos/<owner>/<repo>/issues/<n> --jq .issue_dependencies_summary.blocked_by` (0 means startable). `gh issue view <n> --json blockedBy` includes closed blockers, so filter: `--jq '[.blockedBy.nodes[] | select(.state == "OPEN")] | length'`.
+- **Frontier query**: list the map's open children, drop any with an open blocker or an assignee; first in map order wins.
+- **Claim**: `gh issue edit <n> --add-assignee @me`, before any work.
 
 ### GitHub Native Sub-Issues Protocol
 
 When splitting an Epic or Parent feature issue into sub-tasks, link them natively using GitHub Issues REST API:
 
-1. **Create Child Ticket:**
+1. **Create Child Ticket** (preferred on `gh` 2.94+, which sets the parent and blockers in one call):
 
    ```bash
-   gh issue create --title "<type>(<area>): <title>" --body "..." --label "<labels>"
+   gh issue create --title "<type>(<area>): <title>" --body "..." --label "<labels>" \
+     --parent <parent_number> --blocked-by <blocker_number>,<blocker_number>
    ```
 
-2. **Get Child Database ID & Link to Parent:**
+   Or attach afterwards with `gh issue edit <parent> --add-sub-issue <child>` / `gh issue edit <child> --add-blocked-by <blocker>`.
+
+2. **Fallback for older `gh`: Get Child Database ID & Link to Parent:**
 
    ```bash
    CHILD_ID=$(gh api repos/{owner}/{repo}/issues/<child_number> --jq .id)
@@ -101,9 +121,10 @@ Issues and specs live as GitLab issues. Use the `glab` CLI for all operations.
 ### Conventions
 
 - **Create**: `glab issue create --title "..." --description "..."`
-- **Read / List**: `glab issue view <number> --comments`, `glab issue list -F json`
+- **Read / List**: `glab issue view <number> --comments`, `glab issue list -O json`
 - **Comment / Close**: `glab issue note <number> --message "..."`, `glab issue close <number>`
-- **Merge Requests**: Use `glab mr create`, `glab mr view`, `glab mr note`.
+- **Merge Requests**: Use `glab mr create`, `glab mr view`, `glab mr note`. List open MRs for triage with `glab mr list -O json`.
+- **PRs as a request surface**: no. _(Set to `yes` if this repo treats external MRs as feature requests; `/triage` reads this flag.)_
 
 ### Wayfinding Operations (`/wayfinder`)
 

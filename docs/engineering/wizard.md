@@ -10,14 +10,14 @@ You can type `/wizard`, and the agent can also reach for it on its own. When it 
 
 Reach for it when the next thing blocking you is a trip through a dashboard:
 
-| Situation | What the wizard does |
-| --- | --- |
-| A new dev needs six services configured before the app boots | Opens each dashboard in order, captures the keys, writes them to `.env` and CI |
-| A one-off migration needs switches flipped in a specific order | Sequences the irreversible steps behind confirmation gates |
-| A project has to move from state A to state B once | Walks the transition and reports what it could not do |
-| You are about to write those steps into a README | Writes an executable version instead, which can't rot as quietly |
+| Situation                                                      | What the wizard does                                                           |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| A new dev needs six services configured before the app boots   | Opens each dashboard in order, captures the keys, writes them to `.env` and CI |
+| A one-off migration needs switches flipped in a specific order | Sequences the irreversible steps behind confirmation gates                     |
+| A project has to move from state A to state B once             | Walks the transition and reports what it could not do                          |
+| You are about to write those steps into a README               | Writes an executable version instead, which can't rot as quietly               |
 
-Don't reach for it to *decide* what to build; for that, [grill-with-docs](https://aihero.dev/skills-grill-with-docs) and [to-spec](https://aihero.dev/skills-to-spec) are the tools.
+Don't reach for it to _decide_ what to build; for that, [grill-with-docs](https://aihero.dev/skills-grill-with-docs) and [to-spec](https://aihero.dev/skills-to-spec) are the tools.
 
 ## Prerequisites
 
@@ -31,26 +31,26 @@ Scoping happens before a line is written. The [skill](https://www.aihero.dev/ai-
 
 For each captured value, scoping settles where it lands:
 
-| Destination | When |
-| --- | --- |
-| `.env` only | Local dev needs it, CI doesn't |
-| GitHub secret | CI reads it, and it's sensitive |
-| GitHub variable | CI reads it, and it's public |
-| Both `.env` and a secret | Local dev and CI both need it |
-| Nowhere | The stage is a pure action — a switch flipped, a plan upgraded |
+| Destination              | When                                                           |
+| ------------------------ | -------------------------------------------------------------- |
+| `.env` only              | Local dev needs it, CI doesn't                                 |
+| GitHub secret            | CI reads it, and it's sensitive                                |
+| GitHub variable          | CI reads it, and it's public                                   |
+| Both `.env` and a secret | Local dev and CI both need it                                  |
+| Nowhere                  | The stage is a pure action — a switch flipped, a plan upgraded |
 
 ## The template already solves the UX
 
-The [template](https://github.com/engineered-skills/skills/blob/main/skills/engineering/wizard/template.sh) ships the whole experience: progress with time remaining, confirmation gates, cross-platform URL opening including WSL, hidden entry for secrets, idempotent `.env` upserts, `gh secret` / `gh variable` writes, and a closing summary of everything it had to skip. Everything above the `STAGES` marker is a fixed library, identical in every wizard and never hand-edited. The consistency is the point. Your job is only to scope the procedure and author its stages.
+The [template](https://github.com/engineered-skills/skills/blob/main/skills/engineering/wizard/references/template.sh) ships the whole experience: stage progress, confirmation gates, cross-platform URL opening including WSL, hidden entry for secrets, Readline editing, symlink-safe idempotent `.env` upserts, `gh secret` / `gh variable` writes, and a closing summary of everything it had to skip. Everything above the `STAGES` marker is a fixed library, identical in every wizard and never hand-edited. The consistency is the point. Your job is only to scope the procedure and author its stages.
 
 The agent that writes a wizard never runs it end to end, because it opens browsers and waits for human input. It verifies statically instead: `bash -n`, `shellcheck` where available, and a trace that every value lands where scoping said it would, with every `set_secret` name matching a real `secrets.*` reference in CI. Set your expectations accordingly — the first run is yours, and that run is the test.
 
 ## Ephemeral by default
 
-| What you have | What to do with the script |
-| --- | --- |
-| A one-off migration, a personal setup, a transition you'll never repeat | Save it to a scratch or `scripts/` path, run it, delete it |
-| A setup path the next person on the repo will also need | Commit it and link it from the README, so they run the script instead of re-asking an agent |
+| What you have                                                           | What to do with the script                                                                  |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| A one-off migration, a personal setup, a transition you'll never repeat | Save it to a scratch or `scripts/` path, run it, delete it                                  |
+| A setup path the next person on the repo will also need                 | Commit it and link it from the README, so they run the script instead of re-asking an agent |
 
 ## Common questions
 
@@ -74,11 +74,11 @@ Nowhere in particular. It's a standalone, not a chain step. The common guess is 
 
 **Does it work outside Claude Code?**
 
-The artifact does, unconditionally: it's a plain bash script and it doesn't care what [harness](https://www.aihero.dev/ai-coding-dictionary/harness) generated it. The skill itself is model-invoked, so it's listed everywhere — type `/wizard` in Claude Code or `$wizard` in Codex, or just describe the setup you're stuck on. Being model-invoked also keeps it clear of [#693](https://github.com/engineered-skills/skills/issues/693), where Claude's desktop and web surfaces drop *user-invoked* skills from the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s listing and report them as not installed.
+The artifact does, unconditionally: it's a plain bash script and it doesn't care what [harness](https://www.aihero.dev/ai-coding-dictionary/harness) generated it. The skill itself is model-invoked, so it's listed everywhere — type `/wizard` in Claude Code or `$wizard` in Codex, or just describe the setup you're stuck on. Being model-invoked also keeps it clear of [#693](https://github.com/engineered-skills/skills/issues/693), where Claude's desktop and web surfaces drop _user-invoked_ skills from the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s listing and report them as not installed.
 
 **Didn't this used to be user-invoked?**
 
-It did. It's now model-invoked, so the agent reaches for it unprompted when it hits a step you have to take. Nothing you could do before stopped working — model-invocation *adds* the agent's reach, it never removes yours, so `/wizard` behaves exactly as it did. What changed is the failure mode it retires: the agent hitting a credentials wall mid-build and dumping six numbered steps into the chat for you to follow by hand.
+It did. It's now model-invoked, so the agent reaches for it unprompted when it hits a step you have to take. Nothing you could do before stopped working — model-invocation _adds_ the agent's reach, it never removes yours, so `/wizard` behaves exactly as it did. What changed is the failure mode it retires: the agent hitting a credentials wall mid-build and dumping six numbered steps into the chat for you to follow by hand.
 
 **It used to be in `in-progress/` — where is it now?**
 

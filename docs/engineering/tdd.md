@@ -10,15 +10,15 @@ Type `/tdd`, or the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) r
 
 Reach for it when there is a concrete behaviour to build, with an input and an observable output, and you want tests that survive a refactor.
 
-| Your situation | Where to go |
-| --- | --- |
-| A behaviour with defined inputs and outputs — business logic, a request/response contract, a transformation, validation | `tdd` |
-| The behaviour isn't pinned down yet | [to-spec](https://aihero.dev/skills-to-spec), which also agrees the test seams before any code is written |
-| The question is really the shape of the interface, not the tests | [codebase-design](https://aihero.dev/skills-codebase-design) |
-| You have a [spec](https://www.aihero.dev/ai-coding-dictionary/spec) or [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) and want the whole build run for you | [implement](https://aihero.dev/skills-implement), which drives `tdd` per ticket |
-| Config, wiring, glue, type annotations, straight CRUD delegation | Nothing here fits well — see the open gap below |
+| Your situation                                                                                                                                                            | Where to go                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| A behaviour with defined inputs and outputs — business logic, a request/response contract, a transformation, validation                                                   | `tdd`                                                                                                     |
+| The behaviour isn't pinned down yet                                                                                                                                       | [to-spec](https://aihero.dev/skills-to-spec), which also agrees the test seams before any code is written |
+| The question is really the shape of the interface, not the tests                                                                                                          | [codebase-design](https://aihero.dev/skills-codebase-design)                                              |
+| You have a [spec](https://www.aihero.dev/ai-coding-dictionary/spec) or [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) and want the whole build run for you | [implement](https://aihero.dev/skills-implement), which drives `tdd` per ticket                           |
+| Config, wiring, glue, type annotations, straight CRUD delegation                                                                                                          | Nothing here fits well — see the open gap below                                                           |
 
-That last row is a real hole, not a stylistic preference. The skill decides *where* the seams go; nothing in it decides *whether* a change is worth the loop at all. Run it on a change with no independent source of truth to assert against and you get a test that restates the implementation — the tautological anti-pattern the skill itself warns about, arrived at from the other direction. It is [issue #746](https://github.com/engineered-skills/skills/issues/746) and it is open. Until it closes, that judgement is yours or your `CLAUDE.md`'s.
+That last row is a real hole, not a stylistic preference. The skill decides _where_ the seams go; nothing in it decides _whether_ a change is worth the loop at all. Run it on a change with no independent source of truth to assert against and you get a test that restates the implementation — the tautological anti-pattern the skill itself warns about, arrived at from the other direction. It is [issue #746](https://github.com/engineered-skills/skills/issues/746) and it is open. Until it closes, that judgement is yours or your `CLAUDE.md`'s.
 
 ## Prerequisites
 
@@ -30,17 +30,17 @@ Three words carry this skill.
 
 **Red-green.** Write the failing test, then only enough code to pass it. No anticipating the test after next. There is no refactor phase: it was dropped in June 2026 because agents essentially never performed it, and because review and implementation work better as separate sessions. Refactoring belongs to [code-review](https://aihero.dev/skills-code-review).
 
-**Vertical slice.** One seam, one test, one minimal implementation, then repeat — the first cycle being a **tracer bullet** that proves a single path end to end. The opposite is horizontal slicing: all the tests first, then all the code. Bulk tests verify *imagined* behaviour, they check the shape of things rather than what a user does, and they commit you to a test structure before you understand the implementation.
+**Vertical slice.** One seam, one test, one minimal implementation, then repeat — the first cycle being a **tracer bullet** that proves a single path end to end. The opposite is horizontal slicing: all the tests first, then all the code. Bulk tests verify _imagined_ behaviour, they check the shape of things rather than what a user does, and they commit you to a test structure before you understand the implementation.
 
 **Pre-agreed seam.** A seam is the public boundary you observe behaviour at without reaching inside. The rule is absolute: no test at an unconfirmed seam. In the full chain the seams are agreed earlier, during [to-spec](https://aihero.dev/skills-to-spec) — "`/tdd` is told to only work at pre-agreed test seams, `/code-review` checks that only agreed-upon test seams were used." Invoked on its own, `tdd` asks you directly.
 
 The three anti-patterns it is written to prevent:
 
-| Anti-pattern | The tell |
-| --- | --- |
+| Anti-pattern           | The tell                                                                                                                                                                                              |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Implementation-coupled | The test breaks when you rename an internal function, though behaviour did not change. Mocked internal collaborators, asserted call counts, database queries used to verify instead of the interface. |
-| Tautological | The expected value is computed the way the code computes it, so the test passes by construction. Expected values have to come from somewhere else — a known-good literal, a worked example, the spec. |
-| Horizontal slicing | A batch of tests landed before any implementation. |
+| Tautological           | The expected value is computed the way the code computes it, so the test passes by construction. Expected values have to come from somewhere else — a known-good literal, a worked example, the spec. |
+| Horizontal slicing     | A batch of tests landed before any implementation.                                                                                                                                                    |
 
 Mocks are for system boundaries only — external APIs, time, randomness, sometimes the filesystem or the database. Not your own modules.
 
@@ -52,7 +52,7 @@ Because the refactor step was removed and the description was not. The removal w
 
 **It asked me to choose a test seam and I had no idea which to pick.**
 
-This is the most-reported friction with the skill ([issue #607](https://github.com/engineered-skills/skills/issues/607)). The prompt lists candidate seams by name only, with nothing about what each one catches or misses, so you are choosing between labels. There is no fix shipped yet. The practical workaround is to ask the agent for the trade-offs before answering — what does the component-level seam miss that the integration seam catches, and how much slower is it. It is also why the chain agrees seams up front in `to-spec`, where you have the whole feature in view rather than one prompt.
+This was the most-reported friction with the skill ([issue #607](https://github.com/engineered-skills/skills/issues/607)), and it is fixed: each proposed seam now comes with a one-line note on what it catches and what it misses, so you are choosing between trade-offs rather than labels. It is also why the chain agrees seams up front in `to-spec`, where you have the whole feature in view rather than one prompt.
 
 **It wrote the implementation before the test, even though the skill says red first.**
 
@@ -60,7 +60,7 @@ It happens. One user pushed the [model](https://www.aihero.dev/ai-coding-diction
 
 **Should it write browser or end-to-end tests first?**
 
-Usually not, and the skill will not stop it. A user reported the agent writing a Playwright test first, then burning a long loop re-running it and concluding the *test* was broken for a feature that did not exist yet. Configure this in your `CLAUDE.md`. Browser tests are slow enough that the red-green feedback loop stops paying for itself; declare in your repo's `CLAUDE.md` that they are written after the behaviour works.
+Usually not, and the skill will not stop it. A user reported the agent writing a Playwright test first, then burning a long loop re-running it and concluding the _test_ was broken for a feature that did not exist yet. Configure this in your `CLAUDE.md`. Browser tests are slow enough that the red-green feedback loop stops paying for itself; declare in your repo's `CLAUDE.md` that they are written after the behaviour works.
 
 **Does `/tdd` replace `/implement`, or the course's `/do-work`?**
 

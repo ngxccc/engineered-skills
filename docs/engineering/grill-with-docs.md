@@ -1,6 +1,6 @@
 ## What it does
 
-`grill-with-docs` interviews you about a plan or design until you and the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) share one understanding of it, and writes the vocabulary and the hard decisions into your repo while it does. It is the same interview [grill-me](https://aihero.dev/skills-grill-me) runs — a round of questions, then wait, then the next round — pointed at a codebase.
+`grill-with-docs` interviews you about a plan or design until you and the [agent](https://www.aihero.dev/ai-coding-dictionary/agent) share one understanding of it, and writes the vocabulary and the hard decisions into your repo while it does. It is the same interview [grill-me](https://aihero.dev/skills-grill-me) runs — a round of questions, then wait, then the next round — pointed at a codebase. It will not flatter unviable ideas or broken architecture: if a premise is physically or logically impossible, or fundamentally contradicts the existing codebase, it attacks the fatal flaw in Round 1 rather than constructing an elaborate plan on sand.
 
 It is **[stateful](https://www.aihero.dev/ai-coding-dictionary/stateful)**. Every other grilling skill leaves the [session](https://www.aihero.dev/ai-coding-dictionary/session) in your head; this one leaves files on disk. A term gets resolved and it lands in `GLOSSARY.md` the moment it resolves, not batched at the end. A decision passes three gates and it lands as an ADR. That is the whole difference, and it is also the source of most of the trouble people have with the skill: the artifacts are real files in a real repo, so they can be absent when you expected them, and they can drift when more than one person is writing them.
 
@@ -10,12 +10,12 @@ You invoke this by typing `/grill-with-docs` — the agent will not reach for it
 
 Reach for it at the start of a change, in a repo, when the plan is still fuzzy and the words for the thing are not settled yet. It is the single-session tool. Which grilling skill you want depends on what is in front of you:
 
-| What you have                                                                  | Reach for                                                      |
-| ------------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| You aren't working in a working directory at all                               | [grill-me](https://aihero.dev/skills-grill-me)                 |
-| A repo, and a change you can settle in one session                             | `grill-with-docs`                                              |
-| An effort too big to hold in one session — a greenfield build, a large feature | [wayfinder](https://aihero.dev/skills-wayfinder)               |
-| A repo with no domain docs at all, and no particular feature in mind           | `grill-with-docs`, aimed at the repo rather than a change      |
+| What you have                                                                  | Reach for                                                 |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| You aren't working in a working directory at all                               | [grill-me](https://aihero.dev/skills-grill-me)            |
+| A repo, and a change you can settle in one session                             | `grill-with-docs`                                         |
+| An effort too big to hold in one session — a greenfield build, a large feature | [wayfinder](https://aihero.dev/skills-wayfinder)          |
+| A repo with no domain docs at all, and no particular feature in mind           | `grill-with-docs`, aimed at the repo rather than a change |
 
 The wayfinder split comes down to session count: `/grill-with-docs` for single-session planning, `/wayfinder` for multi-session planning.
 
@@ -23,7 +23,7 @@ The wayfinder split comes down to session count: `/grill-with-docs` for single-s
 
 The skill writes into your repo, so you need to be somewhere it is safe to write. Resolved terms go to a `GLOSSARY.md` glossary at the root — or to the relevant context's `GLOSSARY.md`, if a `GLOSSARY-MAP.md` at the root marks the repo as multi-context. Decisions go to `docs/adr/`. Both are created lazily; nothing exists until the first term or decision crystallises, so there is nothing to scaffold up front.
 
-It also needs two other skills present, because its own `SKILL.md` is one line that delegates to them: [grilling](https://aihero.dev/skills-grilling) supplies the interview, [domain-modeling](https://aihero.dev/skills-domain-modeling) supplies the writing. Installing `grill-with-docs` alone gets you a skill that does not work.
+It also builds on three other skills: [grilling](https://aihero.dev/skills-grilling) supplies the interview loop and premise gate, [domain-modeling](https://aihero.dev/skills-domain-modeling) supplies glossary and ADR gating, and [docs](https://aihero.dev/skills-docs) handles documentation scaffolding and validation. Installing `grill-with-docs` alone without its dependencies gets you an incomplete experience.
 
 ## The paper trail
 
@@ -54,7 +54,10 @@ Scope decides it. Use this for anything you can settle in one session; use [wayf
 Two known causes. The mundane one: nothing qualified. ADRs need all three gates, and a session about a change with no new vocabulary genuinely has nothing to write. The real bug: when the skill runs inside another orchestration layer — a spec-driven-development wrapper, a multi-agent framework, a rule that invokes it as a step in someone else's pipeline — the file-writing half is reported to silently not happen, while the interview still runs. This is filed and unfixed. If you are in that setup, check the working directory before you trust the session's output.
 
 **It asked everything at once, with no recommendations, and never mentioned `GLOSSARY.md`.**
-That is the skill failing to load its two dependencies. Because `SKILL.md` is a one-line delegation, an agent that does not pick up [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) guesses at what grilling means, and you get an undifferentiated question dump. Partial loading is the more confusing case — `grilling` loads, `domain-modeling` does not, and you get a good interview with no paper trail. It correlates with model and [effort](https://www.aihero.dev/ai-coding-dictionary/effort) level, and it is the most reported problem with this skill. If you suspect it, ask the agent directly which skills it loaded.
+That is the skill failing to load its dependencies. An agent that does not pick up [grilling](https://aihero.dev/skills-grilling) and [domain-modeling](https://aihero.dev/skills-domain-modeling) guesses at what grilling means, and you get an undifferentiated question dump. Partial loading is the more confusing case — `grilling` loads, `domain-modeling` does not, and you get a good interview with no paper trail. It correlates with model and [effort](https://www.aihero.dev/ai-coding-dictionary/effort) level, and it is the most reported problem with this skill. If you suspect it, ask the agent directly which skills it loaded.
+
+**What if my idea or architecture premise is wild, contradictory, or fundamentally unviable?**
+`grill-with-docs` will not flatter you into a false sense of certainty. If the premise is physically impossible, logically contradictory, or fundamentally unviable against the codebase, Round 1 attacks that root premise directly and recommends killing, pivoting, or reframing it before expanding downstream branches or generating documentation.
 
 **Where did all my other decisions go?**
 Into the conversation only. This is the most substantive open complaint about the skill: the glossary is not a spec, most answers do not earn an ADR, and there is no ledger tying each resolved answer through to a spec, a ticket and a test. Precise answers — ordering guarantees, negative requirements, numeric defaults — get softened into weaker prose downstream, and the result can look complete while missing the thing you actually decided. The mitigation available today is to keep the session and feed it straight to [to-spec](https://aihero.dev/skills-to-spec), and to re-read the spec against your own answers rather than assuming it captured them.
@@ -73,11 +76,14 @@ Nobody is happy with the name. There is an open suggestion to rename it `grill-d
 
 ## It's working if
 
+- If your premise is impossible, contradictory, or fundamentally flawed against the codebase, the first round calls out the fatal flaw directly rather than nodding along.
+- Recommendations actively poke at failure modes, hidden costs, security holes, and argue against unviable choices rather than smoothing over trade-offs.
 - `GLOSSARY.md` changes _during_ the session, term by term, rather than appearing in one lump at the end.
 - The glossary reads as pure vocabulary — your project's words with tight definitions — and contains no implementation detail or spec-like prose.
 - Questions the codebase can answer get answered by reading the codebase, not asked of you.
-- You get few or no ADRs, and the ones you get are decisions you would be annoyed to have to re-litigate.
+- You get few or no ADRs, and the ones you get are decisions that pass all three gates (hard to reverse, surprising without context, real trade-off).
 - It challenges a word you used because your existing glossary defines it differently.
+- It stops at the end and asks you to confirm the understanding is shared before authoring specs or advancing downstream.
 
 ## Where it fits
 

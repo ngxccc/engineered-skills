@@ -1,48 +1,40 @@
 ---
 name: implement
-description: "Implement a piece of work based on a spec or set of tickets."
-disable-model-invocation: true
+description: "Implement a spec, ticket, or request in this repository. Use when asked to build a feature, fix a bug, refactor, or otherwise change behavior."
 ---
 
 # Implement
 
-Implement the work described by the user in the spec or tickets.
+Turn a ticket, spec, or request into reviewed, verified code.
 
-## Process
+If the user passes a ticket reference, fetch it from the issue tracker and state its title before starting. If the reference is ambiguous, ask.
 
-### 1. Read Repository Standards
+## 1. Standards gate
 
-Before writing code or tests, ALWAYS read the standards in `docs/standards/` (or `skills/engineering/setup-skills/references/standards/` if uninitialized; run `/setup-skills` if missing):
+Read the repository's standards before writing code, tests, or commit messages. Start at `AGENTS.md` and follow its map from the planned change to the standard that governs it. When no map exists, read every file under `docs/standards/`.
 
-- `docs/standards/code-comment-taxonomy.md`
-- `docs/standards/testing-and-fixtures.md`
-- `docs/standards/security-and-cryptography.md`
-- `docs/standards/concurrency-and-locking.md`
-- `docs/standards/api-design-and-error-handling.md`
-- `docs/standards/database-and-migrations.md`
-- `docs/standards/git-flow-and-pr-matrix.md`
-- `GLOSSARY.md` and ADRs under `docs/adr/` (if present)
+Done when you can name each standard that binds this change and the rule it imposes. Read the glossary entry point (`GLOSSARY.md` or `GLOSSARY-MAP.md`) and the ADRs for the affected area in the same pass.
 
-### 2. Drive TDD via Vertical Slices
+## 2. Slice
 
-Execute implementation test-first via [`/tdd`](../tdd/SKILL.md) at pre-agreed public seams:
+Work one vertical slice at a time: failing test at the public seam, minimal code, refactor. Test observable behavior, not internal call order.
 
-- Work one vertical slice (tracer bullet) at a time: failing test (red) → minimal code (green) → clean refactor.
-- Test observable behavior at the interface, avoiding implementation-coupled tests.
+Done when every acceptance criterion has a test that fails without the change.
 
-### 3. Continuous Verification
+## 3. Verify
 
-- Run typechecking (`tsc --noEmit` or language equivalent) regularly during development.
-- Run single test files frequently during slice iterations.
-- Run the full project test suite once at the end before code review.
+Run typechecking and the touched test files continuously; run the full suite once before review.
 
-### 4. Code Review Gate
+Done when the repository's own gates pass from a clean state, including build and generated contracts where the project has them. Report a failing gate instead of routing around it.
 
-Once implementation is complete, run [`/code-review`](../code-review/SKILL.md) to audit changes along both axes:
+## 4. Review
 
-- **Standards Axis**: Verify compliance with `docs/standards/` and the code smell baseline.
-- **Spec Axis**: Verify completeness against the ticket / formal spec without scope creep.
+Run `/code-review` along both axes: standards compliance, and completeness against the ticket or spec without scope creep.
 
-### 5. Atomic Conventional Commits
+Done when every finding is fixed or recorded as a follow-up.
 
-Format Conventional Commits using [`git-flow`](../git-flow/SKILL.md) (`node skills/engineering/git-flow/scripts/format-commit.mjs`).
+## 5. Commit
+
+Format atomic Conventional Commits through `/git-flow`, one logical change per commit.
+
+Done when each commit stands on its own and the branch is ready for review.

@@ -8,13 +8,13 @@ It recommends and stops. It does not grill, write a [spec](https://www.aihero.de
 
 You invoke this by typing `/ask-skills` — the agent won't reach for it on its own.
 
-| Your situation | What the router gives back |
-| --- | --- |
-| An idea, and no idea where to start | The head of the main flow, and whether the build is small enough to skip the spec |
-| Bugs and requests arriving from other people | The [triage](https://aihero.dev/skills-triage) on-ramp, and why [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) you generated yourself don't belong on it |
-| Two skills that look interchangeable | The line between them, and it is usually one concrete test rather than a matter of taste. [grill-me](https://aihero.dev/skills-grill-me) or [grill-with-docs](https://aihero.dev/skills-grill-with-docs) turns on whether you are in a working directory; [grill-with-docs](https://aihero.dev/skills-grill-with-docs) or [wayfinder](https://aihero.dev/skills-wayfinder) turns on whether the effort fits one session |
-| A long session and a decision about the [context](https://www.aihero.dev/ai-coding-dictionary/context) | The ordered tree over the four options at a phase boundary |
-| A skill you have already picked | Nothing useful. Invoke that skill directly. |
+| Your situation                                                                                         | What the router gives back                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| An idea, and no idea where to start                                                                    | The head of the main flow, and whether the build is small enough to skip the spec                                                                                                                                                                                                                                                                                                                                       |
+| Bugs and requests arriving from other people                                                           | The [triage](https://aihero.dev/skills-triage) on-ramp, and why [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) you generated yourself don't belong on it                                                                                                                                                                                                                                                 |
+| Two skills that look interchangeable                                                                   | The line between them, and it is usually one concrete test rather than a matter of taste. [grill-me](https://aihero.dev/skills-grill-me) or [grill-with-docs](https://aihero.dev/skills-grill-with-docs) turns on whether you are in a working directory; [grill-with-docs](https://aihero.dev/skills-grill-with-docs) or [wayfinder](https://aihero.dev/skills-wayfinder) turns on whether the effort fits one session |
+| A long session and a decision about the [context](https://www.aihero.dev/ai-coding-dictionary/context) | The ordered tree over the four options at a phase boundary                                                                                                                                                                                                                                                                                                                                                              |
+| A skill you have already picked                                                                        | Nothing useful. Invoke that skill directly.                                                                                                                                                                                                                                                                                                                                                                             |
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ The tracker-dependent routes — triage, `to-spec`, `to-tickets`, `implement` �
 
 ## Flows, not skills
 
-The word the skill gives you to think with is **flow**: a path *through* the skills, not a single one. Naming your situation places you on a flow at a step, which is a different answer from "here is the skill that matches your keywords". Four kinds of route exist, and the skill itself carries them in full:
+The word the skill gives you to think with is **flow**: a path _through_ the skills, not a single one. Naming your situation places you on a flow at a step, which is a different answer from "here is the skill that matches your keywords". Four kinds of route exist, and the skill itself carries them in full:
 
 - **The main flow**, idea to ship. Grill, spec, tickets, implement, review, with two branches inside it: a prototype detour when a question needs runnable code to settle, and the spec-and-tickets split, which only earns its cost when the build spans more than one session.
 - **On-ramps**, for a situation that generates work and then merges onto the main flow: incoming bug reports, something broken, or an effort too foggy and too large to hold in one session.
@@ -35,11 +35,11 @@ The word the skill gives you to think with is **flow**: a path *through* the ski
 
 The other idea it hands you is the **phase boundary**. A phase is a chunk of work inside a session — the [grilling](https://www.aihero.dev/ai-coding-dictionary/grilling), the implementation, the QA — and the boundary between two of them is the only place the question "what do I do with this context?" belongs. Mid-phase there is nothing to decide: continue, or split what is left into [subagents](https://www.aihero.dev/ai-coding-dictionary/subagent).
 
-| Option | Take it when |
-| --- | --- |
+| Option       | Take it when                                                                                                                                                                                                                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Continue** | The next phase wants this one verbatim, or you have [smart zone](https://www.aihero.dev/ai-coding-dictionary/smart-zone) left. It is the only move that keeps the session as a [primary source](https://www.aihero.dev/ai-coding-dictionary/primary-source), so rule it out first |
-| **`/clear`** | Everything behind you is disposable. Cheapest move on the board, and one-way if you were wrong |
-| **Subagent** | The task is scoped tightly enough to run with you [away from the keyboard](https://www.aihero.dev/ai-coding-dictionary/afk) |
+| **`/clear`** | Everything behind you is disposable. Cheapest move on the board, and one-way if you were wrong                                                                                                                                                                                    |
+| **Subagent** | The task is scoped tightly enough to run with you [away from the keyboard](https://www.aihero.dev/ai-coding-dictionary/afk)                                                                                                                                                       |
 
 | **`/compact`** | None of the above. The default, and it lands here often |
 
@@ -57,7 +57,7 @@ A known bug, unfixed. Most of the skills the router routes you through set `disa
 
 **It described a skill's behaviour, and the skill doesn't do that.**
 
-Also real, also unfixed. The router answers from its own one-line summary of each skill rather than from the skill. One detailed report tracked three instances in a single session, including a recommendation to skip [to-spec](https://aihero.dev/skills-to-spec) on the strength of the gloss "turn the thread into a spec" — `to-spec/SKILL.md` was never opened. In every case it verified only after the user pushed back, and never on its own initiative. Skipping `to-spec` there cost a real seam check, and the tickets that came out undercounted the work. When the router asserts something load-bearing about another skill, ask it to open that `SKILL.md` first. The same applies to questions the map does not cover at all, such as whether to use [plan mode](https://www.aihero.dev/ai-coding-dictionary/agent-mode): that answer is the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s inference, not something written down here.
+This was real and is fixed. The router used to answer from its own one-line summary of each skill rather than from the skill. One detailed report tracked three instances in a single session, including a recommendation to skip [to-spec](https://aihero.dev/skills-to-spec) on the strength of the gloss "turn the thread into a spec" — `to-spec/SKILL.md` was never opened. The router now reads a skill's `SKILL.md` before stating what it does or recommending a step be skipped, and the summaries are labelled as orientation only. Questions the map does not cover at all, such as whether to use [plan mode](https://www.aihero.dev/ai-coding-dictionary/agent-mode), are still the [model](https://www.aihero.dev/ai-coding-dictionary/model)'s inference rather than something written down here.
 
 **Why is it prose instead of a numbered checklist?**
 

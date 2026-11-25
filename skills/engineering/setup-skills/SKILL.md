@@ -2,6 +2,7 @@
 trigger_keywords: setup-skills, project-init, issue-tracker-config, domain-setup
 name: setup-skills
 description: Configure this repo for the engineering skills — set up its issue tracker, triage label vocabulary, domain doc layout, and interactive 7-pillar Engineering Standards (docs/standards/). Run once before first use of the other engineering skills.
+disable-model-invocation: true
 ---
 
 # Setup Engineered Skills's Skills
@@ -51,6 +52,9 @@ Record the choice in `docs/standards/issue-tracker.md`.
 Ask: "Do you want to keep the default triage labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`)? (recommended: **yes**)"
 
 Record the vocabulary directly in `docs/standards/issue-tracker.md` under `## Triage Label Vocabulary` (single source of truth). Do not generate a separate `triage-labels.md`.
+
+When Section B ran on GitHub or GitLab, create each configured label the tracker lacks (`gh label create` / `glab label create`).
+
 **Section C — Domain docs.** Default to **single-context** — one `GLOSSARY.md` + `docs/adr/` at the repo root. Offer multi-context only for monorepos (with `GLOSSARY-MAP.md`). Record rules in `docs/standards/domain-docs.md`. Scaffold starter `GLOSSARY.md` if not present.
 
 **Section D — Engineering Standards (`docs/standards/`).**

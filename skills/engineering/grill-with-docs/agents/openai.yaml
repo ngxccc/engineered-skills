@@ -1,5 +1,5 @@
 interface:
   display_name: "Grill with Docs"
-  short_description: "Grill a design and write its docs"
+  short_description: "Stress-test and sharpen a design through interview, writing docs inline"
 policy:
   allow_implicit_invocation: false

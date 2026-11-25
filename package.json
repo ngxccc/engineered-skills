@@ -8,7 +8,11 @@
 	},
 	"license": "MIT",
 	"scripts": {
-		"release": "node scripts/release.mjs"
+		"release": "node scripts/release.mjs",
+		"check-frontmatter": "node scripts/check-frontmatter.mjs"
 	},
-	"packageManager": "npm@10.9.4"
+	"packageManager": "npm@10.9.4",
+	"devDependencies": {
+		"yaml": "^2.9.1"
+	}
 }

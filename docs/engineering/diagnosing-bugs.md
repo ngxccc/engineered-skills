@@ -2,7 +2,7 @@
 
 `diagnosing-bugs` runs a six-phase diagnosis on a hard bug or a performance regression: build a repro, minimise it, rank hypotheses, instrument, fix with a regression test, clean up.
 
-It will not let the agent form a theory until a **tight** feedback loop exists — one named command, already run once, that goes red on *this* bug and green when it is fixed. The default behaviour of a coding agent handed a bug report is to read code and guess; this skill blocks that. If no red-capable command exists, there is no Phase 2. That single gate is what the skill is for. Everything after it — bisection, hypothesis-testing, instrumentation — is mechanical once the signal exists.
+It will not let the agent form a theory until a **tight** feedback loop exists — one named command, already run once, that goes red on _this_ bug and green when it is fixed. The default behaviour of a coding agent handed a bug report is to read code and guess; this skill blocks that. If no red-capable command exists, there is no Phase 2. That single gate is what the skill is for. Everything after it — bisection, hypothesis-testing, instrumentation — is mechanical once the signal exists.
 
 ## When to reach for it
 
@@ -10,15 +10,15 @@ Type `/diagnosing-bugs`, or the agent reaches for it on its own when a task fits
 
 Reach for it on the hard ones: a bug that resists a first look, an intermittent flake, a regression that crept in between two known-good states. It is heavy by design, and the wrong tool for a question you want answered in one message.
 
-| Your situation | Where to go |
-| --- | --- |
-| A specific defect you can describe as a symptom | This skill |
-| A slow endpoint or a timing regression with a known before-and-after | This skill — it has a performance branch (measure a baseline, then bisect) |
-| "Where are the bottlenecks in this codebase?" — no specific symptom | Not this skill. It diagnoses one known failure, it does not audit |
-| A raw bug report from someone else, not yet confirmed or written up | [triage](https://aihero.dev/skills-triage) first |
-| Throwaway code to answer a design question, not chase a defect | [prototype](https://aihero.dev/skills-prototype) |
-| Building a planned behaviour test-first | [tdd](https://aihero.dev/skills-tdd) |
-| No good seam exists to lock the bug down | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) — this skill hands off there itself |
+| Your situation                                                       | Where to go                                                                                                                                                    |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A specific defect you can describe as a symptom                      | This skill                                                                                                                                                     |
+| A slow endpoint or a timing regression with a known before-and-after | This skill — it has a performance branch (measure a baseline, then bisect)                                                                                     |
+| "Where are the bottlenecks in this codebase?" — no specific symptom  | Not this skill. It diagnoses one known failure, it does not audit                                                                                              |
+| A raw bug report from someone else, not yet confirmed or written up  | [triage](https://aihero.dev/skills-triage) first                                                                                                               |
+| Throwaway code to answer a design question, not chase a defect       | [prototype](https://aihero.dev/skills-prototype)                                                                                                               |
+| Building a planned behaviour test-first                              | [tdd](https://aihero.dev/skills-tdd)                                                                                                                           |
+| No good seam exists to lock the bug down                             | [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) — recommended after the fix, and run by you, since it is user-invoked |
 
 ## The tight loop is the skill
 
@@ -35,7 +35,7 @@ Phase 1 gets disproportionate effort because it is the only phase that is hard. 
 9. A differential loop — same input, old version against new.
 10. A [human-in-the-loop](https://www.aihero.dev/ai-coding-dictionary/human-in-the-loop) bash script, last resort. The skill ships `scripts/hitl-loop.template.sh` for this: the agent runs the script, you follow prompts in your terminal, and your answers come back as parseable output.
 
-*A* loop is not the goal. **Tight** is: fast (seconds), deterministic (same verdict every run), sharp (asserts your exact symptom, not "didn't crash"), and agent-runnable unattended. A 30-second flaky loop is barely better than none. For a bug that only shows up sometimes, the target is not a clean repro but a **higher reproduction rate** — loop the trigger, parallelise, add stress, inject sleeps, until the flake rate is high enough to debug against.
+_A_ loop is not the goal. **Tight** is: fast (seconds), deterministic (same verdict every run), sharp (asserts your exact symptom, not "didn't crash"), and agent-runnable unattended. A 30-second flaky loop is barely better than none. For a bug that only shows up sometimes, the target is not a clean repro but a **higher reproduction rate** — loop the trigger, parallelise, add stress, inject sleeps, until the flake rate is high enough to debug against.
 
 When it genuinely cannot build one, it is instructed to stop and say so, list what it tried, and ask you for [environment](https://www.aihero.dev/ai-coding-dictionary/environment) access, a captured artifact, or permission to add temporary instrumentation. It should not proceed to hypothesise anyway.
 
@@ -43,15 +43,17 @@ When it genuinely cannot build one, it is instructed to stop and say so, list wh
 
 The phases are gates, not a checklist. Each one refuses to open until something specific is true.
 
-| Gate | What has to be true |
-| --- | --- |
-| Into Phase 2 | A named command, already run and pasted with its output, that can go red on this bug |
-| Into Phase 3 | The repro is reproduced *and* minimised — every remaining element is load-bearing |
-| Into Phase 4 | 3–5 ranked, falsifiable hypotheses exist, each stating its prediction, shown to you before any is tested |
-| Into Phase 5 | Probes map to a specific prediction, one variable at a time, every debug log tagged `[DEBUG-a4f2]`-style so cleanup is one grep |
-| Done | Original repro no longer reproduces, instrumentation gone, and the hypothesis that turned out correct is written into the commit message |
+| Gate         | What has to be true                                                                                                                      |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Into Phase 2 | A named command, already run and pasted with its output, that can go red on this bug                                                     |
+| Into Phase 3 | The repro is reproduced _and_ minimised — every remaining element is load-bearing                                                        |
+| Into Phase 4 | 3–5 ranked, falsifiable hypotheses exist, each stating its prediction, shown to you before any is tested                                 |
+| Into Phase 5 | Probes map to a specific prediction, one variable at a time, every debug log tagged `[DEBUG-a4f2]`-style so cleanup is one grep          |
+| Done         | Original repro no longer reproduces, instrumentation gone, and the hypothesis that turned out correct is written into the commit message |
 
 Phase 5 has an escape hatch worth knowing about. The regression test is written before the fix, but only if a **correct seam** exists for it — one where the test exercises the real bug pattern as it occurs at the call site. Where the only available seam is too shallow, the skill is told to say so rather than write a test that gives false confidence. That absence is itself the finding, and it is what routes the post-mortem to `improve-codebase-architecture`.
+
+If the red was forced by mutating code or a fixture to prove the test can fail, the skill diffs the mutation against a pristine copy before trusting it. A mutation that silently failed to land produces a test that appears red for the wrong reason, and the whole loop is built on that first red being real.
 
 ## Common questions
 
@@ -90,4 +92,4 @@ Renamed to `/diagnosing-bugs` in v1.0.0. The old name no longer exists. Anything
 
 `diagnosing-bugs` is a reach-for-it-anytime standalone. You drop into it when something is broken and drop out when the fix and its regression test are in; it holds no state and needs no prior setup. [ask-skills](https://aihero.dev/skills-ask-skills) routes "Something's broken" here.
 
-Two neighbours matter. [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) takes the [handoff](https://www.aihero.dev/ai-coding-dictionary/handoff) when the real finding is that the code has no seam to lock the bug down — the recommendation is made after the fix is in, when there is more information. [triage](https://aihero.dev/skills-triage) sits upstream of it for bugs that arrive as raw reports from other people, and does a shallower version of the same first two phases.
+Two neighbours matter. [improve-codebase-architecture](https://aihero.dev/skills-improve-codebase-architecture) is the [handoff](https://www.aihero.dev/ai-coding-dictionary/handoff) when the real finding is that the code has no seam to lock the bug down — the recommendation is made after the fix is in, when there is more information, and you run it yourself because it is user-invoked. [triage](https://aihero.dev/skills-triage) sits upstream of it for bugs that arrive as raw reports from other people, and does a shallower version of the same first two phases.

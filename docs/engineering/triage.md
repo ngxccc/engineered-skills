@@ -22,7 +22,7 @@ You invoke this by typing `/triage` and then describing what you want in plain l
 
 `triage` reads and writes your issue tracker, so [setup-skills](https://aihero.dev/skills-setup-skills) has to have configured that tracker and its label vocabulary first. The role names below are **canonical**; the label strings in your tracker may differ, and the mapping is what setup provides. If your tracker already uses the canonical names exactly, there is nothing to map and nothing to set up.
 
-The tracker config also decides whether external pull requests count as a request surface, and who counts as external. That flag defaults to off and is no longer a setup question — flip it in `docs/agents/issue-tracker.md` if you want PRs in scope.
+The tracker config also decides whether external pull requests count as a request surface, and who counts as external. That flag defaults to off and is no longer a setup question — flip it in `docs/standards/issue-tracker.md` if you want PRs in scope.
 
 ## The state machine
 
@@ -60,7 +60,7 @@ All of it exists to make one artifact good: the **agent brief**, the structured 
 
 Where the tracker treats external pull requests as a request surface, they run through the same machine — same categories, same states, same transitions. The states just read against the diff: `ready-for-agent` means a brief is attached and an agent should take the next step on the code, `ready-for-human` means it's ready for a person to merge. A brief on a PR describes what's left to do to the existing diff, not how to build the thing from nothing.
 
-Discovery surfaces only _external_ PRs, because a collaborator's in-flight branch is not triage work. That filter is discovery-only — name a PR explicitly and it gets triaged whoever wrote it. One rough edge: the GitHub template's external-PR listing command asks `gh pr list` for an `authorAssociation` field that `gh` does not expose, so the command as written fails outright ([#468](https://github.com/engineered-skills/skills/issues/468)).
+Discovery surfaces only _external_ PRs, because a collaborator's in-flight branch is not triage work. That filter is discovery-only — name a PR explicitly and it gets triaged whoever wrote it. The GitHub template lists them through the REST pulls endpoint, which does expose `author_association`; the older `gh pr list --json authorAssociation` form failed outright ([#468](https://github.com/engineered-skills/skills/issues/468)) and is gone.
 
 ## Common questions
 
@@ -71,7 +71,7 @@ No. They are already agent-ready — `to-tickets` applies the `ready-for-agent` 
 Only if you have inbound work. `triage` predates that spine and does a different job: it is the lane for reports other people filed. If everything in your tracker came out of your own planning, you will rarely open it. If you maintain anything public, or your team files bugs at you, it is the front door. The main use is open-source repos taking issues from external contributors.
 
 **The agent tried to apply `ready-for-agent` and `gh` said the label doesn't exist.**
-Known open bug ([#616](https://github.com/engineered-skills/skills/issues/616)). `setup-skills` writes the label vocabulary into `docs/agents/triage-labels.md`, but does not create the labels in your tracker. Create the five state labels and two category labels yourself, once, with `gh label create` or the tracker's UI, and it stops. There is a community fix branch linked from the issue that hasn't been merged.
+This was [issue #616](https://github.com/engineered-skills/skills/issues/616), and it is fixed: `setup-skills` records the vocabulary in `docs/standards/issue-tracker.md` and creates each missing label on GitHub or GitLab (`gh label create` / `glab label create`). Re-run setup on an older repo to pick up the labels it never created. The exception is [wayfinder](https://aihero.dev/skills-wayfinder)'s `wayfinder:map` and `wayfinder:<type>` labels, which are still created by hand.
 
 **Five states aren't enough — what about blocked, or deferred, or implemented?**
 This is the most-filed gap on the skill, in three shapes. An issue that is fully specified but waiting on another issue to close ([#139](https://github.com/engineered-skills/skills/issues/139)) — the reporter's complaint was that `ready-for-agent` is "technically true" there but misleading, so an agent picks it up and hits a wall. Trigger-gated future work that is intended but not actionable yet ([#297](https://github.com/engineered-skills/skills/issues/297)). And a terminal state for "implemented, awaiting verification", without which an AFK runner can re-queue finished tickets. Matt has agreed the blocked case is real and is undecided on the name (`blocked` versus `paused`). None of it has shipped. The workaround people use is a repo-local extra label alongside the category, which keeps the canonical state slot occupied by something honest at the cost of the skill not knowing about it. One community derivative goes further, adding `needs-slicing`, `tracking` and effort labels — that works, but it is theirs, not the skill's.

@@ -71,9 +71,9 @@ body:
     id: acceptance
     attributes:
       label: Acceptance
-      description: "Checklist of observable acceptance criteria"
+      description: "List of observable acceptance criteria"
       value: |
-        - [ ] 
+        - 
     validations:
       required: true
 `,
@@ -108,9 +108,9 @@ body:
     id: acceptance
     attributes:
       label: Acceptance
-      description: "Checklist of observable acceptance criteria"
+      description: "List of observable acceptance criteria"
       value: |
-        - [ ] 
+        - 
     validations:
       required: true
 `,
@@ -361,8 +361,8 @@ ${params.summary || "Concise description of the end-to-end behavior delivered by
 
 ## Acceptance
 
-- [ ] Core implementation completes and satisfies vertical slice
-- [ ] Manual or automated verification passes
+- Core implementation completes and satisfies vertical slice
+- Manual or automated verification passes
 `;
 	}
 

@@ -80,8 +80,8 @@ Publish the approved tickets in dependency order (blockers first).
        --body-file <ticket_body_file> \
        --execute
      ```
-     Automatically validates Conventional Commit title, verifies the single-noun body schema, creates the issue, and attaches it via the GitHub Native Sub-Issues API.
-   - **Manual CLI Fallback**: Execute `gh issue create --title "task(<scope>): <summary>" --body "..." --label "type:task"`.
+     Automatically validates Conventional Commit title, verifies the single-noun body schema, creates the issue, and attaches it via the GitHub Native Sub-Issues API. If the source was an existing issue, each ticket is its sub-issue (`--parent`); when the tracker has native blocking, wire the blockers as native edges (`--blocked-by`) and omit the `Blocked by` line from the body.
+   - **Manual CLI Fallback**: Execute `gh issue create --title "task(<scope>): <summary>" --body "..." --label "type:task"`. Set native sub-issue and blocking relationships with `gh` where the tracker supports them, and omit `Blocked by` from the body when they are native.
    - **Local files**: Write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order.
 
 Work the **frontier**: any ticket whose blockers are all done. Do NOT close or modify any parent issue.
@@ -110,7 +110,7 @@ The end-to-end behaviour this ticket makes work, from the user's perspective —
 ## Context
 
 - Parent: #<parent_number> <!-- Or None if root task -->
-- Blocked by: #<blocking_number> <!-- Or None if ready immediately -->
+- Blocked by: #<blocking_number> <!-- Or None if ready immediately. Omit this line when blockers are native tracker edges. -->
 
 ## Scope
 

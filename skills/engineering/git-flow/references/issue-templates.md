@@ -36,9 +36,9 @@ Concise description of the end-to-end behavior delivered by this ticket from the
 
 ## Acceptance
 
-- [ ] Criterion 1
-- [ ] Criterion 2
-- [ ] Automated or manual verification scenario passes
+- Criterion 1
+- Criterion 2
+- Automated or manual verification scenario passes
 ```
 
 ---

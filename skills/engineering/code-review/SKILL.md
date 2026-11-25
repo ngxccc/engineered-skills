@@ -11,9 +11,9 @@ Two-axis, risk-layered review of the diff between `HEAD` and a fixed point the u
 - **Standards** — does the code conform to this repo's documented coding standards, [layered risk checklist](references/layered-risk-checklist.md), and baseline code smells?
 - **Spec** — does the code faithfully implement the originating issue / spec?
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, followed by a targeted spot-check on any generated contracts.
+Both axes run as **parallel sub-agents** so they don't pollute each other's context, followed by a targeted spot-check on any generated contracts. Start every sub-agent with a fresh context window.
 
-The issue tracker workflow should live in `docs/agents/issue-tracker.md` (or the repo's documented issue-tracker standard) — run `/setup-skills` if missing.
+The issue tracker should have been provided to you. If not, tell the user to run `/setup-skills`.
 
 ## Process
 
@@ -49,7 +49,7 @@ git diff <fixed-point>...HEAD -- . \
 
 Look for the originating spec, in this order:
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, `Resolves: #45`, GitLab `!67`) — fetch via the repo's issue tracker guide (`docs/agents/issue-tracker.md` or `docs/standards/issue-tracker.md`).
+1. Issue references in the commit messages (`#123`, `Closes #45`, `Resolves: #45`, GitLab `!67`) — fetch via the workflow in the tracker doc.
 2. A path the user passed as an argument.
 3. A spec, ADR, or RFC file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
 4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
@@ -58,7 +58,7 @@ Look for the originating spec, in this order:
 
 ### 3. Identify the standards sources & baseline
 
-Anything in the repo that documents how code should be written, such as `AGENTS.md`, `CLAUDE.md`, `CODING_STANDARDS.md`, `CONTRIBUTING.md`, or `docs/standards/`.
+Search the repo for every file that documents how code should be written, including `AGENTS.md`, `CLAUDE.md`, `docs/standards/`, and any `CODING_STANDARDS.md` or `CONTRIBUTING.md`. When `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists, it must be on the list.
 
 On top of whatever the repo documents, the Standards axis carries [references/layered-risk-checklist.md](references/layered-risk-checklist.md) and the **smell baseline** below (Fowler, _Refactoring_, ch.3). Three rules bind it:
 
@@ -85,13 +85,15 @@ On top of whatever the repo documents, the Standards axis carries [references/la
 
 ### 4. Spawn both sub-agents in parallel (Bottom-Up, Find -> Verify -> Report)
 
-Instruct both sub-agents to inspect files **bottom-up by dependency layer** (1. Data/Migrations/Projections → 2. Boundaries/DTOs/Guards/Filters → 3. Controllers → 4. Services/Concurrency/Transactions → 5. Tests):
+Issue both sub-agent calls together, in the foreground, and aggregate the reports they return.
+
+Instruct both sub-agents to inspect files **bottom-up by dependency layer** (Backend: 1. Data/Migrations/Projections → 2. Boundaries/DTOs/Guards/Filters → 3. Controllers → 4. Services/Concurrency/Transactions → 5. Tests; Frontend: UI-1 Tokens/Assets → UI-2 Primitives/Shells → UI-3 Rendering/Trust Boundaries → UI-4 Error Recovery/Navigation/A11y → UI-5 UI Tests):
 
 **Standards sub-agent prompt** — include:
 
 - The excluded primary diff command, `--stat`, and commit list.
 - The list of standards-source files from step 3, [references/layered-risk-checklist.md](references/layered-risk-checklist.md), and the smell baseline.
-- The brief: _"Do not invoke `/code-review` or spawn additional agents — perform this review directly. Inspect modified files bottom-up (Layer 1 to Layer 5). Verify every candidate finding against full surrounding file context before reporting. Report — grouped by layer — (a) hard violations (documented-standard breaches, security/concurrency/contract defects: cite standard/checklist item and exact file/symbol/lines) and (b) judgement calls (baseline smells: name it and quote the hunk). Check Blast Radius on unmodified callers of changed interfaces. Skip anything tooling enforces. Keep concise bullets; target under 400 words for <=15 hand-written files, or compact bullets per finding for larger diffs."_
+- The brief: _"Do not invoke `/code-review` or spawn additional agents — perform this review directly. Inspect modified files bottom-up (Backend Layer 1 to Layer 5; Frontend UI-1 to UI-5). Verify every candidate finding against full surrounding file context before reporting. Report — grouped by layer — (a) hard violations (documented-standard breaches, security/concurrency/contract defects: cite standard/checklist item and exact file/symbol/lines) and (b) judgement calls (baseline smells: name it and quote the hunk). Check Blast Radius on unmodified callers of changed interfaces. Skip anything tooling enforces. Keep concise bullets; target under 400 words for <=15 hand-written files, or compact bullets per finding for larger diffs."_
 
 **Spec sub-agent prompt** — include:
 

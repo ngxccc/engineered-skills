@@ -1,12 +1,22 @@
 # Brainstorming & Technical Evaluation Protocol
 
-Protocol for sharpening technical ideas into validated designs during `/grill-with-docs`.
+Protocol for stress-testing technical ideas into validated designs during `/grill-with-docs`.
+
+---
+
+## 0. Premise Gate & Architectural Grounding
+
+Before expanding design branches or constructing trade-off matrices, attack unviable premises on Round 1:
+
+- **Check root viability**: If the proposal is physically impossible, logically contradictory, violates core system invariants, or fundamentally clashes with the codebase, do not construct elaborate design trees or generate documentation on sand.
+- **Challenge immediately**: State the fatal flaw plainly, explain why it cannot work as conceived, and recommend killing, pivoting, or reframing before proceeding.
+- **Stress-test recommendations**: Every recommended answer (`➡️`) must actively poke at failure modes, hidden costs, security holes, and anti-patterns rather than smoothing over trade-offs to please the user.
 
 ---
 
 ## 1. Trade-Off Matrix
 
-For non-obvious architecture choices, present 2–3 distinct approaches before settling:
+For non-obvious architecture choices, present 2–3 distinct approaches before settling. Embed the matrix inside the question body of the round (`❓ **Q<n>** - **<title>**:`), with your recommended approach on the `➡️` line:
 
 | Option | Approach              | Pros             | Cons                     | Risk Class       | Recommendation  |
 | :----- | :-------------------- | :--------------- | :----------------------- | :--------------- | :-------------- |

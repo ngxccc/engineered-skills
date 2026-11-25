@@ -33,6 +33,34 @@ Inspect modified layers **bottom-up** in dependency order. Skip items already en
 - **No Tautologies**: Tests assert real behavior and invariants rather than mirroring constants or mocking away the behavior under test.
 - **Failure-Mode Coverage**: Verify tests cover the full RBAC matrix, invalid boundary inputs and error codes, concurrent races (`Promise.all`), trigger/rollback behavior, and unauthenticated/revoked states.
 
+## Frontend / UI Layers (UI-1..UI-5)
+
+Inspect modified UI files **bottom-up** in dependency order when a diff touches frontend apps or shared UI packages.
+
+### UI-1 — Design Tokens, Typography & Assets
+
+- **Semantic Tokens**: Styling uses the shared theme tokens and typography utilities rather than hardcoded hex colors or duplicate icon CDNs.
+- **Approved Assets**: Images use approved remote hosts or local assets; prototype or temporary third-party asset URLs are replaced before merge.
+
+### UI-2 — Component Primitives & Layout Shells
+
+- **Shared Primitives**: Interactive controls, inputs, cards, badges, and overlays compose from the shared UI package instead of duplicating raw styled elements.
+- **Shell Parity**: Pages render inside the root layout shell without duplicating shared headers/footers (except standalone root error fallbacks) and strip prototype preview/QA switchers.
+
+### UI-3 — Rendering, Data & Trust Boundaries
+
+- **Client/Server Isolation**: Server-only API clients, secrets, and raw tokens remain outside client bundles; authorization is enforced at server/proxy boundaries rather than UI hiding.
+- **Hydration & Caching Safety**: Dynamic request reads, clocks, and locale formatting respect framework caching/hydration boundaries (isolated inside suspense or post-mount effects).
+
+### UI-4 — Error Recovery, Navigation & Accessibility
+
+- **Sanitized Error Boundaries**: Error fallbacks never expose raw `error.message`, stack traces, or internal URLs.
+- **Verified Links & A11y**: Links and anchors resolve to existing routes/section IDs; decorative icons are `aria-hidden` and interactive controls expose accessible labels and focus states.
+
+### UI-5 — UI & Boundary Tests
+
+- **Invariant Verification**: Component, proxy, and boundary tests assert security, navigation, and state-handling invariants rather than brittle snapshot tautologies.
+
 ## Generated Contract Spot-Check
 
 Instead of reading raw OpenAPI JSON or huge snapshot diffs line-by-line, inspect the generated TypeScript schema types for:

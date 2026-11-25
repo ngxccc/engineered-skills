@@ -1,6 +1,6 @@
 ## What it does
 
-`code-review` reviews the diff between `HEAD` and a fixed point you name — a commit, a branch, a tag, `main`, `HEAD~5` — along two axes after excluding generated/snapshot noise (`openapi.json`, `api-schema.d.ts`, `snapshot.json`, lockfiles). **Standards** inspects changed layers bottom-up (Data/Migrations → Boundaries/DTOs/Guards → Controllers → Services → Tests) against repo standards, the layered risk checklist, and Fowler smells. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) so neither sees the other's reasoning, followed by a targeted spot-check on any changed generated contracts.
+`code-review` reviews the diff between `HEAD` and a fixed point you name — a commit, a branch, a tag, `main`, `HEAD~5` — along two axes after excluding generated/snapshot noise (`openapi.json`, `api-schema.d.ts`, `snapshot.json`, lockfiles). **Standards** inspects changed layers bottom-up (Backend: Data/Migrations → Boundaries/DTOs/Guards → Controllers → Services → Tests; Frontend: Tokens/Assets → Primitives/Shells → Rendering/Trust Boundaries → Error Recovery/Navigation/A11y → UI Tests) against repo standards, the layered risk checklist, and Fowler smells. **Spec** asks whether the code does what the originating issue or [spec](https://www.aihero.dev/ai-coding-dictionary/spec) asked for. Each axis runs in its own [sub-agent](https://www.aihero.dev/ai-coding-dictionary/subagent) so neither sees the other's reasoning, followed by a targeted spot-check on any changed generated contracts.
 
 The two axes are never merged and never re-ranked. The report ends with a worst issue _per axis_ and refuses to name a single winner across them, because a change can pass one axis and fail the other: code that follows every convention while implementing the wrong thing passes Standards and fails Spec; code that does exactly what the [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket) asked while breaking the repo's conventions does the reverse. A blended verdict lets the passing axis hide the failing one.
 
@@ -21,16 +21,16 @@ You must supply the fixed point. If you do not, the skill asks for one rather th
 
 ## Prerequisites
 
-The Standards axis needs nothing. It reads whatever the repo documents (`CODING_STANDARDS.md`, `CONTRIBUTING.md`, and the like) and falls back on a built-in baseline when the repo documents nothing.
+The Standards axis needs nothing. It searches the repo for every file that documents how code should be written, and when `CODING_STANDARDS.md` or `CONTRIBUTING.md` exists it must be on the list. It falls back on a built-in baseline when the repo documents nothing.
 
 The Spec axis needs a spec to exist and be findable. It looks in this order:
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, a GitLab `!67`), fetched through `docs/agents/issue-tracker.md`.
+1. Issue references in the commit messages (`#123`, `Closes #45`, a GitLab `!67`), fetched through `docs/standards/issue-tracker.md`.
 2. A path you pass in as an argument.
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch or feature name.
 4. Asking you.
 
-Step 1 depends on `docs/agents/issue-tracker.md`, which [setup-skills](https://aihero.dev/skills-setup-skills) writes. Without it the axis still works if you hand it a path. With no spec at all, the Spec sub-agent is skipped and the report says "no spec available" rather than inventing requirements.
+Step 1 depends on `docs/standards/issue-tracker.md`, which [setup-skills](https://aihero.dev/skills-setup-skills) writes. Without it the axis still works if you hand it a path. With no spec at all, the Spec sub-agent is skipped and the report says "no spec available" rather than inventing requirements.
 
 ## The two axes
 
@@ -53,7 +53,7 @@ This is the most reported problem with the skill, and it is not fixed. Claude Co
 
 **Its sub-agents keep invoking `/code-review` again and spawn more agents.**
 
-Known open bug, reproduced by several people and in more than one harness. The Standards and Spec prompts do not forbid delegation, so a sub-agent can rediscover the skill and fan out again — one report reached 50-plus agents. The fix people have applied on forks is one line appended to both sub-agent briefs: "Do not invoke `/code-review` or spawn additional agents — perform this review directly." Some prefer to handle it at the harness level so every skill inherits the guard. Neither is in the shipped skill yet. If you run this unattended, watch the agent count.
+This was a real runaway — one report reached 50-plus agents — because a sub-agent could rediscover the skill and fan out again. Both briefs now end with "Do not invoke `/code-review` or spawn additional agents — perform this review directly", and the calls run in the foreground so the reports come back to this session. If you run it unattended on an older copy, watch the agent count.
 
 **Should I run it in the same [session](https://www.aihero.dev/ai-coding-dictionary/session) that wrote the code?**
 
