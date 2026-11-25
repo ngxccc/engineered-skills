@@ -30,3 +30,10 @@ When locking multiple resources simultaneously (e.g. 5 seats in 1 order):
 
 - **Rate Limiter / Metrics**: **Fail-Open** — If Redis rate limiter blips, allow request through.
 - **Seat Booking / Financial Debits**: **Fail-Closed** — If lock/DB transaction fails, reject with 409/500 to prevent overselling.
+
+---
+
+## 5. Idempotency & Shared-State Isolation
+
+- **Idempotent Operations**: Commands, lifecycle steps, and retry loops amid crashes or duplicate deliveries MUST converge to the same end state.
+- **Separate Before Serializing**: When concurrent actors contend on the same file, branch, key, or object, eliminate or partition the shared state first before reaching for locks.

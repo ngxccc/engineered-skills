@@ -16,3 +16,9 @@ Repo-specific overrides and checklist deltas for `/code-review` (the skill reads
 
 - **Target file**: `<path/to/generated/api-schema.d.ts>` (inspect generated TypeScript types rather than raw OpenAPI JSON when contracts or migrations change).
 - Check for unexpected `data?:`, `Record<string, never>` on null-data endpoints, `unknown` field regressions, and enum/status parity with controllers.
+
+## Design & Structural Invariants
+
+- **Model the Domain & Type Discipline**: Encode stateful logic and repeated shape assumptions in explicit state machines, tables/registries, or branded/discriminated types so illegal states are unrepresentable; parse untrusted external data at boundaries and keep internal logic pure.
+- **Minimize Reader Load & Subtract First**: Remove dead weight before adding abstractions, collapse one-caller wrappers, and shrink mutable scope.
+- **Clean Cutover (Migrate & Delete in One Wave)**: When introducing a new internal API or target architecture, migrate all callers and delete legacy APIs/throwaway compatibility shims in the same wave.

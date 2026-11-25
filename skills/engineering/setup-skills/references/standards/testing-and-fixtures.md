@@ -46,4 +46,12 @@
 - **Location & Layout**: Dedicated directory for micro-benchmarks and load tests (e.g. `benchmarks/` or `test/benchmarks/`).
 - **Execution**: Standardized test command with optional domain filtering (e.g. filter by subsystem or endpoint).
 - **Structure**: Benchmark routines MUST return deterministic, standardized metrics (`task`, `iterations`, `minMs`, `avgMs`, `p50Ms`, `p95Ms`, `p99Ms`, `opsPerSec`).
+- **Explain the Number**: Before reporting or acting on any measured speedup, regression, or latency, identify what bounds it and rule out measurement artifacts (warmups, limiters, errors, or non-representative inputs).
 - **Output Standards**: Structured console tables or machine-readable JSON only — zero emojis, zero decorative ASCII banners, strictly CI/CD and telemetry-friendly.
+
+---
+
+## 7. Behavioral Assertions & Real-Artifact Proof
+
+- **Test Behavior, Not Implementation**: Assert only what the module's users/callers can observe so tests fail when behavior breaks and keep passing across internal refactors.
+- **Prove Against the Real Artifact**: Verify changes against the actual runtime artifact or executed path — never treat "compiles" or proxy mocks alone as proof of correctness.

@@ -18,6 +18,7 @@ var SkillDependencies = map[string][]string{
 	"improve-codebase-architecture": {"codebase-design", "grilling"},
 	"wayfinder":                     {"grilling", "to-spec", "to-tickets"},
 	"grill-me":                      {"grilling"},
+	"retro":                         {"writing-for-agents"},
 	"chief-of-staff":                {"retro", "to-spec", "to-tickets", "implement-spec"},
 }
 

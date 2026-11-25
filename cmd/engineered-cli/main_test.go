@@ -229,6 +229,11 @@ func TestResolveDependencies(t *testing.T) {
 	if len(crResolved) != 2 || crResolved[0] != "code-review" || crResolved[1] != "blast-radius" {
 		t.Errorf("Expected [code-review blast-radius] for 'code-review', got %v", crResolved)
 	}
+
+	retroResolved := config.ResolveDependencies([]string{"retro"})
+	if len(retroResolved) != 2 || retroResolved[0] != "retro" || retroResolved[1] != "writing-for-agents" {
+		t.Errorf("Expected [retro writing-for-agents] for 'retro', got %v", retroResolved)
+	}
 }
 
 func TestParseSubcommand(t *testing.T) {
